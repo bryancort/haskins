@@ -72,7 +72,6 @@ def getColumn(table, colName):
     try:
         col = names.index(colName)
     except ValueError:
-        # print 'No column named {}'.format(colName)  # fixme: debug
         col = None
     except:
         raise
@@ -214,6 +213,13 @@ def copy_files(source, dest, *args):
 
 
 def rename_files(dest, oldSubstr, newSubstr):
+    """
+    Searches a directory (recursively) for all instances of oldSubstr in filenames and replaces them with newSubstr
+
+    :param dest: Directory to search in
+    :param oldSubstr: Substring to replace
+    :param newSubstr: Substring to insert
+    """
     dest = os.path.normpath(dest)
     for td, ds, fs in os.walk(dest, topdown=False):
         for f in fs:

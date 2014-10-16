@@ -1,0 +1,49 @@
+BY PROJECT			BY DATE			BY SCAN	
+a197			ta7957	19-Aug		ta7957	19-Aug
+ta8048	11-Sep		tb9425	20-Aug		ta7968	21-Aug
+ta8064	16-Sep		tb9424	20-Aug		ta7985	26-Aug
+ta8090	23-Sep		tb3423	20-Aug		ta8036	9-Sep
+ta8106	25-Sep		ta7968	21-Aug		ta8045	11-Sep
+ta8121	30-Sep		tb9437	23-Aug		ta8048	11-Sep
+			tb9434	23-Aug		ta8064	16-Sep
+a40p4			tb9438	24-Aug		ta8090	23-Sep
+tb9437	23-Aug		tb9440	24-Aug		ta8105	25-Sep
+tb9438	24-Aug		tb9439	24-Aug		ta8106	25-Sep
+tb9489	6-Sep		ta7985	26-Aug		ta8121	30-Sep
+tb9492	6-Sep		tb9462	27-Aug		ta8141	4-Oct
+tb9518	13-Sep		tb9483	3-Sep		tb3423	20-Aug
+tb9579	24-Sep		tb9482	3-Sep		tb9424	20-Aug
+			tb9489	6-Sep		tb9425	20-Aug
+a182			tb9492	6-Sep		tb9434	23-Aug
+tb9548	17-Sep		ta8036	9-Sep		tb9437	23-Aug
+tb9512	10-Sep		tb9512	10-Sep		tb9438	24-Aug
+tb9483	3-Sep		tb9511	10-Sep		tb9439	24-Aug
+tb9482	3-Sep		ta8048	11-Sep		tb9440	24-Aug
+tb9462	27-Aug		ta8045	11-Sep		tb9462	27-Aug
+tb9440	24-Aug		tb9518	13-Sep		tb9482	3-Sep
+tb9439	24-Aug		tb9528 	15-Sep		tb9483	3-Sep
+tb9434	23-Aug		tb9529 	15-Sep		tb9489	6-Sep
+tb9425	20-Aug		ta8064	16-Sep		tb9492	6-Sep
+tb9577	24-Sep		tb9536 	16-Sep		tb9511	10-Sep
+tb9547	17-Sep		tb9537 	16-Sep		tb9512	10-Sep
+tb9511	10-Sep		tb9548	17-Sep		tb9518	13-Sep
+tb9424	20-Aug		tb9547	17-Sep		tb9528 	15-Sep
+tb9587	27-Sep		ta8090	23-Sep		tb9529 	15-Sep
+			tb9579	24-Sep		tb9536 	16-Sep
+agl			tb9577	24-Sep		tb9537 	16-Sep
+ta7957	19-Aug		ta8106	25-Sep		tb9547	17-Sep
+ta7968	21-Aug		ta8105	25-Sep		tb9548	17-Sep
+ta7985	26-Aug		tb9587	27-Sep		tb9577	24-Sep
+ta8036	9-Sep		ta8121	30-Sep		tb9579	24-Sep
+ta8045	11-Sep		tb9619 	2-Oct		tb9587	27-Sep
+ta8105	25-Sep		tb9620 	2-Oct		tb9619 	2-Oct
+ta8141	4-Oct		ta8141	4-Oct		tb9620 	2-Oct
+							
+ostry							
+tb3423	20-Aug						
+tb9528 	15-Sep						
+tb9529 	15-Sep						
+tb9536 	16-Sep						
+tb9537 	16-Sep						
+tb9619 	2-Oct						
+tb9620 	2-Oct						
