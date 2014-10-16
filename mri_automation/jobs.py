@@ -12,7 +12,7 @@ import multiprocessing as mp
 
 
 class MriJob:
-    def __init__(self, worker, exec_func, lock=None, blocking=False, worker_func=mp.apply_async, ):
+    def __init__(self, worker, exec_func, lock=None, blocking=False, worker_func_name='apply_async'):
         """
 
         :param worker: worker thread or pool to execute the job. Must implement apply() and apply_async()
@@ -25,7 +25,7 @@ class MriJob:
         self.exec_func = exec_func
         self.lock = lock
         self.blocking = blocking
-        self.worker_func = worker_func
+        self.worker_func = getattr(worker, worker_func_name)
 
     def run(self):
         raise NotImplementedError('Method not implemented in parent')
