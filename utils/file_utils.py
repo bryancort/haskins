@@ -14,6 +14,11 @@ import os
 import shutil
 import hashlib
 import glob
+import fnmatch
+
+
+class FileError(Exception):
+    pass
 
 
 def readTable(fPath, delim='\t'):
@@ -146,7 +151,27 @@ def getFiles(tree):
     return files
 
 
-def match_single_file(path='.', pattern='*'):
+def filter_singlet(strings, pattern, except_on_fail=False):     # todo: test
+    """
+    Filters a list down to a single item if possible, or returns None or raises an exception if there are multiple or
+    no matches
+
+    :param strings: list of strings to filter
+    :param pattern: pattern to filter against
+    :param except_on_fail: raise an exception (if true) or return None (if false) on failure to match a single item
+    :return: matching item, or None
+    :except: FileError
+    """
+    filtered_strings = fnmatch.filter(strings, pattern)
+    if len(filtered_strings) == 1:
+        return filtered_strings[0]
+    elif not except_on_fail:
+        return None
+    else:
+        raise FileError('filter_singlet found {} matches'.format(len(filtered_strings)))
+
+
+def match_single_file(path=os.path.abspath('.'), pattern='*', except_on_fail=False):
     """
     :param path:        Base directory to glob from
     :param pattern:     Pattern to match on within the base directory
@@ -158,6 +183,22 @@ def match_single_file(path='.', pattern='*'):
         if len(files) == 1:
             return files[0]
     return None
+
+
+def match_single_dir(path=os.path.abspath('.'), pattern='*', except_on_fail=False):
+    """
+    Tries to find a single subdirectory matching pattern in the top level of path.
+
+    :param path: Directory to search (non-recursive)
+    :param pattern: unix style wildcard pattern to match
+    :return: full path of matching directory iff one directory matches, else None
+    """
+    for root, dirs, files in os.walk(path):
+        d = fnmatch.filter(dirs, pattern)
+        if len(d) == 1:
+            return os.path.join(root, d[0])
+        else:
+            return None
 
 
 def getSubTreeFiles(top, dirs):
