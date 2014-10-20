@@ -1,13 +1,12 @@
 # -------------------------------------------------------------------------------
-# Name:        serverTools
-# Purpose:      Collection of classes and functions for data management on the server
+# Name:        utils.file_utils
+# Purpose:      file and directory management functions
 #
 # Author:      Bryan Cort
 #
-# Created:     12/02/2014
+# Created:     20/10/2014
 # -------------------------------------------------------------------------------
 
-import numpy as np
 import types
 import codecs
 import os
@@ -15,10 +14,9 @@ import shutil
 import hashlib
 import glob
 import fnmatch
+from utils.exceptions import *
 
-
-class FileError(Exception):
-    pass
+import numpy as np
 
 
 def readTable(fPath, delim='\t'):
@@ -151,37 +149,19 @@ def getFiles(tree):
     return files
 
 
-def filter_singlet(strings, pattern, except_on_fail=False):     # todo: test
-    """
-    Filters a list down to a single item if possible, or returns None or raises an exception if there are multiple or
-    no matches
-
-    :param strings: list of strings to filter
-    :param pattern: pattern to filter against
-    :param except_on_fail: raise an exception (if true) or return None (if false) on failure to match a single item
-    :return: matching item, or None
-    :except: FileError
-    """
-    filtered_strings = fnmatch.filter(strings, pattern)
-    if len(filtered_strings) == 1:
-        return filtered_strings[0]
-    elif not except_on_fail:
-        return None
-    else:
-        raise FileError('filter_singlet found {} matches'.format(len(filtered_strings)))
-
-
 def match_single_file(path=os.path.abspath('.'), pattern='*', except_on_fail=False):
     """
-    :param path:        Base directory to glob from
-    :param pattern:     Pattern to match on within the base directory
-
+    :param path: Base directory to glob from
+    :param pattern: Pattern to match on within the base directory
+    :param except_on_fail: Raise an exception on failure to match a single file, or return None
     :return:            path to single file if found, else None
     """
     files = glob.glob(os.path.join(path, pattern))
     if files:
         if len(files) == 1:
             return files[0]
+    if except_on_fail:
+        raise FileError
     return None
 
 
@@ -191,6 +171,7 @@ def match_single_dir(path=os.path.abspath('.'), pattern='*', except_on_fail=Fals
 
     :param path: Directory to search (non-recursive)
     :param pattern: unix style wildcard pattern to match
+    :param except_on_fail: Raise an exception on failure to match a single file, or return None
     :return: full path of matching directory iff one directory matches, else None
     """
     for root, dirs, files in os.walk(path):
@@ -198,6 +179,8 @@ def match_single_dir(path=os.path.abspath('.'), pattern='*', except_on_fail=Fals
         if len(d) == 1:
             return os.path.join(root, d[0])
         else:
+            if except_on_fail:
+                raise FileError
             return None
 
 

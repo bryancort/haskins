@@ -31,7 +31,7 @@ class ProcRun(AfniDataDir):
         self.run_dir = None
         self.run_script = None
         self.run_script_output = None
-        self.active_stats_files = None      #tuple of either (head,brik) or (nifti,)
+        self.active_stats_files = None  # tuple of either (head,brik) or (nifti,)
         self._find_run_files(self.scan, self.proc_tag)
         self.set_active_stats_file(active_stats_file_tag)
         super(ProcRun, self).__init__(code_exec_dir=self.run_dir)
@@ -64,14 +64,14 @@ class ProcRun(AfniDataDir):
     def __str__(self):
         return 'Proc Run {} of {} located at {}'.format(self.proc_tag, self.scan, self.run_dir)
 
-    def __repr__(self):     # fixme: need a real __repr__ here
+    def __repr__(self):  # fixme: need a real __repr__ here
         return 'Proc Run {} of {} located at {}'.format(self.proc_tag, self.scan, self.run_dir)
 
 
 class Scan(AfniDataDir):
     def __init__(self, scan_id, data_dir):
         self.scan_id = scan_id
-        self.data_dir = data_dir        # rightmost component should match scan_id
+        self.data_dir = data_dir  # rightmost component should match scan_id
         self.proc_runs = {}
         super(Scan, self).__init__(code_exec_dir=self.data_dir)
 
@@ -83,5 +83,5 @@ class Scan(AfniDataDir):
     def __str__(self):
         return self.scan_id
 
-    def __repr__(self):     # fixme: need a real __repr__ here
+    def __repr__(self):  # fixme: need a real __repr__ here
         return self.scan_id
