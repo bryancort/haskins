@@ -10,6 +10,7 @@
 import argparse
 import os
 import sys
+import traceback
 from utils import base_utils, file_utils
 from core import mri_data
 
@@ -43,7 +44,7 @@ def _debug(*cmd_args):
     pass
 
 
-_debug_cmd = '--mri_dir Y:\\mri_subjects --proc_tags results scale --patterns hu_AA* hu_AC*'
+_debug_cmd = '--mri_dir Y:\\mri_subjects --proc_tags results scale --patterns hu_* ny???'
 
 def __main__():
     scriptName = os.path.splitext(os.path.basename(__file__))[0]
@@ -55,12 +56,22 @@ def __main__():
 
     dirs = file_utils.get_immediate_subdirectories(args.mri_dir)
     subj_dirs = base_utils.mfilter(dirs, *args.patterns)
-    scans = [mri_data.Scan(os.path.split(d)[1], os.path.join(args.mri_dir, d)) for d in subj_dirs]
+    scans = []
+    for d in subj_dirs:
+        try:
+            scans.append(mri_data.Scan(os.path.split(d)[1], os.path.join(args.mri_dir, d)))
+        except:
+            print traceback.format_exc()
     for scan in scans:
         for tag in args.proc_tags:
-            scan.add_proc_run(proc_tag=tag, run_name=tag)
-            headfile = file_utils.match_single_file(path=scan.proc_runs[tag].run_dir, pattern='all_runs*.HEAD')
-            scan.proc_runs[tag].execute_cmd('3dTstat -cvarinv -prefix {}_SFNR {}'.format(scan.scan_id, headfile))
-
+            try:
+                scan.add_proc_run(proc_tag=tag, run_name=tag)
+                headfile = file_utils.match_single_file(path=scan.proc_runs[tag].run_dir, pattern='all_runs*.HEAD')
+            except:
+                print traceback.format_exc()
+            try:
+                scan.proc_runs[tag].execute_cmd('3dTstat -cvarinv -prefix {}_SFNR {}'.format(scan.scan_id, headfile))
+            except:
+                print traceback.format_exc()
 if __name__ == '__main__':
     __main__()
