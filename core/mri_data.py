@@ -37,7 +37,8 @@ class ProcRun(AfniDataDir):
         super(ProcRun, self).__init__(code_exec_dir=self.run_dir)
 
     def _find_run_files(self, scan, proc_tag):
-        self.run_dir = utils.file_utils.match_single_dir(path=scan.data_dir, pattern=proc_tag, except_on_fail=True)
+        self.run_dir = utils.file_utils.match_single_dir(path=scan.data_dir, pattern='*{}*'.format(proc_tag),
+                                                         except_on_fail=True)
         leaf_name = os.path.split(self.run_dir)
         script_name = 'afni_{}.tcsh'.format(leaf_name).replace('.results', '')
         script_output_name = 'output.{}'.format(script_name)
@@ -78,7 +79,7 @@ class Scan(AfniDataDir):
     def add_proc_run(self, proc_tag, run_name=None):
         if not run_name:
             run_name = proc_tag
-        self.proc_runs[run_name] = ProcRun(self.scan_id, proc_tag)
+        self.proc_runs[run_name] = ProcRun(self, proc_tag)
 
     def __str__(self):
         return self.scan_id

@@ -154,14 +154,14 @@ def match_single_file(path=os.path.abspath('.'), pattern='*', except_on_fail=Fal
     :param path: Base directory to glob from
     :param pattern: Pattern to match on within the base directory
     :param except_on_fail: Raise an exception on failure to match a single file, or return None
-    :return:            path to single file if found, else None
+    :return: path to single file if found, else None
     """
     files = glob.glob(os.path.join(path, pattern))
     if files:
         if len(files) == 1:
             return files[0]
     if except_on_fail:
-        raise FileError
+        raise FileError('No single file match for {} at {}'.format(pattern, path))
     return None
 
 
@@ -180,7 +180,7 @@ def match_single_dir(path=os.path.abspath('.'), pattern='*', except_on_fail=Fals
             return os.path.join(root, d[0])
         else:
             if except_on_fail:
-                raise FileError
+                raise FileError('No single directory match for {} at {}'.format(pattern, path))
             return None
 
 

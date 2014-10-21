@@ -1,4 +1,7 @@
 import time
+import itertools
+import fnmatch
+from utils import exceptions
 
 __author__ = 'cort'
 
@@ -46,7 +49,7 @@ def filter_singlet(strings, pattern, except_on_fail=False):     # todo: test
     elif not except_on_fail:
         return None
     else:
-        raise FileError('filter_singlet found {} matches'.format(len(filtered_strings)))
+        raise exceptions.FileError('filter_singlet found {} matches'.format(len(filtered_strings)))
 
 
 def getLocalTime():

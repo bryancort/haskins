@@ -8,6 +8,10 @@
 # -------------------------------------------------------------------------------
 
 import argparse
+import os
+import sys
+from utils import base_utils, file_utils
+from core import mri_data
 
 def genArgParser():
     """
@@ -15,17 +19,48 @@ def genArgParser():
     """
     parser = argparse.ArgumentParser()
 
-    # path and study info params
-    parser.add_argument('--statsDir', default='/data1/bil/group_8_27_14',
-                        help='Directory containing stats files.\n'
-                             'Default: /data1/bil/group_8_27_14')
+    parser.add_argument('--debug', action='store_true', default=False,
+                        help='Debug mode on. Default: off')
 
-    parser.add_argument('include', nargs='+',
-                        help='Only data with classifications (in the a187_config.txt file) specified here will be '
-                             'included in the MVM table. Data matching all arguments for this option will '
-                             'be included.\n')
+    parser.add_argument('--mri_dir', default='/data1/bil/mri_subjects',
+                        help='Directory containing mri subjects.'
+                             'Default: /data1/bil/mri_subjects')
 
-    parser.add_argument('patterns', nargs='+',
+    parser.add_argument('--proc_tags', nargs='*', default='results',
+                        help='One or more substrings uniquely identifying proc runs. '
+                             'NOT unix-style wildcard expressions.'
+                             'Looks for unique subdir matching *TAG*. Default: results')
+
+    parser.add_argument('--patterns', nargs='*', default='*',
                         help='One or more unix-style wildcard expressions to generate the list of subject '
-                             'data directories to process.')
+                             'data directories to process. Default: *')
+
     return parser
+
+
+def _debug(*cmd_args):
+    sys.argv = [sys.argv[0]] + list(cmd_args)
+    pass
+
+
+_debug_cmd = '--mri_dir Y:\\mri_subjects --proc_tags results scale --patterns hu_AA* hu_AC*'
+
+def __main__():
+    scriptName = os.path.splitext(os.path.basename(__file__))[0]
+    parser = genArgParser()
+    args = parser.parse_args()
+    if len(sys.argv) == 1 or args.debug:
+        _debug(*_debug_cmd.split(' '))
+        args = parser.parse_args()
+
+    dirs = file_utils.get_immediate_subdirectories(args.mri_dir)
+    subj_dirs = base_utils.mfilter(dirs, *args.patterns)
+    scans = [mri_data.Scan(os.path.split(d)[1], os.path.join(args.mri_dir, d)) for d in subj_dirs]
+    for scan in scans:
+        for tag in args.proc_tags:
+            scan.add_proc_run(proc_tag=tag, run_name=tag)
+            headfile = file_utils.match_single_file(path=scan.proc_runs[tag].run_dir, pattern='all_runs*.HEAD')
+            scan.proc_runs[tag].execute_cmd('3dTstat -cvarinv -prefix {}_SFNR {}'.format(scan.scan_id, headfile))
+
+if __name__ == '__main__':
+    __main__()
