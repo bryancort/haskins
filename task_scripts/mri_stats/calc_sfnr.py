@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -------------------------------------------------------------------------------
 # Name:        task_scripts.calc_sfnr
 # Purpose:      runs 3dtstat on specified subjects to generate sfnr measurements
