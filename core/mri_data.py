@@ -136,6 +136,7 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping=1, covars=None, 
         between_vars = {}
     if vox_covar:
         mvmheader.append(vox_covar)
+    mvmheader.append('InputFile')
 
     mvmtable = [mvmheader]
 
@@ -157,10 +158,13 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping=1, covars=None, 
                 subj_filepaths = []
                 if vox_covar:
                     vox_covar_file = run.get_files(pattern=vox_covar_file_pattern, require_singlet=True)
+                    vox_covar_file = '"{}"'.format(vox_covar_file)
                     subj_filepaths.append(vox_covar_file)
-                stats_file = "{}'[{}]'".format(run.active_stats_file, subbrick_names[subbrick_val])
+                stats_file = '"{}[{}]"'.format(run.active_stats_file, subbrick_names[subbrick_val])
+                # stats_file = '"{}"'.format(stats_file)
+                # stats_file = stats_file.replace('.HEAD', '')
                 subj_filepaths.append(stats_file)
-                mvmtable.append([s.scan_id] + list(perm) + between_vals + subj_filepaths + ['InputFile'])
+                mvmtable.append([s.scan_id] + list(perm) + between_vals + subj_filepaths)
 
     return mvmtable
 

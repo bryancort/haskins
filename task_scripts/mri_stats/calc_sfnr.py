@@ -28,7 +28,7 @@ def genArgParser():
                         help='Directory containing mri subjects.'
                              'Default: /data1/bil/mri_subjects')
 
-    parser.add_argument('--proc_tags', nargs='*', default='results',
+    parser.add_argument('--proc_tags', nargs='*', default=['results'],
                         help='One or more substrings uniquely identifying proc runs. '
                              'NOT unix-style wildcard expressions.'
                              'Looks for unique subdir matching *TAG*. Default: results')

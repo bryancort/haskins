@@ -6,7 +6,7 @@
 -mask TT_MASK.nii.gz \
 -bsVars Site \
 -wsVars 'Lang*Mod*Lex' \
--vVars '{vox_covar}'
+-vVars '{vox_covar}' \
 -num_glt 19 \
 -gltLabel 1 NY:ENG:PRINT:WORD -gltCode 1 'Site : 1*NY Lang : 1*Eng Mod : 1*Print Lex : 1*Word' \
 -gltLabel 2 NY:HEB:PRINT:WORD -gltCode 2 'Site : 1*NY Lang : 1*Heb Mod : 1*Print Lex : 1*Word' \
