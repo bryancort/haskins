@@ -42,7 +42,6 @@ def genArgParser():
 
 def _debug(*cmd_args):
     sys.argv = [sys.argv[0]] + list(cmd_args)
-    pass
 
 
 _debug_cmd = '--mri_dir Y:\\mri_subjects --proc_tags results scale --patterns hu_* ny???'
@@ -68,9 +67,6 @@ def __main__():
             try:
                 scan.add_proc_run(proc_tag=tag, run_name=tag)
                 headfile = file_utils.match_single_file(path=scan.proc_runs[tag].run_dir, pattern='all_runs*.HEAD')
-            except:
-                print traceback.format_exc()
-            try:
                 scan.proc_runs[tag].execute_cmd('3dTstat -cvarinv -prefix {}_SFNR {}'.format(scan.scan_id, headfile))
             except:
                 print traceback.format_exc()

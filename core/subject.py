@@ -19,10 +19,12 @@ class Subject(object):
         super(Subject, self).__init__()
         self.subj_id = subj_id
         self.project = project
-        if scans:
-            self.scans = scans
-        else:
-            self.scans = {'main': None}
+        self.scans = {}
+        for scan_name, scan in scans:
+            self.add_scan(scan_name=scan_name, scan=scan)
+
+    def add_scan(self, scan_name, scan):
+        self.scans[scan_name] = scan
 
 
 class A187Subject(Subject):
@@ -40,4 +42,3 @@ class A182Subject(Subject):
             scans = {'SRTT': None, 'SAL_VAL': None}
         super(A182Subject, self).__init__(subj_id, project='A182', scans=scans)
         raise NotImplementedError('A182Subject not implemented. Refactor in progress.')
-

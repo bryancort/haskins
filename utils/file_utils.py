@@ -8,15 +8,15 @@
 # -------------------------------------------------------------------------------
 
 import types
-import codecs
 import os
 import shutil
 import hashlib
 import glob
 import fnmatch
-from utils.exceptions import *
 
 import numpy as np
+
+from utils.exceptions import *
 
 
 def readTable(fPath, delim='\t'):
@@ -65,47 +65,9 @@ def writeTable(table, fPath, lineSep='\n', colSep='\t'):
         outfile.write(lineSep.join(outtable))
 
 
-def getColumn(table, colName):
-    """
-    :param table:
-    :param colName:
-    :return: integer index of the named column if it exists, else None
-    """
-    names = list(table[0])
-    try:
-        col = names.index(colName)
-    except ValueError:
-        col = None
-    except:
-        raise
-    return col
 
-def getNamedLines(f, names, encodings=('utf-16-le', 'utf-8', 'utf-16-be'), checkTo=None):
-    """
-    Reads a file and returns a map of names:lines for each name in names.
-    Args
-        f: 		the file to read
-        names:  names of lines to return (checks for the string at the beginning of each line)
-    Returns
-        {name : [lines]} mapping for each name in names
-    """
 
-    fieldMap = {}
-    for encoding in encodings:
-        with codecs.open(f, 'rU', encoding=encoding) as infile:
-            ln = 0
-            for name in names:
-                fieldMap[name] = []
-            line = 1
-            while line:
-                line = infile.readline()
-                ln += 1
-                for name in names:
-                    if line.find(name) == 0:
-                        fieldMap[name].append(line)
-                if checkTo and ln > checkTo: break
-            if [] not in fieldMap.values():
-                return fieldMap
+
 
 
 def hashCompare(f1, f2, readsize=1024):

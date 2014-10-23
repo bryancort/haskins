@@ -8,7 +8,13 @@
 # -------------------------------------------------------------------------------
 
 import subprocess
+from subprocess import PIPE as PIPE
 
+import utils.base_utils
+
+
+class BetweenVarMismatchError(Exception):
+    pass
 
 def dcm2nii_all(source, **kwargs):
     """
@@ -46,3 +52,16 @@ def dcm2nii_all(source, **kwargs):
     # print spc
     # return
     subprocess.call(spc)
+
+
+def get_subBrick_Map(niftiFilePath):
+    """
+    Parses 3dinfo for a number:name mapping for subbricks in a nifti file
+
+    :param niftiFilePath: path to nifti file to get subbrick mapping for
+    :return: subbrick number: subbrick name mapping for the given nifti file
+    """
+    labels = subprocess.Popen(['3dinfo', '-label', niftiFilePath],
+                              universal_newlines=True, stdout=PIPE).communicate()[0].strip('\n').split('|')
+    subBricks = {str(n): lab for (n, lab) in enumerate(labels)}
+    return subBricks

@@ -1,3 +1,4 @@
+import codecs
 import time
 import itertools
 import fnmatch
@@ -5,6 +6,27 @@ from utils import exceptions
 
 __author__ = 'cort'
 
+
+def subtable(table, keep_header=True, **kwargs):
+    """
+    Generates a subtable comprised of only those rows which have ARG in column named KW for all kwargs
+
+    :param table: table to generate subtable from
+    :param keep_header: keep or discard the first row (header) of the table
+    :param kwargs: kw, arg pairs; each row is checked against every pair, and only rows with value arg in column kw
+    (for all kw, arg pairs) are included in subtable
+    :return: subtable of all rows that matched all kw, arg criteria
+    """
+    subtable = []
+    if keep_header:
+        subtable.append(list(table[0]))
+    for line in table[1:]:
+        for kw, val in kwargs.iteritems():
+            if line[getColumn(table, kw)] != val:
+                break
+        else:
+            subtable.append(list(line))
+    return subtable
 
 
 def msplit(s, *args):
@@ -52,9 +74,57 @@ def filter_singlet(strings, pattern, except_on_fail=False):     # todo: test
         raise exceptions.FileError('filter_singlet found {} matches'.format(len(filtered_strings)))
 
 
-def getLocalTime():
+def getLocalTime(hr_min=True):
     """
     Returns local time in the format YEAR_MONTH_DAY_HOUR_MINUTE
     """
     t = time.localtime()
-    return str(t[0]) + '_' + str(t[1]) + '_' + str(t[2]) + '_' + str(t[3]) + 'h_' + str(t[4]) + 'm'
+    localtime = '{}_{}_{}'.format(str(t[0]), str(t[1]), str(t[2]))
+    if hr_min:
+        localtime = '{}_{}h_{}m'.format(localtime, str(t[3]), str(t[4]))
+
+    return localtime
+
+
+def getColumn(table, colName):
+    """
+    :param table:
+    :param colName:
+    :return: integer index of the named column if it exists, else None
+    """
+    names = list(table[0])
+    try:
+        col = names.index(colName)
+    except ValueError:
+        col = None
+    except:
+        raise
+    return col
+
+
+def getNamedLines(f, names, encodings=('utf-16-le', 'utf-8', 'utf-16-be'), checkTo=None):
+    """
+    Reads a file and returns a map of names:lines for each name in names.
+    Args
+        f: 		the file to read
+        names:  names of lines to return (checks for the string at the beginning of each line)
+    Returns
+        {name : [lines]} mapping for each name in names
+    """
+
+    fieldMap = {}
+    for encoding in encodings:
+        with codecs.open(f, 'rU', encoding=encoding) as infile:
+            ln = 0
+            for name in names:
+                fieldMap[name] = []
+            line = 1
+            while line:
+                line = infile.readline()
+                ln += 1
+                for name in names:
+                    if line.find(name) == 0:
+                        fieldMap[name].append(line)
+                if checkTo and ln > checkTo: break
+            if [] not in fieldMap.values():
+                return fieldMap
