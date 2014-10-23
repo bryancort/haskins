@@ -1,7 +1,7 @@
 #!/bin/bash
 
 3dMVM \
--prefix output_{dmy_date}_MVM \
+-prefix {prefix} \
 -jobs 22 \
 -mask TT_MASK.nii.gz \
 -bsVars Site \

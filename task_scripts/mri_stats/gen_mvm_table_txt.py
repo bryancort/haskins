@@ -24,30 +24,43 @@ def genArgParser():
     parser.add_argument('--debug', action='store_true', default=False,
                         help='Debug mode on. Default: off')
 
+    parser.add_argument('--mvm_output_prefix', default='output_{}.sh'.format(base_utils.getLocalTime()),
+                        help='mvm call template file'
+                             'Default: /data1/scripts_refactor/haskins/task_scripts/mri_stats/mvm_call_template.txt')
+
+
     parser.add_argument('--mvm_template', default=os.path.normpath('./mvm_call_template.txt'), # todo: improve
                         help='mvm call template file'
                              'Default: /data1/scripts_refactor/haskins/task_scripts/mri_stats/mvm_call_template.txt')
+
     parser.add_argument('--mri_dir', default='/data1/bil/mri_subjects',
                         help='Directory containing stats files.\n'
-                             'Default: /data1/bil/group_8_27_14')
+                             'Default: /data1/bil/mri_subjects')
+
     parser.add_argument('--outputDir', default='/data1/bil/group_mvm_tables',
                         help='Output directory for MVM table.\n'
-                             'Default: /data1/bil/group_8_27_14')
+                             'Default: /data1/bil/group_mvm_tables')
+
     parser.add_argument('--outputFile', default='mvm_call_{}.sh'.format(base_utils.getLocalTime(hr_min=False)),
                         help='Name (without preceding path) of the output file.\n'
-                             'Default: mvm_call_{date}.txt')
+                             'Default: mvm_call_{date}.sh')
+
     parser.add_argument('--conditionFile', default='/data1/bil/mri_subjects/a187_within.txt',
                         help='File containing condition information for the study.\n'
                              'Default: /data1/bil/mri_subjects/a187_within.txt')
+
     parser.add_argument('--vox_covar', default=None,
                         help='Voxelwise covariate.\n'
                              'Default: None')
+
     parser.add_argument('--vox_covar_pattern', default=None,
                         help='Pattern to match for file with the voxelwise covariate.\n'
                              'Default: None')
+
     parser.add_argument('--proc_run', default='results',
                         help='File containing condition information for the study.\n'
                              'Default: /data1/bil/mri_subjects/a187_conditions.txt')
+
     parser.add_argument('--subjects', nargs='*', default='all',
                         help='List of subjects to include in the mvm.\n'
                              'Default: all')
@@ -121,7 +134,7 @@ def __main__():
     with open(outputFile, 'w') as outfile:
         outfile.write(mvmtable)
 
-    format_args = {'dmy_date':base_utils.getLocalTime(hr_min=False),
+    format_args = {'prefix':args.mvm_output_prefix,
                     'mvm_table':outputFile}
     if args.vox_covar:
         format_args['vox_covar'] = args.vox_covar
