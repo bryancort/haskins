@@ -26,7 +26,7 @@ def genArgParser():
 
     parser.add_argument('--mvm_template', default=os.path.normpath('./mvm_call_template.txt'), # todo: improve
                         help='mvm call template file'
-                             'Default: ./mvm_call_template.txt')
+                             'Default: /data1/scripts_refactor/haskins/task_scripts/mri_stats/mvm_call_template.txt')
     parser.add_argument('--mri_dir', default='/data1/bil/mri_subjects',
                         help='Directory containing stats files.\n'
                              'Default: /data1/bil/group_8_27_14')
