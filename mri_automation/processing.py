@@ -54,7 +54,7 @@ def org_scan_files(source, dest, are_dcms=True, cleanup=None, stim_times=None, *
     """
     if are_dcms:
         mri_utils.dcm2nii_all(source=source, o=dest, d='n')
-    else:
+    elif source != dest:
         file_utils.copy_files(source, dest, '*')
     for sdir, patterns in dir_structure.iteritems():
             file_utils.move_files(dest, os.path.join(dest, sdir), *patterns)
@@ -64,7 +64,7 @@ def org_scan_files(source, dest, are_dcms=True, cleanup=None, stim_times=None, *
             os.makedirs(cleanup_path)
         for f in file_utils.get_immediate_files(dest):
             shutil.move(f, cleanup_path)
-    if os.path.exists(stim_times):
+    if stim_times and os.path.exists(stim_times):
         shutil.copytree(stim_times, os.path.join(dest, os.path.basename(stim_times.rstrip(os.path.sep))))
 
 
