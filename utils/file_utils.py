@@ -93,11 +93,22 @@ def hashCompare(f1, f2, readsize=1024):
     return hash1.digest() == hash2.digest()
 
 
-def get_immediate_subdirectories(dir="."):
+def get_immediate_subdirectories(targdir="."):
     """
     Returns a list of all the immediate subdirectory names (without leading path components)
     """
-    return [name for name in os.listdir(dir) if os.path.isdir(os.path.join(dir, name))]
+    return [name for name in os.listdir(targdir) if os.path.isdir(os.path.join(targdir, name))]
+
+
+def get_immediate_files(targdir='.'):
+    """
+    Returns a list of filepaths to all files in targdir (but not it's subdirectories)
+
+    :param targdir: directory to get filenames from
+    :return: list of filesnames in targdir
+    """
+    paths = [os.path.join(targdir, f) for f in os.listdir(targdir)]
+    return filter(os.path.isfile, paths)
 
 
 def getFiles(tree):
@@ -220,3 +231,7 @@ def rename_files(dest, oldSubstr, newSubstr):
             newLeaf = leaf.replace(oldSubstr, newSubstr)
             newPath = os.path.join(basePath, newLeaf)
             shutil.move(td, newPath)
+
+def sort_files(sortdir, **filemappings):
+    for sdir, patterns in filemappings.iteritems():
+        move_files(sortdir, os.path.join(sortdir, sdir), *patterns)
