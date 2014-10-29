@@ -65,3 +65,19 @@ def get_subBrick_Map(niftiFilePath):
                               universal_newlines=True, stdout=PIPE).communicate()[0].strip('\n').split('|')
     subBricks = {str(n): lab for (n, lab) in enumerate(labels)}
     return subBricks
+
+
+def rename_subbrick(filepath, old_sb_num, new_label):
+    """
+    Renames filepath[old_sb_num] to filepath[new_label]
+
+    :param filepath: path to afni file (nifti or .HEAD
+    :param old_sb_num: subbrick number to relabel
+    :param new_label: new subbrick label
+    """
+    old_sb_num = str(old_sb_num)
+    old_label = subprocess.Popen('3dinfo -label "{}[{}]"'.format(filepath, old_sb_num),
+                              stdout=PIPE, shell=True).communicate()[0]
+    if new_label != old_label:
+        subprocess.call('3drefit -sublabel {} {} {}'.format(old_sb_num, new_label, filepath),
+                              stdout=PIPE, shell=True)

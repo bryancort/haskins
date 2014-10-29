@@ -81,10 +81,12 @@ class ProcRun(AfniDataDir): # todo: make Keyed
 
 
 class Scan(AfniDataDir, Comparable, Keyed):
-    def __init__(self, scan_id, data_dir):
+    def __init__(self, scan_id, data_dir, proc_runs=()):
         self.scan_id = scan_id
         self.data_dir = data_dir  # rightmost component should match scan_id
         self.proc_runs = {}
+        for run in proc_runs:
+            self.add_proc_run(run)
         super(Scan, self).__init__(code_exec_dir=self.data_dir)
 
     def add_proc_run(self, proc_tag, run_name=None):

@@ -13,6 +13,7 @@ import shutil
 import hashlib
 import glob
 import fnmatch
+import itertools
 
 import numpy as np
 
@@ -232,6 +233,41 @@ def rename_files(dest, oldSubstr, newSubstr):
             newPath = os.path.join(basePath, newLeaf)
             shutil.move(td, newPath)
 
+
 def sort_files(sortdir, **filemappings):
+    """
+    sorts files in sortdir into the subdirs specified by keywords according to the patterns specified by their values
+
+    :param sortdir: directory to sort
+    :param filemappings: {subdir: (filename patterns to move to subdir,)} kwargs
+    """
     for sdir, patterns in filemappings.iteritems():
         move_files(sortdir, os.path.join(sortdir, sdir), *patterns)
+
+
+def get_dirs_from_patterns(scan_dir, leading_path=False, *patterns):
+    """
+    gets all directory names (not full paths) in scan_dir matching patterns
+
+    :param scan_dir: directory to match patterns in
+    :param patterns: patterns to match
+    :return: list of directory names (not full paths)
+    """
+    subdir_list = get_immediate_subdirectories(targdir=scan_dir)
+    dir_list = list(set(itertools.chain.from_iterable([fnmatch.filter(subdir_list, p) for p in patterns])))
+    # todo: add leading_path if true
+    return dir_list
+
+
+def get_files_from_patterns(targ_dir, leading_path=False, *patterns):
+    """
+    gets all directory names (not full paths) in scan_dir matching patterns
+
+    :param scan_dir: directory to match patterns in
+    :param patterns: patterns to match
+    :return: list of directory names (not full paths)
+    """
+    subfile_list = get_immediate_files(targdir=targ_dir)
+    file_list = list(set(itertools.chain.from_iterable([fnmatch.filter(subfile_list, p) for p in patterns])))
+    # todo: add leading_path if true
+    return file_list
