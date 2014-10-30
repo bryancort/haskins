@@ -107,7 +107,7 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping=1, covars=None, 
     :param within: dict of {var_name:(var_levels,)} for within subject vars
     :param between: dict of {var_name:(var_levels,)} for between subject vars
     :param subbrick_mapping: dict of witin_var_combination:subbrick_name} all combos of within subj vars or int value of
-        subbrick to use if
+        subbrick to use (not implemented)
     :param covars: covariates to include in the MVM. currently not implemented
     :param vox_covar: voxel-wise covar; corresponds to -vVars opt in 3dMVM. Mirrors the current 3dMVM implementation of
         allowing only one voxelwise covariate.
