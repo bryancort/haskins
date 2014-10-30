@@ -29,7 +29,7 @@ class AfniDataDir(object):
         os.chdir(curr_dir)
 
 
-class ProcRun(AfniDataDir): # todo: make Keyed
+class ProcRun(AfniDataDir):  # todo: make Keyed
     def __init__(self, scan, proc_tag, active_stats_file_tag='REML'):
         self.scan = scan
         self.proc_tag = proc_tag
@@ -65,7 +65,7 @@ class ProcRun(AfniDataDir): # todo: make Keyed
             self.active_stats_file = stats_nii
         else:
             raise file_utils.FileError("Could not find unique head/brik pair or nii stats files for {} in {} "
-                                             "with tag {}".format(self.scan, self.run_dir, stats_file_tag))
+                                       "with tag {}".format(self.scan, self.run_dir, stats_file_tag))
 
     def get_files(self, pattern, require_singlet=False):
         if require_singlet:
@@ -80,14 +80,14 @@ class ProcRun(AfniDataDir): # todo: make Keyed
         return 'Proc Run {} of {} located at {}'.format(self.proc_tag, self.scan, self.run_dir)
 
 
-class Scan(AfniDataDir, Comparable, Keyed):
+class Scan(Keyed, Comparable, AfniDataDir):
     def __init__(self, scan_id, data_dir, proc_runs=()):
         self.scan_id = scan_id
-        self.data_dir = data_dir  # rightmost component should match scan_id
+        self.data_dir = os.path.normpath(data_dir)
         self.proc_runs = {}
         for run in proc_runs:
             self.add_proc_run(run)
-        super(Scan, self).__init__(code_exec_dir=self.data_dir)
+        AfniDataDir.__init__(self, code_exec_dir=self.data_dir)
 
     def add_proc_run(self, proc_tag, run_name=None):
         if not run_name:
@@ -116,7 +116,7 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping=1, covars=None, 
     :return: mvm datatable
     """
 
-    #check between var specification
+    # check between var specification
     for bv in between.keys():
         for scan, var_pair in scans_dict.items():
             if bv not in var_pair.keys():
