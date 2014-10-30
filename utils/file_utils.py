@@ -239,7 +239,7 @@ def sort_files(sortdir, **filemappings):
         move_files(sortdir, os.path.join(sortdir, sdir), *patterns)
 
 
-def get_dirs_from_patterns(targ_dir, full_path=False, *patterns):
+def get_dirs_from_patterns(targ_dir, full_path, *patterns):
     """
     gets all directory names (optionally full paths) in targ_dir matching patterns
 
@@ -256,7 +256,7 @@ def get_dirs_from_patterns(targ_dir, full_path=False, *patterns):
     return dir_list
 
 
-def get_files_from_patterns(targ_dir, full_path=False, *patterns):
+def get_files_from_patterns(targ_dir, full_path, *patterns):
     """
     gets all directory names (not full paths) in scan_dir matching patterns
 

@@ -33,12 +33,12 @@ def genArgParser():
                         help='Directory containing mri data directories.\n'
                              'Default: {}'.format(mri_dir_default))
 
-    rename_table_file_default = '/data1/scripts_refactor/haskins/task_scripts/mri_stats/new_subbrick_labs.txt'
+    rename_table_file_default = '/data1/bil/mri_subjects/subbrick_corrections.txt'
     parser.add_argument('--rename_table_file', default=rename_table_file_default,
                         help='Filepath to table with subbrick number, new subbrick name columns.\n'
                              'Default: {}'.format(rename_table_file_default))
 
-    proc_runs_default = ['scale, results']
+    proc_runs_default = ['scale', 'results']
     parser.add_argument('--proc_runs', default=proc_runs_default, nargs='*',
                         help='Processing runs to change subbrick names for.\n'
                              'Default: {}'.format(proc_runs_default))
@@ -63,8 +63,8 @@ def genArgParser():
 def _debug(*cmd_args):
     sys.argv = [sys.argv[0]] + list(cmd_args)
 
-_debug_cmd = '--mri_dir /Volumes/a187/mri_subjects ' \
-             '--rename_table_file /Volumes/a187/mri_subjects/subbrick_corrections.txt'
+_debug_cmd = '--mri_dir /data1/bil/mri_subjects ' \
+             '--rename_table_file /data1/bil/mri_subjects/subbrick_corrections.txt'
 
 
 def __main__():
@@ -83,7 +83,7 @@ def __main__():
     scan_dir_names = file_utils.get_dirs_from_patterns(args.mri_dir, *args.subjects_patterns)
     scans = []
     for d in scan_dir_names:
-        scan = mri_data.Scan(scan_id=d, data_dir=os.path.join(args.mri_dir, d), proc_runs=args.proc_runs)
+        scan = mri_data.Scan(scan_id=d, data_dir=os.path.join(args.mri_dir, d))
         for run in args.proc_runs:
             try:
                 scan.add_proc_run(run)
