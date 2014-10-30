@@ -43,7 +43,7 @@ class ProcRun(AfniDataDir): # todo: make Keyed
 
     def _find_run_files(self, scan, proc_tag):
         self.run_dir = file_utils.match_single_dir(path=scan.data_dir, pattern='*{}*'.format(proc_tag),
-                                                         except_on_fail=True)
+                                                   except_on_fail=True)
         leaf_name = os.path.split(self.run_dir)[1]
         script_name = 'afni_{}.tcsh'.format(leaf_name).replace('.results', '')
         script_output_name = 'output.{}'.format(script_name)

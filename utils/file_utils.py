@@ -59,16 +59,10 @@ def readTable2(fPath, delim='\t', lineDelim='\n', strip=('"', "'")):
         return table
 
 
-
 def writeTable(table, fPath, lineSep='\n', colSep='\t'):
     outtable = [colSep.join(entry) for entry in table]
     with open(fPath, 'w') as outfile:
         outfile.write(lineSep.join(outtable))
-
-
-
-
-
 
 
 def hashCompare(f1, f2, readsize=1024):
@@ -245,29 +239,35 @@ def sort_files(sortdir, **filemappings):
         move_files(sortdir, os.path.join(sortdir, sdir), *patterns)
 
 
-def get_dirs_from_patterns(scan_dir, leading_path=False, *patterns):
+def get_dirs_from_patterns(targ_dir, full_path=False, *patterns):
     """
-    gets all directory names (not full paths) in scan_dir matching patterns
+    gets all directory names (optionally full paths) in targ_dir matching patterns
 
-    :param scan_dir: directory to match patterns in
+    :param targ_dir: directory to match patterns in
     :param patterns: patterns to match
-    :return: list of directory names (not full paths)
+    :param full_path: return full paths, not directory names
+    :return: list of directory names (or paths, if called with full_path=True)
     """
-    subdir_list = get_immediate_subdirectories(targdir=scan_dir)
+    subdir_list = get_immediate_subdirectories(targdir=targ_dir)
     dir_list = list(set(itertools.chain.from_iterable([fnmatch.filter(subdir_list, p) for p in patterns])))
-    # todo: add leading_path if true
+    if full_path:
+        for i, d in enumerate(dir_list):
+            dir_list[i] = os.path.join(targ_dir, d)    # todo: test
     return dir_list
 
 
-def get_files_from_patterns(targ_dir, leading_path=False, *patterns):
+def get_files_from_patterns(targ_dir, full_path=False, *patterns):
     """
     gets all directory names (not full paths) in scan_dir matching patterns
 
     :param scan_dir: directory to match patterns in
     :param patterns: patterns to match
-    :return: list of directory names (not full paths)
+    :param full_path: return full paths, not file names
+    :return: list of file names (or paths, if called with full_path=True)
     """
     subfile_list = get_immediate_files(targdir=targ_dir)
     file_list = list(set(itertools.chain.from_iterable([fnmatch.filter(subfile_list, p) for p in patterns])))
-    # todo: add leading_path if true
+    if full_path:
+        for i, f in enumerate(file_list):
+            file_list[i] = os.path.join(targ_dir, f)    # todo: test
     return file_list
