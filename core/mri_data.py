@@ -67,6 +67,7 @@ class ProcRun(AfniDataDir):  # todo: make Keyed
             raise file_utils.FileError("Could not find unique head/brik pair or nii stats files for {} in {} "
                                        "with tag {}".format(self.scan, self.run_dir, stats_file_tag))
 
+    # todo: better behavior for this than silently defaulting to None on a failed match_single_file()
     def get_files(self, pattern, require_singlet=False):
         if require_singlet:
             return file_utils.match_single_file(path=self.run_dir, pattern=pattern)
