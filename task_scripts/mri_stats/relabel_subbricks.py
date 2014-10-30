@@ -48,7 +48,7 @@ def genArgParser():
                         help='List of subject name patterns to change subbrick names for.\n'
                              'Default: {}'.format(subjects_patterns_default))
 
-    filename_patterns_default = ['stats.*.HEAD']
+    filename_patterns_default = ['*stats*REML+*.HEAD']
     parser.add_argument('--filename_patterns', nargs='*', default=filename_patterns_default,
                         help='List of filename patterns to change subbrick names in.\n'
                              'Default: {}'.format(filename_patterns_default))
@@ -64,8 +64,7 @@ def _debug(*cmd_args):
     sys.argv = [sys.argv[0]] + list(cmd_args)
 
 _debug_cmd = '--mri_dir /Volumes/a187/mri_subjects ' \
-             '--rename_table_file /Volumes/a187/mri_subjects/subbrick_corrections.txt ' \
-             ''
+             '--rename_table_file /Volumes/a187/mri_subjects/subbrick_corrections.txt'
 
 
 def __main__():
