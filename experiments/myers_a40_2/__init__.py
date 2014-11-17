@@ -1,8 +1,8 @@
 # -------------------------------------------------------------------------------
-# Name:        utils
-# Purpose:      utilites for haskins scripting/programming
+# Name:        myers_a40_2
+# Purpose:      experiment script and supporting files for a40-2 task
 #
 # Author:      Bryan Cort
 #
-# Created:     16/10/2014
+# Created:     12/13/2014
 # -------------------------------------------------------------------------------

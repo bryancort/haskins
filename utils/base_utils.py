@@ -29,6 +29,33 @@ def subtable(table, keep_header=True, **kwargs):
     return subtable
 
 
+def dicts_from_table(table, row_nums_as_keys=False, key_col_name=None, key_col=0):
+    """
+    Creates a dict of dicts from a table, with form {key_col: {other_col_names: other_col_values}}
+
+    :param table: table to parse to dicts
+    :param row_nums_as_keys: use row numbers as keys. overrides other key options
+    :param key_col_name: use named column as key. overrides key_col
+    :param key_col: use column with this index as key
+    """
+    header = table[0]
+    values = table[1:]
+    d = {}
+    if row_nums_as_keys:
+        for i, row in enumerate(values, start=1):
+            d[i] = {header[ii]: row[ii] for ii in range(0, len(header))}
+    else:
+        if key_col_name:
+            try:
+                key_col = header.index(key_col_name)
+            except ValueError:
+                print '{} is not a valid column name in {}'.format(key_col_name, header)
+                raise
+        for row in values:
+            d[row[key_col]] = {header[ii]: row[ii] for ii in range(0, len(header)) if ii != key_col}
+    return d
+
+
 def msplit(s, *args):
     """
     As string.split, but splits on multiple characters
@@ -128,3 +155,10 @@ def getNamedLines(f, names, encodings=('utf-16-le', 'utf-8', 'utf-16-be'), check
                 if checkTo and ln > checkTo: break
             if [] not in fieldMap.values():
                 return fieldMap
+
+
+def __main__():
+    pass
+
+if __name__ == '__main__':
+    __main__()

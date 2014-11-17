@@ -1,8 +1,8 @@
 # -------------------------------------------------------------------------------
-# Name:        utils
-# Purpose:      utilites for haskins scripting/programming
+# Name:        experiments
+# Purpose:      psychopy implementations of haskins experimental protocols
 #
 # Author:      Bryan Cort
 #
-# Created:     16/10/2014
+# Created:     12/11/2014
 # -------------------------------------------------------------------------------
