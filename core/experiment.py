@@ -214,6 +214,7 @@ class TrialSequenceRunner:
         """
         if self.running_outfile:
             with open(self.running_outfile, 'a') as running_outfile:
+                running_outfile.write('\n')
                 running_outfile.write(self.outfile_sep.join(self._last_trial.gen_attr_list()))
 
     def _save_all_trials(self):
@@ -242,7 +243,6 @@ class TrialSequenceRunner:
         """
         for stim in self._next_trial.stims:
             stim.prepare(window=self.window)
-        # self.window.callOnFlip(self.period.start, self._next_trial.duration)
 
     def _run_next_trial(self):
         """
@@ -271,6 +271,8 @@ class TrialSequenceRunner:
         except IndexError:  # we've reached the end of the sequence
             self._next_trial = None
             self.period.complete()
+            last_responses = event.getKeys(timeStamped=self.clock)
+            event.clearEvents()
             self._last_trial = self._current_trial
             self._current_trial = self._next_trial
             self._last_trial.response = last_responses

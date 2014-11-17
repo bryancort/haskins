@@ -64,6 +64,7 @@ class RunChoiceMenu(interface.Menu):
 
 
 def __main__():
+    run = None
     try:
         if time.time() - os.path.getmtime(subj_id_temp_filepath) > 7200.0:  # 2 hours
             os.remove(subj_id_temp_filepath)
@@ -87,7 +88,9 @@ def __main__():
     except:
         print 'Error while getting subject id and run number'
         raise
-        # print run
+    finally:
+        if run == None:
+            core.quit()
 
     try:
         outfile_name = '{}_run{}_{}.txt'.format(subj_id, run, base_utils.getLocalTime())
