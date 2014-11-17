@@ -7,7 +7,8 @@
 # Created:     10/17/2014
 # -------------------------------------------------------------------------------
 
-from core.stims import TextStimulus
+from psychopy import event, core
+
 from mixins import Keyed, Comparable
 
 
@@ -78,9 +79,6 @@ class HoggingStaticPeriod(StaticPeriod):
         else:
             wait(timeRemaining, hogCPUperiod=timeRemaining)
             return 1
-
-
-# fixme: super ugly, was rushed
 
 
 class Trial(Listable, Keyed, Comparable):
@@ -179,23 +177,44 @@ class Experiment(Listable):
 
 
 class TrialSequenceRunner:
-    def __init__(self, trials, window, outfile, running_outfile=None, outfile_sep='\t'):
+    def __init__(self, trials, window, outfile, running_outfile=None, outfile_sep='\t', hogging_period=True):
+        """
+        Class for running trial sequences with precise timing
+
+        :param trials: iterable of trials to run
+        :param window: window to run trials in
+        :param outfile: file to save output to at the end of the run
+        :param running_outfile: file to save output to after each trial (in case of experiment crash/data loss)
+        :param outfile_sep: separator to use when formatting the output files
+        :param hogging_period: use a hogging static period (True) or a regular static period (False). rt collection
+            requires a hogging static period.
+        """
         self.window = window
         self.outfile = outfile
         self.running_outfile = running_outfile
         self.outfile_sep = outfile_sep
         self.trials = trials
-        self.current_trial = None
-        self.next_trial = None
-        self.last_trial = None
+        self.period = None
+        if hogging_period:  # todo: might want to move screenHz into params
+            self.period = HoggingStaticPeriod(win=self.window, screenHz=60, name='HoggingStaticPeriod')
+        else:
+            self.period = StaticPeriod(win=self.window, screenHz=60, name='StaticPeriod')
+
+        self._next_trial = trials[0]
+        self._current_trial = None
+        self._last_trial = None
+
+        self.clock = core.Clock()
+
+        self._load_next_trial()
 
     def _load_next_trial(self):
         """
-        call prepare() on all stims for the next trial
+        call prepare() on all stims for the next trial and start a static period when the window is flipped
         """
-        for stim in self.next_trial.stims:
+        for stim in self._next_trial.stims:
             stim.prepare(window=self.window)
-        self.window.callOnFlip()
+        self.window.callOnFlip(self.period.start, self._next_trial.duration)
 
     def _save_last_trial(self):
         """
@@ -203,28 +222,86 @@ class TrialSequenceRunner:
         """
         if self.running_outfile:
             with open(self.running_outfile, 'a') as running_outfile:
-                running_outfile.write(self.outfile_sep.join(self.last_trial.gen_attr_list()))
+                running_outfile.write(self.outfile_sep.join(self._last_trial.gen_attr_list()))
 
     def _save_all_trials(self):
-        pass
+        """
+        save data from all trials in self.trials to self.outfile
+        """
+        # self._write_outfile_header(self.outfile)
+        with open(self.outfile, 'w') as final_outfile:
+            final_outfile.write(self.outfile_sep.join(self.trials[0].gen_header_list()))
+            for t in self.trials:
+                final_outfile.write('\n')
+                final_outfile.write(self.outfile_sep.join(t.gen_attr_list()))
 
     def _write_outfile_header(self, outfile):
+        """
+        writes the header info from the first trial in self.trials to outfile
+
+        :param outfile: output file to write header to
+        """
         with open(outfile, 'w') as selected_outfile:
             selected_outfile.write(self.outfile_sep.join(self.trials[0].gen_header_list()))
 
-    def run_trials(self):
+    def _run_next_trial(self):   # todo: test
         """
-        run a trial sequence
+        run self._next_trial
 
+        :rtype : int
+        :return: 1 if we did not overrun the static period, 0 otherwise
+        """
+
+        #####PREPARE NEXT TRIAL
+        self._last_trial = self._current_trial
+        self._current_trial = self._next_trial
+        try:
+            self._next_trial = self.trials[self.trials.index(self._current_trial) + 1]
+            self._load_next_trial()
+        except IndexError:  # we've reached the end of the sequence
+            self._next_trial = None
+        except:
+            raise
+        self.period.complete()
+
+        #####NEXT TRIAL STARTS
+
+        self.window.flip()      # should trigger the callOnFlip() in _load_next_trial() to start the static period
+        if self._next_trial:
+            self._additional_trial_init()
+
+        #####TIME SENSITIVE OPERATIONS
+        last_responses = event.getKeys(timeStamped=self.clock)
+        event.clearEvents()
+        print self.clock.getTime(), self._current_trial.trialnumber  # todo: DEBUG
+        # self.clock.reset()
+
+        #####LAST TRIAL CLEANUP
+        if self._last_trial:
+            self._last_trial.response = last_responses
+            self._save_last_trial()
+
+    def _additional_trial_init(self):
+        """
+        override to run additional code after the initial flip() call in _run_next_trial().
         """
         pass
 
-
-def fixcross(value='+', color=(1, 1, 1), **kwargs):
-    """
-    Wrapper for psychopy.visual.visual.TextStim. See psychopy API at http://www.psychopy.org/api/api.html
-    """
-    return TextStimulus(value=value, color=color, **kwargs)
+    def run_trials(self, delay=12.0):   # todo: test
+        """
+        run all trials in the sequence and save the data
+        :param delay:
+        """
+        self.period.start(delay)
+        if self.running_outfile:
+            self._write_outfile_header(self.running_outfile)
+        self.window.callOnFlip(self.period.start, self._next_trial.duration)
+        self.period.complete()
+        self.window.flip()
+        self._additional_trial_init()
+        while self._next_trial:
+            self._run_next_trial()
+        self._save_all_trials()
 
 
 def main():

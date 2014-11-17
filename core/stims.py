@@ -8,7 +8,6 @@
 # -------------------------------------------------------------------------------
 
 from psychopy import *
-from psychopy import __all__
 
 
 class Stimulus:
@@ -328,3 +327,10 @@ class OtherStimulus(Stimulus):
             restoreWin.draw()
         window.flip()
         # self._deinst()
+
+
+def fixcross(value='+', color=(1, 1, 1), **kwargs):
+    """
+    Wrapper for psychopy.visual.visual.TextStim. See psychopy API at http://www.psychopy.org/api/api.html
+    """
+    return TextStimulus(value=value, color=color, **kwargs)

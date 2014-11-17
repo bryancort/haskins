@@ -7,20 +7,18 @@
 # Created:     12/13/2014
 # -------------------------------------------------------------------------------
 
-from core import experiment
-from core.interface import MenuPage
-from core.stims import Stimulus
+from core import experiment, interface, stims
 from utils import file_utils, base_utils
-import psychopy
+from psychopy import core, gui, visual
 import os
-import glob
 import time
-import random
-import itertools
-import traceback
-import shutil
 
-# todo: move this setup to __init__?
+
+class A40P2TrialSequenceRunner(experiment.TrialSequenceRunner):
+    def _additional_trial_init(self):
+        self._next_trial.stims[0].present()
+
+# todo: move this setup to __init__.py?
 # visual params
 background_color = [0, 0, 0]
 foreground_color = [1, 1, 1]
@@ -31,22 +29,23 @@ window_scale = [1, 1]
 # experimental params
 run_nums = [1, 2, 3, 4, 5, 6, 7, 8]
 inter_trial_interval = 0.0
-trial_duration = 12.0
+trial_duration = 5.0
+warmup_duration = 1.0
 
 trial_output = ['ttype', 'trialnumber', 'response', 'displayed']
 
-#path params
+# path params
 config_dir = os.path.normpath('config')
 data_dir = os.path.normpath('data')
-stims_dir = os.path.normpath('stims')
+stims_dir = os.path.normpath('stim')
 
 subj_id_temp_filepath = os.path.join(config_dir, '.last_id.txt')
 stims_list_filepath = os.path.join(config_dir, 'stim_order_list.txt')
 
 
-class RunChoiceMenu(Menu):
+class RunChoiceMenu(interface.Menu):
     def __init__(self, win, results={'run': None}, run_ids=run_nums):
-        Menu.__init__(self, win, results)
+        interface.Menu.__init__(self, win, results)
 
         runChoiceMenuText = 'Select a run: '
         runChoiceMenuMap = {}
@@ -55,9 +54,9 @@ class RunChoiceMenu(Menu):
             runChoiceMenuMap[str(rn)] = ({'run': rn}, None)
         runChoiceMenuText += '\ne[x]it'
         runChoiceMenuMap['x'] = {'run': None}, None
-        runChoicePage = MenuPage(displayvalue=TextStimulus(value=runChoiceMenuText,
-                                                                                 color=foreground_color),
-                                            keymap=runChoiceMenuMap, menu=self)
+        runChoicePage = interface.MenuPage(displayvalue=stims.TextStimulus(value=runChoiceMenuText,
+                                                                           color=foreground_color),
+                                           keymap=runChoiceMenuMap, menu=self)
         self.set_start_page(runChoicePage)
 
     def reset(self):
@@ -66,14 +65,14 @@ class RunChoiceMenu(Menu):
 
 def __main__():
     try:
-        if os.path.getmtime(subj_id_temp_filepath) - time.time() > 7200.0:  # 2 hours
+        if time.time() - os.path.getmtime(subj_id_temp_filepath) > 7200.0:  # 2 hours
             os.remove(subj_id_temp_filepath)
         subj_id_dict = {'subject id': ''}
         if os.path.exists(subj_id_temp_filepath):
             with open(subj_id_temp_filepath, 'rU') as f:
                 subj_id_dict['subject id'] = f.read()
         while True:
-            subj_id_dlg = psychopy.gui.DlgFromDict(subj_id_dict)
+            subj_id_dlg = gui.DlgFromDict(subj_id_dict)
             if subj_id_dlg.OK:
                 break
         subj_id = subj_id_dict['subject id']
@@ -81,11 +80,20 @@ def __main__():
         with open(subj_id_temp_filepath, 'w') as f:
             f.write(subj_id)
 
-        win = psychopy.visual.Window(allowGUI=False, winType='pyglet', colorSpace='rgb', color=background_color,
+        win = visual.Window(allowGUI=False, winType='pyglet', colorSpace='rgb', color=background_color,
                                      units=window_units, fullscr=fullscr, viewScale=window_scale)
         run_menu = RunChoiceMenu(win)
         run = run_menu.run()['run']
-        print run
+    except:
+        print 'Error while getting subject id and run number'
+        raise
+        # print run
+
+    try:
+        outfile_name = '{}_run{}_{}.txt'.format(subj_id, run, base_utils.getLocalTime())
+        outfile_path = os.path.join(data_dir, outfile_name)
+        running_outfile_name = 'backup_{}'.format(outfile_name)
+        running_outfile_path = os.path.join(data_dir, running_outfile_name)
 
         #construct trials
         stimfile_table = file_utils.readTable2(stims_list_filepath)
@@ -93,18 +101,28 @@ def __main__():
         trials = []
         for trial_num in stim_dict:
             run_id = 'run{}'.format(run)
-            filepath = stim_dict[trial_num][run_id]
+            filename = stim_dict[trial_num][run_id]
+            filepath = os.path.join(stims_dir, filename)
+            trial_stims = (stims.SoundStimulus(name=filepath, stype='sound', value=filepath),)
+            for stim in trial_stims:
+                stim.instantiate(window=win)
             trials.append(experiment.Trial(trialnumber=int(trial_num), ttype='run{}'.format(run), output=trial_output,
-                                   duration=trial_duration, iti=inter_trial_interval,
-                                   stims=(SoundStimulus(name=filepath, stype='sound', value=filepath))))
+                                           duration=trial_duration, iti=inter_trial_interval,
+                                           stims=trial_stims))
         trials.sort()
-        #run trials
-        pass
     except:
-        print 'Error while getting subject id and run number'
+        print 'Error while generating trials'
         raise
-    finally:
-        pass
+
+    try:
+        sequence_runner = A40P2TrialSequenceRunner(trials=trials, window=win, outfile=outfile_path,
+                                                   running_outfile=running_outfile_path)
+        sequence_runner.run_trials(delay=warmup_duration)
+    except:
+        print 'Error while running trials'
+        raise
+    # finally:    # todo: send user back to menu here?
+    #     core.quit()
 
 
 if __name__ == '__main__':

@@ -8,7 +8,6 @@
 # -------------------------------------------------------------------------------
 
 from psychopy import *
-from psychopy import __all__
 from core.experiment import ExpUtilError
 
 
