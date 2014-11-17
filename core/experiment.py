@@ -208,14 +208,6 @@ class TrialSequenceRunner:
 
         self._load_next_trial()
 
-    def _load_next_trial(self):
-        """
-        call prepare() on all stims for the next trial and start a static period when the window is flipped
-        """
-        for stim in self._next_trial.stims:
-            stim.prepare(window=self.window)
-        self.window.callOnFlip(self.period.start, self._next_trial.duration)
-
     def _save_last_trial(self):
         """
         save the previous trial's data to the running save file
@@ -244,42 +236,47 @@ class TrialSequenceRunner:
         with open(outfile, 'w') as selected_outfile:
             selected_outfile.write(self.outfile_sep.join(self.trials[0].gen_header_list()))
 
-    def _run_next_trial(self):   # todo: test
+    def _load_next_trial(self):
+        """
+        call prepare() on all stims for the next trial and start a static period when the window is flipped
+        """
+        for stim in self._next_trial.stims:
+            stim.prepare(window=self.window)
+        # self.window.callOnFlip(self.period.start, self._next_trial.duration)
+
+    def _run_next_trial(self):
         """
         run self._next_trial
-
-        :rtype : int
-        :return: 1 if we did not overrun the static period, 0 otherwise
         """
+        self.period.complete()  # complete the current trial
+        self.period.start(duration=self._next_trial.duration)
+        self.window.flip()
+        if self._next_trial:
+            self._additional_trial_init()
 
-        #####PREPARE NEXT TRIAL
+        last_responses = event.getKeys(timeStamped=self.clock)
+        event.clearEvents()
+        # print self.clock.getTime(), self._next_trial.trialnumber  # todo: DEBUG
+        self.clock.reset()
+
         self._last_trial = self._current_trial
         self._current_trial = self._next_trial
+
+        if self._last_trial:
+            self._last_trial.response = last_responses
+            self._save_last_trial()
         try:
             self._next_trial = self.trials[self.trials.index(self._current_trial) + 1]
             self._load_next_trial()
         except IndexError:  # we've reached the end of the sequence
             self._next_trial = None
-        except:
-            raise
-        self.period.complete()
-
-        #####NEXT TRIAL STARTS
-
-        self.window.flip()      # should trigger the callOnFlip() in _load_next_trial() to start the static period
-        if self._next_trial:
-            self._additional_trial_init()
-
-        #####TIME SENSITIVE OPERATIONS
-        last_responses = event.getKeys(timeStamped=self.clock)
-        event.clearEvents()
-        print self.clock.getTime(), self._current_trial.trialnumber  # todo: DEBUG
-        # self.clock.reset()
-
-        #####LAST TRIAL CLEANUP
-        if self._last_trial:
+            self.period.complete()
+            self._last_trial = self._current_trial
+            self._current_trial = self._next_trial
             self._last_trial.response = last_responses
             self._save_last_trial()
+        except:
+            raise
 
     def _additional_trial_init(self):
         """
@@ -287,7 +284,7 @@ class TrialSequenceRunner:
         """
         pass
 
-    def run_trials(self, delay=12.0):   # todo: test
+    def run_trials(self, delay=12.0):
         """
         run all trials in the sequence and save the data
         :param delay:
@@ -295,10 +292,14 @@ class TrialSequenceRunner:
         self.period.start(delay)
         if self.running_outfile:
             self._write_outfile_header(self.running_outfile)
-        self.window.callOnFlip(self.period.start, self._next_trial.duration)
+        self.window.callOnFlip(self.clock.reset)
         self.period.complete()
+        self.period.start(self._next_trial.duration)
         self.window.flip()
         self._additional_trial_init()
+        self._current_trial = self._next_trial
+        self._next_trial = self.trials[self.trials.index(self._current_trial) + 1]
+        self._load_next_trial()
         while self._next_trial:
             self._run_next_trial()
         self._save_all_trials()
