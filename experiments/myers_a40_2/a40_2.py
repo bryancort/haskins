@@ -12,11 +12,14 @@ from utils import file_utils, base_utils
 from psychopy import core, gui, visual
 import os
 import time
+import shutil
 
 
-class A40P2TrialSequenceRunner(experiment.TrialSequenceRunner):
+class A40P2TrialSequenceRunner(experiment.TrialSequenceRunner):     # todo: test
     def _additional_trial_init(self):
-        self._next_trial.stims[0].present()
+        for stim in self._next_trial.stims:
+            if stim.stype == 'sound':
+                stim.present()
 
 
 class RunChoiceMenu(interface.Menu):
@@ -35,8 +38,24 @@ class RunChoiceMenu(interface.Menu):
                                            keymap=runChoiceMenuMap, menu=self)
         self.set_start_page(runChoicePage)
 
-    def reset(self):
-        self.__init__()
+    def reset(self, window):
+        self.__init__(win=window)
+
+
+def reformat_output(data_file_path, backup_dir):
+    data_file_dir, data_file_name = os.path.split(data_file_path)
+    raw_backup_name = 'raw_{}'.format(data_file_name)
+    shutil.copy2(data_file_path, os.path.join(backup_dir, raw_backup_name))  # copy the raw data in case we screw something up
+    data_table = file_utils.readTable2(data_file_path)
+    header = data_table[0]
+    data = data_table[1]
+    new_table_header = header[:].remove('response') + ['response_number', 'response_value', 'response_rt']
+    new_table = [new_table_header]
+    if 'response' in header:
+        for row in data:
+            pass
+    else:
+        return
 
 # todo: move this setup to __init__.py?
 # visual params
@@ -54,7 +73,7 @@ trial_duration = 12.0
 warmup_duration = 12.0
 mri_signal_keys = ['5']
 mri_warmup_msg = 'waiting for mri'
-mri_warmup_stim = stims.TextStimulus(value=mri_warmup_msg)
+mri_warmup_stim = stims.TextStimulus(value=mri_warmup_msg, color=foreground_color)
 
 trial_output = ['ttype', 'trialnumber', 'response', 'stims']
 
@@ -97,7 +116,8 @@ def __main__():
         print 'Error while getting subject id and run number'
         raise
     finally:
-        pass    # todo: reformat our output files here
+        if not run:
+            core.quit()
     try:
         outfile_name = '{}_run{}_{}.txt'.format(subj_id, run, base_utils.getLocalTime())
         outfile_path = os.path.join(data_dir, outfile_name)
@@ -125,10 +145,12 @@ def __main__():
     try:
         sequence_runner = A40P2TrialSequenceRunner(trials=trials, window=win, outfile=outfile_path,
                                                    running_outfile=running_outfile_path)
-        sequence_runner.run_trials(delay=warmup_duration, delay_msg= mri_warmup_msg, start_signal_keys=mri_signal_keys)
+        sequence_runner.run_trials(delay=warmup_duration, delay_msg_stim=mri_warmup_stim, start_signal_keys=mri_signal_keys)
     except:
         print 'Error while running trials'
         raise
+    finally:
+        pass    # todo: reformat our output files here
 
 
 if __name__ == '__main__':

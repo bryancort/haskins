@@ -287,7 +287,7 @@ class TrialSequenceRunner:
         """
         pass
 
-    def run_trials(self, delay=12.0, start_signal_keys=None):
+    def run_trials(self, delay=12.0, delay_msg_stim=None, start_signal_keys=None):
         """
         run all trials in the sequence and save the data
         :param delay:
@@ -295,6 +295,8 @@ class TrialSequenceRunner:
         if start_signal_keys:
             event.waitKeys(keyList=start_signal_keys)
         self.period.start(delay)
+        if delay_msg_stim:
+            delay_msg_stim.present(window=self.window, clear=True)
         if self.running_outfile:
             self._write_outfile_header(self.running_outfile)
         self.window.callOnFlip(self.clock.reset)
