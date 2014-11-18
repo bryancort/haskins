@@ -18,33 +18,9 @@ class A40P2TrialSequenceRunner(experiment.TrialSequenceRunner):
     def _additional_trial_init(self):
         self._next_trial.stims[0].present()
 
-# todo: move this setup to __init__.py?
-# visual params
-background_color = [0, 0, 0]
-foreground_color = [1, 1, 1]
-window_units = 'norm'
-fullscr = 0
-window_scale = [1, 1]
-
-# experimental params
-run_nums = [1, 2, 3, 4, 5, 6, 7, 8]
-inter_trial_interval = 0.0
-trial_duration = 5.0
-warmup_duration = 1.0
-
-trial_output = ['ttype', 'trialnumber', 'response', 'displayed']
-
-# path params
-config_dir = os.path.normpath('config')
-data_dir = os.path.normpath('data')
-stims_dir = os.path.normpath('stim')
-
-subj_id_temp_filepath = os.path.join(config_dir, '.last_id.txt')
-stims_list_filepath = os.path.join(config_dir, 'stim_order_list.txt')
-
 
 class RunChoiceMenu(interface.Menu):
-    def __init__(self, win, results={'run': None}, run_ids=run_nums):
+    def __init__(self, win, results={'run': None}, run_ids=(1,), text_color=(1,1,1)):
         interface.Menu.__init__(self, win, results)
 
         runChoiceMenuText = 'Select a run: '
@@ -55,12 +31,40 @@ class RunChoiceMenu(interface.Menu):
         runChoiceMenuText += '\ne[x]it'
         runChoiceMenuMap['x'] = {'run': None}, None
         runChoicePage = interface.MenuPage(displayvalue=stims.TextStimulus(value=runChoiceMenuText,
-                                                                           color=foreground_color),
+                                                                           color=text_color),
                                            keymap=runChoiceMenuMap, menu=self)
         self.set_start_page(runChoicePage)
 
     def reset(self):
         self.__init__()
+
+# todo: move this setup to __init__.py?
+# visual params
+background_color = [0, 0, 0]
+foreground_color = [1, 1, 1]
+window_units = 'norm'
+fullscr = 1
+window_scale = [1, 1]
+
+# experimental params
+run_nums = [1, 2, 3, 4, 5, 6, 7, 8]
+inter_trial_interval = 0.0
+trial_duration = 12.0
+
+warmup_duration = 12.0
+mri_signal_keys = ['5']
+mri_warmup_msg = 'waiting for mri'
+mri_warmup_stim = stims.TextStimulus(value=mri_warmup_msg)
+
+trial_output = ['ttype', 'trialnumber', 'response', 'stims']
+
+# path params
+config_dir = os.path.normpath('config')
+data_dir = os.path.normpath('data')
+stims_dir = os.path.normpath('stim')
+
+subj_id_temp_filepath = os.path.join(config_dir, '.last_id.txt')
+stims_list_filepath = os.path.join(config_dir, 'stim_order_list.txt')
 
 
 def __main__():
@@ -83,15 +87,17 @@ def __main__():
 
         win = visual.Window(allowGUI=False, winType='pyglet', colorSpace='rgb', color=background_color,
                                      units=window_units, fullscr=fullscr, viewScale=window_scale)
-        run_menu = RunChoiceMenu(win)
+        center_rect=visual.Rect(win=win, width=0.33, height=0.33, color=(-.15, -.15, -.15))
+        center_rect_stim = stims.ImageStimulus(name='center_rect', stype='rectangle', inst=center_rect)
+        fix_cross = stims.fixcross('+', foreground_color, size=(.1,.1))
+        base_stims=(center_rect_stim, fix_cross)
+        run_menu = RunChoiceMenu(win, run_ids=run_nums, text_color=foreground_color)
         run = run_menu.run()['run']
     except:
         print 'Error while getting subject id and run number'
         raise
     finally:
-        if run == None:
-            core.quit()
-
+        pass    # todo: reformat our output files here
     try:
         outfile_name = '{}_run{}_{}.txt'.format(subj_id, run, base_utils.getLocalTime())
         outfile_path = os.path.join(data_dir, outfile_name)
@@ -106,7 +112,7 @@ def __main__():
             run_id = 'run{}'.format(run)
             filename = stim_dict[trial_num][run_id]
             filepath = os.path.join(stims_dir, filename)
-            trial_stims = (stims.SoundStimulus(name=filepath, stype='sound', value=filepath),)
+            trial_stims = base_stims + (stims.SoundStimulus(name=filepath, stype='sound', value=filepath),)
             for stim in trial_stims:
                 stim.instantiate(window=win)
             trials.append(experiment.Trial(trialnumber=int(trial_num), ttype='run{}'.format(run), output=trial_output,
@@ -116,16 +122,13 @@ def __main__():
     except:
         print 'Error while generating trials'
         raise
-
     try:
         sequence_runner = A40P2TrialSequenceRunner(trials=trials, window=win, outfile=outfile_path,
                                                    running_outfile=running_outfile_path)
-        sequence_runner.run_trials(delay=warmup_duration)
+        sequence_runner.run_trials(delay=warmup_duration, delay_msg= mri_warmup_msg, start_signal_keys=mri_signal_keys)
     except:
         print 'Error while running trials'
         raise
-    # finally:    # todo: send user back to menu here?
-    #     core.quit()
 
 
 if __name__ == '__main__':

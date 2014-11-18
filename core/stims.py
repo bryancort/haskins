@@ -113,7 +113,8 @@ class TextStimulus(Stimulus):
 
         :param window:  psychopy.visual.window associated with the TextStimulus.
         """
-        self.inst = visual.TextStim(text=self.value, win=window, **self.kwargs)
+        if not self.inst:
+            self.inst = visual.TextStim(text=self.value, win=window, **self.kwargs)
 
     def present(self, window, duration=None, clear=False, hogtime=0.2, **kwargs):
         """
@@ -166,7 +167,8 @@ class ImageStimulus(Stimulus):
 
         :param window:  psychopy.visual.window associated with the ImageStimulus.
         """
-        self.inst = visual.ImageStim(image=self.value, win=window, **self.kwargs)
+        if not self.inst:
+            self.inst = visual.ImageStim(image=self.value, win=window, **self.kwargs)
 
     def present(self, window, duration=None, clear=False, hogtime=0.2, **kwargs):
         """
@@ -214,7 +216,8 @@ class SoundStimulus(Stimulus):
         :param window:  psychopy.visual.window associated with the SoundStimulus. Not required or referenced, but
         included for interchangeability between stimulus types.
         """
-        self.inst = sound.Sound(value=self.value, **self.kwargs)
+        if not self.inst:
+            self.inst = sound.Sound(value=self.value, **self.kwargs)
 
     def present(self, window=None, duration=None, clear=False, hold=False, **kwargs):
         """
@@ -254,7 +257,8 @@ class VideoStimulus(Stimulus):
 
         :param window:  psychopy.visual.window associated with the VideoStimulus.
         """
-        self.inst = visual.MovieStim(filename=self.value, win=window, **self.kwargs)
+        if not self.inst:
+            self.inst = visual.MovieStim(filename=self.value, win=window, **self.kwargs)
 
     def present(self, window, duration=None, clear=False, **kwargs):
         """

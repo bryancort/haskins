@@ -271,6 +271,7 @@ class TrialSequenceRunner:
         except IndexError:  # we've reached the end of the sequence
             self._next_trial = None
             self.period.complete()
+            print self.clock.getTime()
             last_responses = event.getKeys(timeStamped=self.clock)
             event.clearEvents()
             self._last_trial = self._current_trial
@@ -286,11 +287,13 @@ class TrialSequenceRunner:
         """
         pass
 
-    def run_trials(self, delay=12.0):
+    def run_trials(self, delay=12.0, start_signal_keys=None):
         """
         run all trials in the sequence and save the data
         :param delay:
         """
+        if start_signal_keys:
+            event.waitKeys(keyList=start_signal_keys)
         self.period.start(delay)
         if self.running_outfile:
             self._write_outfile_header(self.running_outfile)
@@ -299,6 +302,7 @@ class TrialSequenceRunner:
         self.period.start(self._next_trial.duration)
         self.window.flip()
         self._additional_trial_init()
+        event.clearEvents()
         self._current_trial = self._next_trial
         self._next_trial = self.trials[self.trials.index(self._current_trial) + 1]
         self._load_next_trial()
