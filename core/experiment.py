@@ -206,7 +206,7 @@ class TrialSequenceRunner:
 
         self.clock = core.Clock()
 
-        self._load_next_trial()
+        # self._load_next_trial()
 
     def _save_last_trial(self):
         """
@@ -250,13 +250,13 @@ class TrialSequenceRunner:
         """
         self.period.complete()  # complete the current trial
         self.period.start(duration=self._next_trial.duration)
+        print self.clock.getTime()
         self.window.flip()
         if self._next_trial:
             self._additional_trial_init()
 
         last_responses = event.getKeys(timeStamped=self.clock)
         event.clearEvents()
-        # print self.clock.getTime(), self._next_trial.trialnumber  # todo: DEBUG
         self.clock.reset()
 
         self._last_trial = self._current_trial
@@ -287,22 +287,36 @@ class TrialSequenceRunner:
         """
         pass
 
-    def run_trials(self, delay=12.0, delay_msg_stim=None, start_signal_keys=None):
+    def run_trials(self, delay=12.0, delay_msg_stim=None, start_signal_keys=None, start_signal_wait_stim=None):
         """
         run all trials in the sequence and save the data
-        :param delay:
+
+        :param delay: time to wait before beginning trials
+        :param delay_msg_stim: stim to display while waiting to being trials
+        :param start_signal_keys: list of keys to listen for to begin the run. if none, run begins immediately
+        :param start_signal_wait_stim: stim to display while waiting for the start signal
         """
         if start_signal_keys:
+            if start_signal_wait_stim:
+                start_signal_wait_stim.present(window=self.window, clear=True)
             event.waitKeys(keyList=start_signal_keys)
         self.period.start(delay)
+        #debug
+        self.clock.reset()
+        print self.clock.getTime()
         if delay_msg_stim:
             delay_msg_stim.present(window=self.window, clear=True)
         if self.running_outfile:
             self._write_outfile_header(self.running_outfile)
         self.window.callOnFlip(self.clock.reset)
+        self.window.clearBuffer()
+        self._load_next_trial()
         self.period.complete()
         self.period.start(self._next_trial.duration)
+        print self.clock.getTime()
         self.window.flip()
+        self._load_next_trial()     # this shouldn't be necessary, but for some reason the fixation cross was not being
+        self.window.flip()          # drawn in front of the darker rect on the first trial.
         self._additional_trial_init()
         event.clearEvents()
         self._current_trial = self._next_trial
