@@ -70,11 +70,14 @@ def reformat_output(data_file_path, backup_dir):  # todo: test
             #fix out stim column since we're here anyway
             stims_str = row[stims_index].strip('()')
             stim_filename = stims_str.split(',')[0]
-            new_row[stims_index] = stim_filename
+            new_row[stims_index] = stim_filename.split(os.path.sep)[-1]
             responses_str = new_row.pop(response_index).strip('[]()')
-            responses = responses_str.split('), (')
-            for num, resp in enumerate(responses, start=1):
-                new_table.append(new_row[:] + [str(num), resp[0], resp[1]])
+            if responses_str:
+                responses = responses_str.split('), (')
+                for num, resp in enumerate(responses, start=1):
+                    new_table.append(new_row[:] + [str(num), resp[0], resp[1]])
+            else:
+                new_table.append(new_row[:] + ['NA', 'NA', 'NA'])
         file_utils.writeTable(new_table, data_file_path)
         return 1
 
