@@ -60,7 +60,7 @@ def reformat_output(data_file_path, backup_dir):  # todo: test
     else:
         response_index = base_utils.getColumn(data_table, 'response')
         stims_index = base_utils.getColumn(data_table, 'stims')
-        data = data_table[1]
+        data = data_table[1:]
         new_table_header = header[:]
         new_table_header.remove('response')
         new_table_header += ['response_number', 'response_value', 'response_rt']
@@ -71,9 +71,10 @@ def reformat_output(data_file_path, backup_dir):  # todo: test
             stims_str = row[stims_index].strip('()')
             stim_filename = stims_str.split(',')[0]
             new_row[stims_index] = stim_filename
-            responses = new_row.pop(response_index).strip('[]')
+            responses_str = new_row.pop(response_index).strip('[]()')
+            responses = responses_str.split('), (')
             for num, resp in enumerate(responses, start=1):
-                new_table.append(new_row[:] + [num, resp[0], resp[1]])
+                new_table.append(new_row[:] + [str(num), resp[0], resp[1]])
         file_utils.writeTable(new_table, data_file_path)
         return 1
 
