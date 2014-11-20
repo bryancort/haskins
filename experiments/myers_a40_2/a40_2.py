@@ -44,7 +44,7 @@ class RunChoiceMenu(interface.Menu):
 
 def reformat_output(data_file_path, backup_dir):  # todo: test
     """
-    reformat our output into something that's a little easier to work with
+    reformat our list_attrs into something that's a little easier to work with
 
     :param data_file_path: data file to back up
     :param backup_dir: directory to send our raw data backups to
@@ -62,22 +62,26 @@ def reformat_output(data_file_path, backup_dir):  # todo: test
         stims_index = base_utils.getColumn(data_table, 'stims')
         data = data_table[1:]
         new_table_header = header[:]
+        new_table_header[stims_index] = 'stim_file'
         new_table_header.remove('response')
         new_table_header += ['response_number', 'response_value', 'response_rt']
         new_table = [new_table_header]
         for row in data:
-            new_row = row[:]
+            temp_row = row[:]
             #fix out stim column since we're here anyway
             stims_str = row[stims_index].strip('()')
             stim_filename = stims_str.split(',')[0]
-            new_row[stims_index] = stim_filename.split(os.path.sep)[-1]
-            responses_str = new_row.pop(response_index).strip('[]()')
+            temp_row[stims_index] = stim_filename.split(os.path.sep)[-1]
+            responses_str = temp_row.pop(response_index).strip('[]()')
             if responses_str:
                 responses = responses_str.split('), (')
                 for num, resp in enumerate(responses, start=1):
-                    new_table.append(new_row[:] + [str(num), resp[0], resp[1]])
+                    resp_split = resp.split(',')
+                    new_row = temp_row[:] + [str(num), resp_split[0], resp_split[1]]
+                    new_row = [entry.replace(' ', '') for entry in new_row]
+                    new_table.append(temp_row[:] + [str(num), resp_split[0], resp_split[1]])
             else:
-                new_table.append(new_row[:] + ['NA', 'NA', 'NA'])
+                new_table.append(temp_row[:] + ['NA', 'NA', 'NA'])
         file_utils.writeTable(new_table, data_file_path)
         return 1
 
@@ -164,7 +168,7 @@ def __main__():
             trial_stims = (stims.SoundStimulus(name=filepath, stype='sound', value=filepath),) + base_stims
             for stim in trial_stims:
                 stim.instantiate(window=win)
-            trials.append(experiment.Trial(trialnumber=int(trial_num), ttype='run{}'.format(run), output=trial_output,
+            trials.append(experiment.Trial(trialnumber=int(trial_num), ttype='run{}'.format(run), list_attrs=trial_output,
                                            duration=trial_duration, iti=inter_trial_interval,
                                            stims=trial_stims))
         trials.sort()
@@ -180,7 +184,7 @@ def __main__():
         print 'Error while running trials'
         raise
     finally:
-        pass  # todo: reformat our output files here
+        pass  # todo: reformat our list_attrs files here
 
 
 if __name__ == '__main__':

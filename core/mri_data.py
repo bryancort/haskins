@@ -12,7 +12,7 @@ import itertools
 import subprocess
 import os
 import glob
-from mixins import Comparable, Keyed
+from mixins import ComparableMixin, KeyedMixin
 from utils.mri_utils import BetweenVarMismatchError
 from utils import mri_utils, file_utils
 
@@ -46,14 +46,14 @@ class ProcRun(AfniDataDir):  # todo: make Keyed
                                                    except_on_fail=True)
         leaf_name = os.path.split(self.run_dir)[1]
         script_name = 'afni_{}.tcsh'.format(leaf_name).replace('.results', '')
-        script_output_name = 'output.{}'.format(script_name)
+        script_output_name = 'list_attrs.{}'.format(script_name)
         self.run_script = file_utils.match_single_file(path=scan.data_dir, pattern=script_name)
         self.run_script_output = file_utils.match_single_file(path=scan.data_dir, pattern=script_output_name)
         # todo: implement actual logging here
         if not self.run_script:
             print 'WARNING: could not find a unique run script for {} run of {}'.format(self.proc_tag, self.scan)
         if not self.run_script_output:
-            print 'WARNING: could not find a unique run script output for {} run of {}'.format(self.proc_tag, self.scan)
+            print 'WARNING: could not find a unique run script list_attrs for {} run of {}'.format(self.proc_tag, self.scan)
 
     def set_active_stats_file(self, stats_file_tag):
         stats_head = file_utils.match_single_file(self.run_dir, 'stats.*{}+*.HEAD'.format(stats_file_tag))
@@ -81,7 +81,7 @@ class ProcRun(AfniDataDir):  # todo: make Keyed
         return 'Proc Run {} of {} located at {}'.format(self.proc_tag, self.scan, self.run_dir)
 
 
-class Scan(Keyed, Comparable, AfniDataDir):
+class Scan(KeyedMixin, ComparableMixin, AfniDataDir):
     def __init__(self, scan_id, data_dir, proc_runs=()):
         self.scan_id = scan_id
         self.data_dir = os.path.normpath(data_dir)

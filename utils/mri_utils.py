@@ -33,10 +33,10 @@ def dcm2nii_all(source, **kwargs):
     -d Date in filename [filename.dcm -> 20061230122032.nii]: Y,N = Y
     -e events (series/acq) in filename [filename.dcm -> s002a003.nii]: Y,N = Y
     -f Source filename [e.g. filename.par -> filename.nii]: Y,N = N
-    -g gzip output, filename.nii.gz [ignored if '-n n']: Y,N = Y
+    -g gzip list_attrs, filename.nii.gz [ignored if '-n n']: Y,N = Y
     -i ID  in filename [filename.dcm -> johndoe.nii]: Y,N = N
-    -m manually prompt user to specify output format [NIfTI input only]: Y,N = Y
-    -n output .nii file [if no, create .hdr/.img pair]: Y,N = Y
+    -m manually prompt user to specify list_attrs format [NIfTI input only]: Y,N = Y
+    -n list_attrs .nii file [if no, create .hdr/.img pair]: Y,N = Y
     -o Output Directory, e.g. 'C:\TEMP' (if unspecified, source directory is used)
     -p Protocol in filename [filename.dcm -> TFE_T1.nii]: Y,N = Y
     -r Reorient image to nearest orthogonal: Y,N

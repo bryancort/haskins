@@ -23,7 +23,7 @@ def get_overwrite_paths(scan_dir, script_call):     #todo: test
 
     :param scan_dir: subject ID
     :param script_call: final afni_proc.py script to check conflicting paths for
-    :return: (directory, script, script output) tuple of paths
+    :return: (directory, script, script list_attrs) tuple of paths
     """
     opts = script_call.split(' ')
     if '-out_dir' in opts:
@@ -34,7 +34,7 @@ def get_overwrite_paths(scan_dir, script_call):     #todo: test
         overwrite_script = opts[opts.index('-script') + 1]
     else:
         overwrite_script = 'proc_subj.tcsh'
-    overwrite_script_output = 'output.' + overwrite_script
+    overwrite_script_output = 'list_attrs.' + overwrite_script
     return map(os.path.join, ((scan_dir, overwrite_dir), (scan_dir, overwrite_script),
                               (scan_dir, overwrite_script_output)))
 
@@ -45,7 +45,7 @@ def org_scan_files(source, dest, are_dcms=True, cleanup=None, stim_times=None, *
 
     :param source: source directory with files to organize
     :param dest: destination directory to organize into
-    :param are_dcms: if true, will dcm2nii the source directory and output to dest
+    :param are_dcms: if true, will dcm2nii the source directory and list_attrs to dest
     :param cleanup: optional cleanup dir name for files that do not match any pattern in dir_structures. Will be created
         in dest
     :param stim_times: optional stim times directory to copy into dest
@@ -104,7 +104,7 @@ def preprocess_scan(scan_dir, afni_proc_call, archive=False, overwrite=False):  
         os.chdir(scan_dir)
         out, err = subprocess.Popen(afniCall, stdout=None, stderr=PIPE, shell=True).communicate()
         os.chdir(basedir)
-        if err:  # fixme: afni_proc.py doesn't write to stderr, all output goes to stdout
+        if err:  # fixme: afni_proc.py doesn't write to stderr, all list_attrs goes to stdout
             return '{}: process_subject() generated the following error:\n{}'.format(subjID, err)
         return '{}: process_subject() ran successfully.'.format(subjID)
     except:

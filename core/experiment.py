@@ -8,8 +8,10 @@
 # -------------------------------------------------------------------------------
 
 from psychopy import event, core
-
-from mixins import Keyed, Comparable
+from mixins import KeyedMixin, ComparableMixin
+# for HoggingStaticPeriod
+from psychopy.core import StaticPeriod, wait
+from psychopy.constants import *
 
 
 class ExpUtilError(Exception):
@@ -17,47 +19,30 @@ class ExpUtilError(Exception):
 
 
 class Listable(object):
-    def __init__(self, output='all', sort_key=None):
+    def __init__(self, list_attrs=()):
         """
-        param output:   The attributes to write with gen_header_list and gen_attr_list.
-        param key:      Key to sort the lists returned by gen_header_list and gen_attr_list with. NOT IMPLEMENTED.
+        param list_attrs:   The attributes to write with gen_header_list and gen_attr_list.
         """
-        self.output = output
-        self.sort_key = sort_key
+        self.list_attrs = list_attrs
 
-    def gen_header_list(self, sort_key=None):
+    def gen_header_list(self):
         """
-        Returns a list of all attribute name specified by self.output.
+        Returns a list of all attribute name specified by self.list_attrs.
         """
         headerlist = []
-        sort_key = self.sort_key if not sort_key else sort_key
-
-        if self.output == 'all':
-            for k in self.__dict__.iterkeys():
-                if k != 'output' and k[0] != '_':
-                    headerlist.append(k)
-        elif self.output:
-            for k in self.output:
-                if hasattr(self, k):
-                    headerlist.append(k)
-        else:
-            raise ExpUtilError('output parameter for a Listable object must be \'all\' or a non-empty list of strings.')
-        headerlist.sort()
+        for k in self.list_attrs:
+            if hasattr(self, k):
+                headerlist.append(k)
         return headerlist
 
-    def gen_attr_list(self, sort_key=None):
+    def gen_attr_list(self):
         """
-        Returns a list of all attributes specified by self.output and sorted by their attribute names in gen_header_list().
+        Returns a list of all attributes specified by self.list_attrs
         """
         attrlist = []
-        sort_key = self.sort_key if not sort_key else sort_key
         for k in self.gen_header_list():
             attrlist.append(str(getattr(self, k)))
         return attrlist
-
-# specifically for HoggingStaticPeriod
-from psychopy.core import StaticPeriod, wait
-from psychopy.constants import *
 
 
 class HoggingStaticPeriod(StaticPeriod):
@@ -81,9 +66,9 @@ class HoggingStaticPeriod(StaticPeriod):
             return 1
 
 
-class Trial(Listable, Keyed, Comparable):
+class Trial(Listable, KeyedMixin, ComparableMixin):
     def __init__(self, trialnumber=None, abstrialnumber=None, ttype=None, duration=None, iti=0.0, message=None,
-                 stims=(), response=None, correctresponse=None, rt=None, accuracy=None, output='all', displayed=0):
+                 stims=(), response=None, correctresponse=None, rt=None, accuracy=None, list_attrs='all', displayed=0):
         """
         :param trialnumber:         Number of the trial within the containing block. Int, String, or None.
         :param abstrialnumber:	    Absolute number of the trial (does not reset between blocks). Int, String, or None.
@@ -96,11 +81,11 @@ class Trial(Listable, Keyed, Comparable):
         :param correctresponse:     Expected response to this trial
         :param rt:                  Subject's reaction time for the trial. String, Float, or None.
         :param accuracy:            Subject's accuracy on the trial. String or None.
-        :param output:              Trial attributes to record in the output file. 'all', List of Strings, or None.
+        :param list_attrs:              Trial attributes to record in the list_attrs file. 'all', List of Strings, or None.
                                         NB: Default ('all') is very verbose.
         :param displayed:           Whether trial was displayed or not
         """
-        Listable.__init__(self, output)
+        Listable.__init__(self, list_attrs)
         self.iti = iti
         self.trialnumber = trialnumber
         self.abstrialnumber = abstrialnumber
@@ -112,7 +97,7 @@ class Trial(Listable, Keyed, Comparable):
         self.correctresponse = correctresponse
         self.rt = rt
         self.accuracy = accuracy
-        self.output = output
+        self.list_attrs = list_attrs
         self.displayed = displayed
 
     def run(self):
@@ -129,21 +114,21 @@ class Trial(Listable, Keyed, Comparable):
 
 
 class Block(Listable):
-    def __init__(self, blockname=None, btype=None, intro=(), trials=(), output='all'):
+    def __init__(self, blockname=None, btype=None, intro=(), trials=(), list_attrs='all'):
         """
         :param blockname: Number of the block. Integer, String or None.
         :param btype:       Type of the block. String or None.
         :param intro:       List of stims to display as an intro to the block.
         :param trials:      List of trials in the Block.
-        :param output:      Block attributes to record in the output file. 'all', List of Strings, or None.
+        :param list_attrs:      Block attributes to record in the list_attrs file. 'all', List of Strings, or None.
                                 NB: Default ('all') is very verbose.
         """
-        Listable.__init__(self, output)
+        Listable.__init__(self, list_attrs)
         self.blockname = blockname
         self.btype = btype
         self.intro = intro
         self.trials = trials
-        self.output = output
+        self.list_attrs = list_attrs
 
     def __str__(self):
         return 'Block_num_{}_type_{}'.format(str(self.blockname), str(self.btype))
@@ -153,21 +138,21 @@ class Block(Listable):
 
 
 class Experiment(Listable):
-    def __init__(self, name=None, intro=(), subject=None, blocks=(), output='all'):
+    def __init__(self, name=None, intro=(), subject=None, blocks=(), list_attrs='all'):
         """
         :param name:    Name of the experiment. String or None.
         :param intro:   Instructions to show before running any blocks. Stimulus or None.
         :param subject: Name or ID number of the subject being run in this instance of the experiment. String or None.
         :param blocks:  List of Blocks to run in order. List will be sorted before being run. (???)
-        :param output:  Experiment attributes to record in the output file. 'all', list of Strings, or None.
+        :param list_attrs:  Experiment attributes to record in the list_attrs file. 'all', list of Strings, or None.
                             NB: Default ('all') is very verbose.
         """
-        Listable.__init__(self, output)
+        Listable.__init__(self, list_attrs)
         self.name = name
         self.intro = intro
         self.subject = subject
         self.blocks = blocks
-        self.output = output
+        self.list_attrs = list_attrs
 
     def __str__(self):
         return '{}_Experiment'.format(str(self.name))
@@ -183,9 +168,9 @@ class TrialSequenceRunner:
 
         :param trials: iterable of trials to run
         :param window: window to run trials in
-        :param outfile: file to save output to at the end of the run
-        :param running_outfile: file to save output to after each trial (in case of experiment crash/data loss)
-        :param outfile_sep: separator to use when formatting the output files
+        :param outfile: file to save list_attrs to at the end of the run
+        :param running_outfile: file to save list_attrs to after each trial (in case of experiment crash/data loss)
+        :param outfile_sep: separator to use when formatting the list_attrs files
         :param hogging_period: use a hogging static period (True) or a regular static period (False). rt collection
             requires a hogging static period.
         """
@@ -232,7 +217,7 @@ class TrialSequenceRunner:
         """
         writes the header info from the first trial in self.trials to outfile
 
-        :param outfile: output file to write header to
+        :param outfile: list_attrs file to write header to
         """
         with open(outfile, 'w') as selected_outfile:
             selected_outfile.write(self.outfile_sep.join(self.trials[0].gen_header_list()))

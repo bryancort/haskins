@@ -42,11 +42,11 @@ def genArgParser():
                              'Default: /data1/bil/group_mvm_tables')
 
     parser.add_argument('--output_table', default='mvm_table_{}.txt'.format(base_utils.getLocalTime(hr_min=False)),
-                        help='Name (without preceding path) of the table output file.\n'
+                        help='Name (without preceding path) of the table list_attrs file.\n'
                              'Default: mvm_table_{date}.txt')
 
     parser.add_argument('--output_call', default='mvm_call_{}.sh'.format(base_utils.getLocalTime(hr_min=False)),
-                        help='Name (without preceding path) of the call output file.\n'
+                        help='Name (without preceding path) of the call list_attrs file.\n'
                              'Default: mvm_call_{date}.sh')
 
     parser.add_argument('--conditionFile', default='/data1/bil/mri_subjects/a187_within.txt',
