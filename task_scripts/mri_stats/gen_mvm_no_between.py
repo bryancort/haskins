@@ -107,10 +107,9 @@ def genArgParser():
 def _debug(*cmd_args):
     sys.argv = [sys.argv[0]] + list(cmd_args)
 
-
 _debug_cmd = '--subjects hu_AA380_16_3_13 hu_AC513_25_4_12 hu_AE239 ny039 ny060 ny032 ' \
              '--mvm_output_prefix scaled_SFNR_vox_covar ' \
-             '--mvm_template /data1/scripts_refactor/haskins/task_scripts/mri_stats/mvm_call_template_vox_covar.txt ' \
+             '--mvm_template /data1/scripts_refactor/haskins/task_scripts/mri_stats/mvm_call_template_no_between.txt ' \
              '--outputDir /data1/bil/group_mvms_10_29_14 ' \
              '--output_table scaled_SFNR_vox_covar_table.txt ' \
              '--output_call scaled_SFNR_vox_covar_call.sh ' \
