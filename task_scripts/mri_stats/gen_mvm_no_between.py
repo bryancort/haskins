@@ -28,9 +28,9 @@ def genArgParser():
                         help='Pass this flag to run in debug mode.'
                              'Default: {}'.format(debug_default))
 
-    mvm_output_prefix_default = None # 'output_mvm_{}.sh'.format(base_utils.getLocalTime())
+    mvm_output_prefix_default = 'output_mvm_{}.sh'.format(base_utils.getLocalTime())
     parser.add_argument('--mvm_output_prefix', default=mvm_output_prefix_default,
-                        help='mvm output prefix. '
+                        help='mvm output file. '
                              'Default: {}'.format(mvm_output_prefix_default))
 
     mvm_template_default = None # os.path.normpath('mvm_call_template.txt')
@@ -40,7 +40,7 @@ def genArgParser():
 
     mri_dir_default = None # os.path.normpath('/data1/bil/mri_subjects')
     parser.add_argument('--mri_dir', default=mri_dir_default,
-                        help='Directory containing stats files. '
+                        help='Directory containing scans. '
                              'Default: {}'.format(mri_dir_default))
 
     output_dir_default = None # os.path.normpath('/data1/bil/group_mvm_tables')
@@ -50,12 +50,12 @@ def genArgParser():
 
     output_table_name_default = 'mvm_table_{}.txt'.format(base_utils.getLocalTime(hr_min=False))
     parser.add_argument('--output_table_name', default=output_table_name_default,
-                        help='Name (without preceding path) of the table list_attrs file. '
+                        help='Name (without preceding path) of the table output file. '
                              'Default: {}'.format(output_table_name_default))
 
     output_call_name_default = 'mvm_call_{}.sh'.format(base_utils.getLocalTime(hr_min=False))
     parser.add_argument('--output_call_name', default=output_call_name_default,
-                        help='Name (without preceding path) of the call list_attrs file. '
+                        help='Name (without preceding path) of the call output file. '
                              'Default: {}'.format(output_call_name_default))
 
     condition_file_default = None # os.path.normpath('/data1/bil/mri_subjects/a187_within.txt')
