@@ -30,7 +30,7 @@ def genArgParser():
 
     mvm_output_prefix_default = 'output_mvm_{}.sh'.format(base_utils.getLocalTime())
     parser.add_argument('--mvm_output_prefix', default=mvm_output_prefix_default,
-                        help='mvm output file. '
+                        help='mvm output log filename. '
                              'Default: {}'.format(mvm_output_prefix_default))
 
     mvm_template_default = None # os.path.normpath('mvm_call_template.txt')
