@@ -30,47 +30,47 @@ def genArgParser():
 
     mvm_output_prefix_default = None # 'output_mvm_{}.sh'.format(base_utils.getLocalTime())
     parser.add_argument('--mvm_output_prefix', default=mvm_output_prefix_default,
-                        help='mvm call template file'
+                        help='mvm output prefix. '
                              'Default: {}'.format(mvm_output_prefix_default))
 
     mvm_template_default = None # os.path.normpath('mvm_call_template.txt')
     parser.add_argument('--mvm_template', default=mvm_template_default,
-                        help='mvm call template file'
+                        help='mvm call template file. '
                              'Default: {}'.format(mvm_template_default))
 
     mri_dir_default = None # os.path.normpath('/data1/bil/mri_subjects')
     parser.add_argument('--mri_dir', default=mri_dir_default,
-                        help='Directory containing stats files.\n'
+                        help='Directory containing stats files. '
                              'Default: {}'.format(mri_dir_default))
 
     output_dir_default = None # os.path.normpath('/data1/bil/group_mvm_tables')
     parser.add_argument('--output_dir', default='/data1/bil/group_mvm_tables',
-                        help='Output directory for MVM call and data table.\n'
+                        help='Output directory for MVM call and data table. '
                              'Default: {}'.format(output_dir_default))
 
     output_table_name_default = 'mvm_table_{}.txt'.format(base_utils.getLocalTime(hr_min=False))
     parser.add_argument('--output_table_name', default=output_table_name_default,
-                        help='Name (without preceding path) of the table list_attrs file.\n'
+                        help='Name (without preceding path) of the table list_attrs file. '
                              'Default: {}'.format(output_table_name_default))
 
     output_call_name_default = 'mvm_call_{}.sh'.format(base_utils.getLocalTime(hr_min=False))
     parser.add_argument('--output_call_name', default=output_call_name_default,
-                        help='Name (without preceding path) of the call list_attrs file.\n'
+                        help='Name (without preceding path) of the call list_attrs file. '
                              'Default: {}'.format(output_call_name_default))
 
     condition_file_default = None # os.path.normpath('/data1/bil/mri_subjects/a187_within.txt')
     parser.add_argument('--condition_file', default=condition_file_default,
-                        help='File containing condition information for the study.\n'
+                        help='File containing condition information for the study. '
                              'Default: {}'.format(condition_file_default))
 
     num_jobs_default = 22
     parser.add_argument('--num_jobs', default=num_jobs_default,
-                        help='Number of jobs to run in parallel.\n'
+                        help='Number of jobs to run in parallel. '
                              'Default: {}'.format(num_jobs_default))
 
     mask_path_default = 'TT_MASK.nii.gz'
     parser.add_argument('--mask_path', default=mask_path_default,
-                        help='Path to make to use in the MVM.\n'
+                        help='Path to make to use in the MVM. '
                              'Default: {}'.format(mask_path_default))
 
     glt_specs_default = 'test_glts.txt'
@@ -81,7 +81,7 @@ def genArgParser():
 
     vox_covar_default = None
     parser.add_argument('--vox_covar', default=vox_covar_default,
-                        help='Voxelwise covariate name.\n'
+                        help='Voxelwise covariate name. '
                              'Default: {}'.format(vox_covar_default))
 
     vox_covar_pattern_default = None
@@ -98,7 +98,7 @@ def genArgParser():
                              'Default: {}'.format(proc_run_default))
 
     parser.add_argument('--subjects', nargs='+',
-                        help='List of subjects to include in the mvm.\n'
+                        help='List of subjects to include in the mvm. '
                              'Required argument.')
 
     # script action params
