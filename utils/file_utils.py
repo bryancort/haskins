@@ -65,26 +65,27 @@ def writeTable(table, fPath, lineSep='\n', colSep='\t'):
         outfile.write(lineSep.join(outtable))
 
 
-def hashCompare(f1, f2, readsize=1024):
+def hash_compare(f1_path, f2_path, readsize=1024):
     """
     Compares the md5 hashes of two (binary) file objects
     Args
-        f1:			first file to hash and compare
-        f2:			second file to hash and compare
-        readsize:   step size (in bytes) used when reading from the files
+        f1_path: first file to hash and compare
+        f2_path: second file to hash and compare
+        readsize: step size (in bytes) used when reading from the files
     Returns
         True if the hashes are equal, false if not.
     """
-    fin = 1
-    hash1 = hashlib.md5()
-    while fin:
-        fin = f1.read(readsize)
-        hash1.update(fin)
-    fin = 1
-    hash2 = hashlib.md5()
-    while fin:
-        fin = f2.read(readsize)
-        hash2.update(fin)
+    with open(f1_path, 'rb') as _f1, open(f2_path, 'rb') as _f2:
+        fin = 1
+        hash1 = hashlib.md5()
+        while fin:
+            fin = _f1.read(readsize)
+            hash1.update(fin)
+        fin = 1
+        hash2 = hashlib.md5()
+        while fin:
+            fin = _f2.read(readsize)
+            hash2.update(fin)
     return hash1.digest() == hash2.digest()
 
 

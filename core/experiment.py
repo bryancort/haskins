@@ -74,15 +74,15 @@ class Trial(Listable, KeyedMixin, ComparableMixin):
         :param abstrialnumber:	    Absolute number of the trial (does not reset between blocks). Int, String, or None.
         :param ttype:		        Trial type. String or None.
         :param duration:            Duration of the trial. Int, Float or None.
-        :param iti:                 Intertrial interval
+        :param iti:                 inter-trial interval
         :param message:             Message to display before the trial is run. Stimulus or None.
         :param stims:               List of Stimulus objects to display in the trial.
         :param response:            Subject's response to the trial. String or None.
         :param correctresponse:     Expected response to this trial
         :param rt:                  Subject's reaction time for the trial. String, Float, or None.
         :param accuracy:            Subject's accuracy on the trial. String or None.
-        :param list_attrs:              Trial attributes to record in the list_attrs file. 'all', List of Strings, or None.
-                                        NB: Default ('all') is very verbose.
+        :param list_attrs:          Trial attributes to record in the list_attrs file. 'all', List of Strings, or None.
+                                    NB: Default ('all') is very verbose.
         :param displayed:           Whether trial was displayed or not
         """
         Listable.__init__(self, list_attrs)
@@ -235,7 +235,6 @@ class TrialSequenceRunner:
         """
         self.period.complete()  # complete the current trial
         self.period.start(duration=self._next_trial.duration)
-        print self.clock.getTime()
         self.window.flip()
         if self._next_trial:
             self._additional_trial_init()
@@ -256,7 +255,6 @@ class TrialSequenceRunner:
         except IndexError:  # we've reached the end of the sequence
             self._next_trial = None
             self.period.complete()
-            print self.clock.getTime()
             last_responses = event.getKeys(timeStamped=self.clock)
             event.clearEvents()
             self._last_trial = self._current_trial
@@ -288,7 +286,6 @@ class TrialSequenceRunner:
         self.period.start(delay)
         #debug
         self.clock.reset()
-        print self.clock.getTime()
         if delay_msg_stim:
             delay_msg_stim.present(window=self.window, clear=True)
         if self.running_outfile:
@@ -298,7 +295,6 @@ class TrialSequenceRunner:
         self._load_next_trial()
         self.period.complete()
         self.period.start(self._next_trial.duration)
-        print self.clock.getTime()
         self.window.flip()
         self._load_next_trial()     # this shouldn't be necessary, but for some reason the fixation cross was not being
         self.window.flip()          # drawn in front of the darker rect on the first trial.

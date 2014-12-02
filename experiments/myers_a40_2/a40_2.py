@@ -42,9 +42,9 @@ class RunChoiceMenu(interface.Menu):
         self.__init__(win=window)
 
 
-def reformat_output(data_file_path, backup_dir):  # todo: test
+def _reformat_output(data_file_path, backup_dir):  # todo: test
     """
-    reformat our list_attrs into something that's a little easier to work with
+    reformat our output into something that's a little easier to work with
 
     :param data_file_path: data file to back up
     :param backup_dir: directory to send our raw data backups to
@@ -131,7 +131,6 @@ def __main__():
             if subj_id_dlg.OK:
                 break
         subj_id = subj_id_dict['subject id']
-        print subj_id
         with open(subj_id_temp_filepath, 'w') as f:
             f.write(subj_id)
 
@@ -148,9 +147,9 @@ def __main__():
     except:
         print 'Error while getting subject id and run number'
         raise
-        # finally:
-        # if not run:
-        # core.quit()
+    finally:
+        if not run:
+            core.quit()
     try:
         outfile_name = '{}_run{}_{}.txt'.format(subj_id, run, base_utils.getLocalTime())
         outfile_path = os.path.join(data_dir, outfile_name)
@@ -183,8 +182,12 @@ def __main__():
     except:
         print 'Error while running trials'
         raise
-    finally:
-        pass  # todo: reformat our list_attrs files here
+    try:
+        _reformat_output(outfile_path, backup_dir)
+        _reformat_output(running_outfile_path, backup_dir)
+    except:
+        print 'error reformatting files'
+        raise
 
 
 if __name__ == '__main__':
