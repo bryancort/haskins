@@ -46,18 +46,18 @@ class ProcRun(AfniDataDir):  # todo: make Keyed
                                                    except_on_fail=True)
         leaf_name = os.path.split(self.run_dir)[1]
         script_name = 'afni_{}.tcsh'.format(leaf_name).replace('.results', '')
-        script_output_name = 'list_attrs.{}'.format(script_name)
+        script_output_name = 'output.{}'.format(script_name)
         self.run_script = file_utils.match_single_file(path=scan.data_dir, pattern=script_name)
         self.run_script_output = file_utils.match_single_file(path=scan.data_dir, pattern=script_output_name)
         # todo: implement actual logging here
         if not self.run_script:
             print 'WARNING: could not find a unique run script for {} run of {}'.format(self.proc_tag, self.scan)
         if not self.run_script_output:
-            print 'WARNING: could not find a unique run script list_attrs for {} run of {}'.format(self.proc_tag, self.scan)
+            print 'WARNING: could not find a unique run script output for {} run of {}'.format(self.proc_tag, self.scan)
 
     def set_active_stats_file(self, stats_file_tag):
-        stats_head = file_utils.match_single_file(self.run_dir, 'stats.*{}+*.HEAD'.format(stats_file_tag))
-        stats_brik = file_utils.match_single_file(self.run_dir, 'stats.*{}+*.BRIK'.format(stats_file_tag))
+        stats_head = file_utils.match_single_file(self.run_dir, 'stats.*{}+*.HEAD*'.format(stats_file_tag))
+        stats_brik = file_utils.match_single_file(self.run_dir, 'stats.*{}+*.BRIK*'.format(stats_file_tag))
         stats_nii = file_utils.match_single_file(self.run_dir, 'stats.*{}+*.nii'.format(stats_file_tag))
         if stats_head and stats_brik:
             self.active_stats_file = stats_head
@@ -118,10 +118,11 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping=1, covars=None, 
     """
 
     # check between var specification
-    for bv in between.keys():
-        for scan, var_pair in scans_dict.items():
-            if bv not in var_pair.keys():
-                raise BetweenVarMismatchError('Mismatch: {} not specified for {}'.format(bv, scan.scan_id))
+    if between:
+        for bv in between.keys():
+            for scan, var_pair in scans_dict.items():
+                if bv not in var_pair.keys():
+                    raise BetweenVarMismatchError('Mismatch: {} not specified for {}'.format(bv, scan.scan_id))
 
     if covars:
         raise NotImplementedError("Non-voxelwise covariates not yet implemented")
