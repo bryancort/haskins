@@ -34,8 +34,8 @@ def genArgParser():
 
     mvm_template_default = os.path.normpath('gen_mvm_call_template.txt')
     parser.add_argument('--mvm_template', default=mvm_template_default,
-                        help='mvm call template file'
-                             'Default: {}'.format(mvm_template_default))
+                        help="mvm call template file. Do not change this unless you know what you're doing."
+                             "Default: {}".format(mvm_template_default))
 
     mri_dir_default = None
     parser.add_argument('--mri_dir', default=mri_dir_default,
