@@ -99,7 +99,7 @@ class Scan(KeyedMixin, ComparableMixin, AfniDataDir):
         return self.scan_id
 
 
-def gen_mvm_table(scans_dict, within, between, subbrick_mapping=1, covars=None, vox_covar=None,
+def gen_mvm_table(scans_dict, within, between, subbrick_mapping, covars=None, vox_covar=None,
                   vox_covar_file_pattern=None, use_proc_run='results'):
     """
     Generates table to pass to the -dataTable option of 3dMVM
@@ -107,11 +107,10 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping=1, covars=None, 
     :param scans_dict: dict of {scan: ({between_var_level: between_var_value}} (dict of dicts)
     :param within: dict of {var_name:(var_levels,)} for within subject vars
     :param between: dict of {var_name:(var_levels,)} for between subject vars
-    :param subbrick_mapping: dict of witin_var_combination:subbrick_name} all combos of within subj vars or int value of
-        subbrick to use (not implemented)
-    :param covars: covariates to include in the MVM. currently not implemented
-    :param vox_covar: voxel-wise covar; corresponds to -vVars opt in 3dMVM. Mirrors the current 3dMVM implementation of
-        allowing only one voxelwise covariate.
+    :param subbrick_mapping: dict of witin_var_combination:subbrick_name} for each combo of within subj vars
+    :param covars: covariates to include in the MVM. NOT IMPLEMENTED
+    :param vox_covar: voxel-wise covariate, corresponds to -vVars opt in 3dMVM.
+        Mirrors the current 3dMVM implementation of allowing only one voxelwise covariate.
     :param vox_covar_file_pattern: unix-style wildcard expression uniquely identifying the vox_covar file in each run.
     :param use_proc_run: processing run to use for this subject/scan
     :return: mvm datatable
@@ -128,16 +127,16 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping=1, covars=None, 
         raise NotImplementedError("Non-voxelwise covariates not yet implemented")
     mvmheader = ['Subj']
     scans_dict_sorted = OrderedDict(sorted(scans_dict.items()))
-    if within:
-        within_vars = OrderedDict(sorted(within.items()))
-        mvmheader.extend(within_vars.keys())
-    else:
-        within_vars = {}
     if between:
         between_vars = OrderedDict(sorted(between.items()))
         mvmheader.extend(between_vars.keys())
     else:
         between_vars = {}
+    if within:
+        within_vars = OrderedDict(sorted(within.items()))
+        mvmheader.extend(within_vars.keys())
+    else:
+        within_vars = {}
     if vox_covar:
         mvmheader.append(vox_covar)
     mvmheader.append('InputFile')
@@ -165,10 +164,8 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping=1, covars=None, 
                     vox_covar_file = '"{}"'.format(vox_covar_file)
                     subj_filepaths.append(vox_covar_file)
                 stats_file = '"{}[{}]"'.format(run.active_stats_file, subbrick_names[subbrick_val])
-                # stats_file = '"{}"'.format(stats_file)
-                # stats_file = stats_file.replace('.HEAD', '')
                 subj_filepaths.append(stats_file)
-                mvmtable.append([s.scan_id] + list(perm) + between_vals + subj_filepaths)
+                mvmtable.append([s.scan_id] + between_vals + list(perm) + subj_filepaths)
 
     return mvmtable
 
