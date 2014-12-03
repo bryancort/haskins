@@ -33,7 +33,7 @@ def genArgParser():
                         help='mvm output log filename. '
                              'Default: {}'.format(mvm_output_prefix_default))
 
-    mvm_template_default = None # os.path.normpath('mvm_call_template.txt')
+    mvm_template_default = os.path.normpath('mvm_call_template_no_between.txt')
     parser.add_argument('--mvm_template', default=mvm_template_default,
                         help='mvm call template file. '
                              'Default: {}'.format(mvm_template_default))
