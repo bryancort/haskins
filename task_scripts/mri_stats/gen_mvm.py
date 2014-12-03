@@ -90,7 +90,7 @@ def genArgParser():
                         help='Voxelwise covariate.\n'
                              'Default: {}'.format(vox_covar_default))
 
-    vox_covar_pattern_default = None
+    vox_covar_pattern_default = None    # todo: ADD ERROR CHECKING TO THIS. SILENT FAILURE IS BAD.
     parser.add_argument('--vox_covar_pattern', default=vox_covar_pattern_default,
                         help='Pattern to match for file with the voxelwise covariate.\n'
                              'Default: {}'.format(vox_covar_pattern_default))
@@ -112,18 +112,17 @@ def _debug(*cmd_args):
     sys.argv = [sys.argv[0]] + list(cmd_args)
 
 
-_debug_cmd = '--subjects hu_AA380_16_3_13 hu_AC513_25_4_12 hu_AE239 ny039 ny060 ny032 ' \
-             '--mvm_output_prefix scaled_SFNR_vox_covar ' \
+_debug_cmd = '--mvm_output_prefix scaled_SFNR_vox_covar ' \
              '--outputDir /data1/bil/group_mvm_tables ' \
              '--mri_dir /data1/bil/mri_subjects ' \
              '--within_vars_spec_file /data1/bil/mvm_params/a187_within.txt ' \
              '--between_vars_spec_file /data1/bil/mvm_params/a187_between.txt ' \
-             '--body_entry /data1/bil/mvm_params/a187_glts/test_glts.txt ' \
+             '--body_entry /data1/bil/mvm_params/a187_glts.txt ' \
              '--output_table scaled_SFNR_vox_covar_table.txt ' \
              '--output_call scaled_SFNR_vox_covar_call.sh ' \
              '--proc_run .scale ' \
              '--vox_covar SFNR ' \
-             '--vox_covar_pattern *SFNR*'
+             '--vox_covar_pattern *SFNR*.HEAD'
 
 
 # todo: implement 3dinfo parsing instead of reading from the condition file
@@ -169,14 +168,14 @@ def __main__():
     args.mri_dir = os.path.normpath(args.mri_dir)
     args.outputDir = os.path.normpath(args.outputDir)
     args.within_vars_spec_file = os.path.normpath(args.within_vars_spec_file)
-    output_table = os.path.join(args.outputDir, args.output_table)
-    output_call = os.path.join(args.outputDir, args.output_call)
+    output_table = os.path.join(args.outputDir, args.output_table_name)
+    output_call = os.path.join(args.outputDir, args.output_call_name)
 
     within_vars, perm_map = _read_within_vars_spec_file(args.within_vars_spec_file)
     subj_map, between_vars = _read_between_vars_spec_file(args.between_vars_spec_file)
 
     scan_map = {}
-    for s, v in subj_map:
+    for s, v in subj_map.iteritems():
         scan = mri_data.Scan(scan_id=s, data_dir=os.path.join(args.mri_dir, s))
         scan.add_proc_run(proc_tag=args.proc_run)
         scan_map[scan] = v
