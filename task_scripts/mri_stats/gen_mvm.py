@@ -32,7 +32,7 @@ def genArgParser():
                         help='mvm call template file'
                              'Default: {}'.format(mvm_output_prefix_default))
 
-    mvm_template_default = os.path.normpath('gen_mvm_call_template.txt')
+    mvm_template_default = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'gen_mvm_call_template.txt')
     parser.add_argument('--mvm_template', default=mvm_template_default,
                         help="mvm call template file. Do not change this unless you know what you're doing."
                              "Default: {}".format(mvm_template_default))
@@ -209,13 +209,24 @@ def __main__():
                    'ws_vars_entry': ws_vars_entry,
                    'bs_vars_entry': bs_vars_entry}
 
+    # if args.vox_covar:
+    #     format_args['vox_covar_entry'] = "-vVars '{}'".format(args.vox_covar)
     if args.vox_covar:
         format_args['vox_covar_entry'] = "-vVars '{}'".format(args.vox_covar)
+    else:
+        format_args['vox_covar_entry'] = ""
 
     with open(args.mvm_template, 'r') as mvmcall:
         final_call = mvmcall.read().format(**format_args)
+        final_call = final_call.replace('\n \\\n', '\n')
         with open(output_call, 'w') as mvmcall_out:
             mvmcall_out.write(final_call)
+    file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
+
+    # with open(args.mvm_template, 'r') as mvmcall:
+    #     final_call = mvmcall.read().format(**format_args)
+    #     with open(output_call, 'w') as mvmcall_out:
+    #         mvmcall_out.write(final_call)
 
 
 if __name__ == '__main__':
