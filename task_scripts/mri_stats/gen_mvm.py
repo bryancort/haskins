@@ -168,6 +168,7 @@ def __main__():
     args.mri_dir = os.path.normpath(args.mri_dir)
     args.outputDir = os.path.normpath(args.outputDir)
     args.within_vars_spec_file = os.path.normpath(args.within_vars_spec_file)
+    args.between_vars_spec_file = os.path.normpath(args.between_vars_spec_file)
     output_table = os.path.join(args.outputDir, args.output_table_name)
     output_call = os.path.join(args.outputDir, args.output_call_name)
 
@@ -202,8 +203,6 @@ def __main__():
                    'ws_vars_entry': ws_vars_entry,
                    'bs_vars_entry': bs_vars_entry}
 
-    # if args.vox_covar:
-    #     format_args['vox_covar_entry'] = "-vVars '{}'".format(args.vox_covar)
     if args.vox_covar:
         format_args['vox_covar_entry'] = "-vVars '{}'".format(args.vox_covar)
         format_args['bs_vars_entry'] += ' + {}'.format(args.vox_covar)
