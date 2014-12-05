@@ -184,13 +184,6 @@ def __main__():
     bs_vars_entry = "-bsVars '{}'".format('*'.join(between_vars))
     ws_vars_entry = "-wsVars '{}'".format('*'.join(within_vars))
 
-    # todo: read from file or args for AFNI implementation
-    # for scan in scans:
-    #     if scan.scan_id.startswith('hu'):
-    #         scan_map[scan] = {'Site': 'HU'}
-    #     elif scan.scan_id.startswith('ny'):
-    #         scan_map[scan] = {'Site': 'NY'}
-
     mvmtable = mri_data.gen_mvm_table(scans_dict=scan_map, within=within_vars, between=between_vars,
                                       subbrick_mapping=perm_map, vox_covar=args.vox_covar,
                                       vox_covar_file_pattern=args.vox_covar_pattern, use_proc_run=args.proc_run)
@@ -212,6 +205,8 @@ def __main__():
 
     if args.vox_covar:
         format_args['vox_covar_entry'] = "-vVars '{}'".format(args.vox_covar)
+        format_args['bs_vars_entry'] += ' + {}'.format(args.vox_covar)
+        format_args['bs_vars_entry'] = format_args['bs_vars_entry'].lstrip(' + ')
 
     with open(args.mvm_template, 'r') as mvmcall:
         final_call = mvmcall.read().format(**format_args)
