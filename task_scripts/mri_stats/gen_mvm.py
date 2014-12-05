@@ -43,7 +43,7 @@ def genArgParser():
                              'Default: {}'.format(mri_dir_default))
 
     outputDir_default = None
-    parser.add_argument('--outputDir', default='/data1/bil/group_mvm_tables',
+    parser.add_argument('--outputDir', default=outputDir_default,
                         help='Output directory for MVM call and data table.\n'
                              'Default: {}'.format(outputDir_default))
 
