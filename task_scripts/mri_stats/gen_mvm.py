@@ -32,7 +32,7 @@ def genArgParser():
                         help='mvm call template file'
                              'Default: {}'.format(mvm_output_prefix_default))
 
-    mvm_template_default = os.path.normpath('gen_mvm_call_template.txt')
+    mvm_template_default = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'gen_mvm_call_template.txt')
     parser.add_argument('--mvm_template', default=mvm_template_default,
                         help="mvm call template file. Do not change this unless you know what you're doing."
                              "Default: {}".format(mvm_template_default))
@@ -90,7 +90,7 @@ def genArgParser():
                         help='Voxelwise covariate.\n'
                              'Default: {}'.format(vox_covar_default))
 
-    vox_covar_pattern_default = None
+    vox_covar_pattern_default = None    # todo: ADD ERROR CHECKING TO THIS. SILENT FAILURE IS BAD.
     parser.add_argument('--vox_covar_pattern', default=vox_covar_pattern_default,
                         help='Pattern to match for file with the voxelwise covariate.\n'
                              'Default: {}'.format(vox_covar_pattern_default))
@@ -112,18 +112,17 @@ def _debug(*cmd_args):
     sys.argv = [sys.argv[0]] + list(cmd_args)
 
 
-_debug_cmd = '--subjects hu_AA380_16_3_13 hu_AC513_25_4_12 hu_AE239 ny039 ny060 ny032 ' \
-             '--mvm_output_prefix scaled_SFNR_vox_covar ' \
+_debug_cmd = '--mvm_output_prefix scaled_SFNR_vox_covar ' \
              '--outputDir /data1/bil/group_mvm_tables ' \
              '--mri_dir /data1/bil/mri_subjects ' \
              '--within_vars_spec_file /data1/bil/mvm_params/a187_within.txt ' \
              '--between_vars_spec_file /data1/bil/mvm_params/a187_between.txt ' \
-             '--body_entry /data1/bil/mvm_params/a187_glts/test_glts.txt ' \
+             '--body_entry /data1/bil/mvm_params/a187_glts.txt ' \
              '--output_table scaled_SFNR_vox_covar_table.txt ' \
              '--output_call scaled_SFNR_vox_covar_call.sh ' \
              '--proc_run .scale ' \
              '--vox_covar SFNR ' \
-             '--vox_covar_pattern *SFNR*'
+             '--vox_covar_pattern *SFNR*.HEAD'
 
 
 # todo: implement 3dinfo parsing instead of reading from the condition file
@@ -169,20 +168,27 @@ def __main__():
     args.mri_dir = os.path.normpath(args.mri_dir)
     args.outputDir = os.path.normpath(args.outputDir)
     args.within_vars_spec_file = os.path.normpath(args.within_vars_spec_file)
-    output_table = os.path.join(args.outputDir, args.output_table)
-    output_call = os.path.join(args.outputDir, args.output_call)
+    output_table = os.path.join(args.outputDir, args.output_table_name)
+    output_call = os.path.join(args.outputDir, args.output_call_name)
 
     within_vars, perm_map = _read_within_vars_spec_file(args.within_vars_spec_file)
     subj_map, between_vars = _read_between_vars_spec_file(args.between_vars_spec_file)
 
     scan_map = {}
-    for s, v in subj_map:
+    for s, v in subj_map.iteritems():
         scan = mri_data.Scan(scan_id=s, data_dir=os.path.join(args.mri_dir, s))
         scan.add_proc_run(proc_tag=args.proc_run)
         scan_map[scan] = v
 
     bs_vars_entry = "-bsVars '{}'".format('*'.join(between_vars))
     ws_vars_entry = "-wsVars '{}'".format('*'.join(within_vars))
+
+    # todo: read from file or args for AFNI implementation
+    # for scan in scans:
+    #     if scan.scan_id.startswith('hu'):
+    #         scan_map[scan] = {'Site': 'HU'}
+    #     elif scan.scan_id.startswith('ny'):
+    #         scan_map[scan] = {'Site': 'NY'}
 
     mvmtable = mri_data.gen_mvm_table(scans_dict=scan_map, within=within_vars, between=between_vars,
                                       subbrick_mapping=perm_map, vox_covar=args.vox_covar,
@@ -203,15 +209,24 @@ def __main__():
                    'ws_vars_entry': ws_vars_entry,
                    'bs_vars_entry': bs_vars_entry}
 
+    # if args.vox_covar:
+    #     format_args['vox_covar_entry'] = "-vVars '{}'".format(args.vox_covar)
     if args.vox_covar:
         format_args['vox_covar_entry'] = "-vVars '{}'".format(args.vox_covar)
-        format_args['bs_vars_entry'] += ' + {}'.format(args.vox_covar)
-        format_args['bs_vars_entry'] = format_args['bs_vars_entry'].lstrip(' + ')
+    else:
+        format_args['vox_covar_entry'] = ""
 
     with open(args.mvm_template, 'r') as mvmcall:
         final_call = mvmcall.read().format(**format_args)
+        final_call = final_call.replace('\n \\\n', '\n')
         with open(output_call, 'w') as mvmcall_out:
             mvmcall_out.write(final_call)
+    file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
+
+    # with open(args.mvm_template, 'r') as mvmcall:
+    #     final_call = mvmcall.read().format(**format_args)
+    #     with open(output_call, 'w') as mvmcall_out:
+    #         mvmcall_out.write(final_call)
 
 
 if __name__ == '__main__':
