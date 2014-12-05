@@ -49,12 +49,12 @@ def genArgParser():
 
     output_table_name_default = 'mvm_table_{}.txt'.format(base_utils.getLocalTime(hr_min=False))
     parser.add_argument('--output_table_name', default=output_table_name_default,
-                        help='Name (without preceding path) of the table list_attrs file.\n'
+                        help='Name (without preceding path) of the table output file.\n'
                              'Default: {}'.format(output_table_name_default))
 
     output_call_name_default = 'mvm_call_{}.sh'.format(base_utils.getLocalTime(hr_min=False))
     parser.add_argument('--output_call_name', default=output_call_name_default,
-                        help='Name (without preceding path) of the call list_attrs file.\n'
+                        help='Name (without preceding path) of the call output file.\n'
                              'Default: {}'.format(output_call_name_default))
 
     within_vars_spec_file_default = None
