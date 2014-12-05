@@ -213,6 +213,8 @@ def __main__():
     #     format_args['vox_covar_entry'] = "-vVars '{}'".format(args.vox_covar)
     if args.vox_covar:
         format_args['vox_covar_entry'] = "-vVars '{}'".format(args.vox_covar)
+        format_args['bs_vars_entry'] += ' + {}'.format(args.vox_covar)
+        format_args['bs_vars_entry'] = format_args['bs_vars_entry'].lstrip(' + ')
     else:
         format_args['vox_covar_entry'] = ""
 
