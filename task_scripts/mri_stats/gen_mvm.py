@@ -181,7 +181,11 @@ def __main__():
         scan.add_proc_run(proc_tag=args.proc_run)
         scan_map[scan] = v
 
+    if args.vox_covar == None:
+        args.vox_covar = ""
+
     vox_covar_entry = ""
+    bs_vars_entry = ""
 
     bs_vars_expr = '*'.join(between_vars)
     bs_vars_expr += '+{}'.format(args.vox_covar)
@@ -189,8 +193,8 @@ def __main__():
     if args.vox_covar:
         vox_covar_entry = "-vVars '{}'".format(args.vox_covar)
 
-    bs_vars_entry = "-bsVars '{}'".format(bs_vars_expr)
-
+    if bs_vars_expr:
+        bs_vars_entry = "-bsVars '{}'".format(bs_vars_expr)
 
     ws_vars_entry = "-wsVars '{}'".format('*'.join(within_vars))
 
@@ -213,13 +217,6 @@ def __main__():
                    'ws_vars_entry': ws_vars_entry,
                    'bs_vars_entry': bs_vars_entry,
                    'vox_covar_entry': vox_covar_entry}
-
-    if args.vox_covar:
-        format_args['vox_covar_entry'] = "-vVars '{}'".format(args.vox_covar)
-        format_args['bs_vars_entry'] += '+{}'.format(args.vox_covar)
-        format_args['bs_vars_entry'] = format_args['bs_vars_entry'].strip(' + ')
-    else:
-        format_args['vox_covar_entry'] = ""
 
     with open(args.mvm_template, 'r') as mvmcall:
         final_call = mvmcall.read().format(**format_args)
