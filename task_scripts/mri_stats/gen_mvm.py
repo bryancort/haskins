@@ -181,7 +181,17 @@ def __main__():
         scan.add_proc_run(proc_tag=args.proc_run)
         scan_map[scan] = v
 
-    bs_vars_entry = "-bsVars '{}'".format('*'.join(between_vars))
+    vox_covar_entry = ""
+
+    bs_vars_expr = '*'.join(between_vars)
+    bs_vars_expr += '+{}'.format(args.vox_covar)
+    bs_vars_expr = bs_vars_expr.strip('+')
+    if args.vox_covar:
+        vox_covar_entry = "-vVars '{}'".format(args.vox_covar)
+
+    bs_vars_entry = "-bsVars '{}'".format(bs_vars_expr)
+
+
     ws_vars_entry = "-wsVars '{}'".format('*'.join(within_vars))
 
     mvmtable = mri_data.gen_mvm_table(scans_dict=scan_map, within=within_vars, between=between_vars,
@@ -201,12 +211,13 @@ def __main__():
                    'num_glts': num_glts,
                    'body_entry': body_entry,
                    'ws_vars_entry': ws_vars_entry,
-                   'bs_vars_entry': bs_vars_entry}
+                   'bs_vars_entry': bs_vars_entry,
+                   'vox_covar_entry': vox_covar_entry}
 
     if args.vox_covar:
         format_args['vox_covar_entry'] = "-vVars '{}'".format(args.vox_covar)
-        format_args['bs_vars_entry'] += ' + {}'.format(args.vox_covar)
-        format_args['bs_vars_entry'] = format_args['bs_vars_entry'].lstrip(' + ')
+        format_args['bs_vars_entry'] += '+{}'.format(args.vox_covar)
+        format_args['bs_vars_entry'] = format_args['bs_vars_entry'].strip(' + ')
     else:
         format_args['vox_covar_entry'] = ""
 
@@ -216,11 +227,6 @@ def __main__():
         with open(output_call, 'w') as mvmcall_out:
             mvmcall_out.write(final_call)
     file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
-
-    # with open(args.mvm_template, 'r') as mvmcall:
-    #     final_call = mvmcall.read().format(**format_args)
-    #     with open(output_call, 'w') as mvmcall_out:
-    #         mvmcall_out.write(final_call)
 
 
 if __name__ == '__main__':
