@@ -181,7 +181,7 @@ def __main__():
         scan.add_proc_run(proc_tag=args.proc_run)
         scan_map[scan] = v
 
-    if args.vox_covar == None:
+    if args.vox_covar is None:
         args.vox_covar = ""
 
     vox_covar_entry = ""
