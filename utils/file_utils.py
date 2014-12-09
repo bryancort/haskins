@@ -261,7 +261,7 @@ def get_files_from_patterns(targ_dir, full_path, *patterns):
     """
     gets all directory names (not full paths) in scan_dir matching patterns
 
-    :param scan_dir: directory to match patterns in
+    :param targ_dir: directory to match patterns in
     :param patterns: patterns to match
     :param full_path: return full paths, not file names
     :return: list of file names (or paths, if called with full_path=True)

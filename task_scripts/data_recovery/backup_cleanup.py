@@ -8,7 +8,6 @@
 # -------------------------------------------------------------------------------
 
 import os
-import fnmatch
 import shutil
 import sys
 from utils import file_utils
