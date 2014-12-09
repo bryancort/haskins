@@ -10,6 +10,8 @@
 import os
 import shutil
 import sys
+scr_dir = os.path.split(os.path.realpath(__file__))[0]
+sys.path.append(os.path.normpath(os.path.join(scr_dir, '../..')))
 from utils import file_utils
 
 
@@ -23,8 +25,10 @@ def __main__():
             matching_dirs = file_utils.get_dirs_from_patterns(curr_node, True, *exclude_patterns)
             matching_files = file_utils.get_files_from_patterns(curr_node, True, *exclude_patterns)
             for d in matching_dirs:
+                print d
                 shutil.rmtree(d)
             for f in matching_files:
+                print f
                 os.remove(f)
 
 
