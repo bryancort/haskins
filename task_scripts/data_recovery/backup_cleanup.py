@@ -26,7 +26,10 @@ def __main__():
             matching_files = file_utils.get_files_from_patterns(curr_node, True, *exclude_patterns)
             for d in matching_dirs:
                 print d
-                shutil.rmtree(d)
+                if os.path.islink(d):
+                    os.unlink(d)
+                else:
+                    shutil.rmtree(d)
             for f in matching_files:
                 print f
                 os.remove(f)
