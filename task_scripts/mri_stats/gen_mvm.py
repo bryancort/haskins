@@ -44,7 +44,8 @@ def genArgParser():
 
     proc_run_default = '.results'
     parser.add_argument('--proc_run', default=proc_run_default,
-                        help='File containing condition information for the study. '
+                        help='Unique substring identifying the directory with processed data to use for each scan. NOT '
+                             'a wildcard expression. '
                              'Default: {}'.format(proc_run_default))    # todo
 
     output_dir_default = None
