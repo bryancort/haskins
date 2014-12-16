@@ -46,7 +46,7 @@ def genArgParser():
     parser.add_argument('--proc_run', default=proc_run_default,
                         help='Unique substring identifying the directory with processed data to use for each scan. NOT '
                              'a wildcard expression. '
-                             'Default: {}'.format(proc_run_default))    # todo
+                             'Default: {}'.format(proc_run_default))
 
     output_dir_default = None
     parser.add_argument('--output_dir', default=output_dir_default,
