@@ -94,6 +94,16 @@ def genArgParser():
                              'absolute) when you run the MVM. '
                              'Default: {d}'.format(d=mask_path_default))
 
+    quant_covar_default = None
+    parser.add_argument('--vox_covar', default=quant_covar_default,
+                        help='Quantitative covariates in the format: qcv1,qcv2,...,qcvn '
+                             'Default: {}'.format(quant_covar_default))
+
+    quant_covar_centers_default = None
+    parser.add_argument('--quant_covar_centers', default=quant_covar_centers_default,
+                        help='Quantitative covariate centers in the format: qcv1_center,qcv2_center,...,qcvn_center '
+                             'Default: {}'.format(quant_covar_centers_default))
+
     vox_covar_default = None
     parser.add_argument('--vox_covar', default=vox_covar_default,
                         help='Voxelwise covariate name. '
@@ -205,6 +215,16 @@ def __main__():
 
     ws_vars_entry = "-wsVars '{}'".format('*'.join(within_vars))
 
+    quant_covars_entry = '' # todo: test
+    quant_covars_list = []
+    quant_covars_centers_entry = ''
+    if args.quant_covars:
+        quant_covars_entry = args.quant_covars
+        quant_covars_list.extend(quant_covars_entry.split(','))
+        if args.quant_covars_centers:
+            quant_covars_centers_entry = args.quant_covars_centers
+
+    # todo: put in q_vars with bs_vars?
     mvmtable = mri_data.gen_mvm_table(scans_dict=scan_map, within=within_vars, between=between_vars,
                                       subbrick_mapping=perm_map, vox_covar=args.vox_covar,
                                       vox_covar_file_pattern=args.vox_covar_pattern, use_proc_run=args.proc_run)
@@ -223,6 +243,8 @@ def __main__():
                    'body_entry': body_entry,
                    'ws_vars_entry': ws_vars_entry,
                    'bs_vars_entry': bs_vars_entry,
+                   'quant_covars_entry': quant_covars_entry,
+                   'quant_covars_centers_entry': quant_covars_centers_entry,    # todo: test
                    'vox_covar_entry': vox_covar_entry}
 
     with open(args.mvm_template, 'r') as mvmcall:

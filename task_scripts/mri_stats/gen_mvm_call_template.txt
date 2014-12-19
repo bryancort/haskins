@@ -6,6 +6,8 @@
 -mask {mask_path} \
 {bs_vars_entry} \
 {ws_vars_entry} \
+{quant_covars_entry} \
+{quant_covars_centers_entry} \
 {vox_covar_entry} \
 -num_glt {num_glts} \
 {body_entry}
