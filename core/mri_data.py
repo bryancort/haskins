@@ -123,8 +123,6 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping, covars=None, vo
                 if bv not in var_pair.keys():
                     raise BetweenVarMismatchError('Mismatch: {} not specified for {}'.format(bv, scan.scan_id))
 
-    if covars:
-        raise NotImplementedError("Non-voxelwise covariates not yet implemented")
     mvmheader = ['Subj']
     scans_dict_sorted = OrderedDict(sorted(scans_dict.items()))
     if between:
@@ -132,6 +130,11 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping, covars=None, vo
         mvmheader.extend(between_vars.keys())
     else:
         between_vars = {}
+    if covars:
+        quant_covars = covars
+        mvmheader.extend(quant_covars)
+    else:
+        quant_covars = []
     if within:
         within_vars = OrderedDict(sorted(within.items()))
         mvmheader.extend(within_vars.keys())
@@ -155,6 +158,7 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping, covars=None, vo
             subbrick_val = subbricks[frozenset(perm)]
             for s, vars in scans_dict_sorted.items():
                 between_vals = [vars[k] for k in between_vars.keys()]
+                quant_covars_vals = [vars[k] for k in quant_covars]
                 run = s.proc_runs[use_proc_run]
                 if not subbrick_names:
                     subbrick_names = mri_utils.get_subBrick_Map(run.active_stats_file)
@@ -165,7 +169,7 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping, covars=None, vo
                     subj_filepaths.append(vox_covar_file)
                 stats_file = '"{}[{}]"'.format(run.active_stats_file, subbrick_names[subbrick_val])
                 subj_filepaths.append(stats_file)
-                mvmtable.append([s.scan_id] + between_vals + list(perm) + subj_filepaths)
+                mvmtable.append([s.scan_id] + between_vals + quant_covars_vals + list(perm) + subj_filepaths)
 
     return mvmtable
 

@@ -94,15 +94,15 @@ def genArgParser():
                              'absolute) when you run the MVM. '
                              'Default: {d}'.format(d=mask_path_default))
 
-    quant_covar_default = None
-    parser.add_argument('--vox_covar', default=quant_covar_default,
+    quant_covars_default = None
+    parser.add_argument('--quant_covars', default=quant_covars_default,
                         help='Quantitative covariates in the format: qcv1,qcv2,...,qcvn '
-                             'Default: {}'.format(quant_covar_default))
+                             'Default: {}'.format(quant_covars_default))
 
-    quant_covar_centers_default = None
-    parser.add_argument('--quant_covar_centers', default=quant_covar_centers_default,
+    quant_covars_centers_default = None
+    parser.add_argument('--quant_covars_centers', default=quant_covars_centers_default,
                         help='Quantitative covariate centers in the format: qcv1_center,qcv2_center,...,qcvn_center '
-                             'Default: {}'.format(quant_covar_centers_default))
+                             'Default: {}'.format(quant_covars_centers_default))
 
     vox_covar_default = None
     parser.add_argument('--vox_covar', default=vox_covar_default,
@@ -130,19 +130,19 @@ def _debug(*cmd_args):
 
 
 _debug_cmd = '--mvm_output_prefix scaled_SFNR_vox_covar ' \
-             '--output_dir /data1/bil/group_mvm_tables ' \
+             '--output_dir /data1/bil/group_mvm_tables_test ' \
              '--mri_dir /data1/bil/mri_subjects ' \
-             '--within_vars_spec_file /data1/bil/mvm_params/a187_within.txt ' \
-             '--between_vars_spec_file /data1/bil/mvm_params/a187_between.txt ' \
-             '--body_entry /data1/bil/mvm_params/a187_glts.txt ' \
+             '--within_vars_spec_file /data1/bil/mvm_params_test/a187_within.txt ' \
+             '--between_vars_spec_file /data1/bil/mvm_params_test/a187_between.txt ' \
+             '--body_entry /data1/bil/mvm_params_test/a187_glts.txt ' \
              '--output_table scaled_SFNR_vox_covar_table.txt ' \
              '--output_call scaled_SFNR_vox_covar_call.sh ' \
              '--proc_run .scale ' \
+             '--quant_covars dummy_covar1,dummy_covar2 ' \
              '--vox_covar SFNR ' \
              '--vox_covar_pattern *SFNR*.HEAD'
 
 
-# todo: implement 3dinfo parsing instead of reading from the condition file
 def _read_within_vars_spec_file(file_path):
     """
     Reads within subjects variable condition file
@@ -159,8 +159,7 @@ def _read_within_vars_spec_file(file_path):
     return within_vars, var_perms
 
 
-# todo
-def _read_between_vars_spec_file(file_path):
+def _read_between_vars_spec_file(file_path, qvars):    # todo: fix this TEST
     subj_map = {}
     between_vars = {}
     between_vars_table = file_utils.readTable2(fPath=file_path)
@@ -172,6 +171,8 @@ def _read_between_vars_spec_file(file_path):
         subj_map[line[0]] = {v: line[i] for i, v in enumerate(header[1:], start=1)}
         for i, entry in enumerate(header[1:], start=1):
             between_vars[entry].add(line[i])
+    for qvar in qvars:
+        del between_vars[qvar]
     return subj_map, between_vars
 
 
@@ -189,8 +190,17 @@ def __main__():
     output_table = os.path.join(args.output_dir, args.output_table_name)
     output_call = os.path.join(args.output_dir, args.output_call_name)
 
+    quant_covars_entry = ''
+    quant_covars_list = []
+    quant_covars_centers_entry = ''
+    if args.quant_covars:
+        quant_covars_entry = "-qVars '{}'".format(args.quant_covars)  # todo: fix to include -qVars TEST
+        quant_covars_list.extend(args.quant_covars.split(','))
+        if args.quant_covars_centers:
+            quant_covars_centers_entry = "-qVarCenters '{}'".format(args.quant_covars_centers)      # todo: fix to include -qVarCenters TEST
+
     within_vars, perm_map = _read_within_vars_spec_file(args.within_vars_spec_file)
-    subj_map, between_vars = _read_between_vars_spec_file(args.between_vars_spec_file)
+    subj_map, between_vars = _read_between_vars_spec_file(args.between_vars_spec_file, quant_covars_list)      # todo: see note in func
 
     scan_map = {}
     for s, v in subj_map.iteritems():
@@ -205,6 +215,8 @@ def __main__():
     bs_vars_entry = ""
 
     bs_vars_expr = '*'.join(between_vars)
+    for qvar in quant_covars_list:
+        bs_vars_expr += '+{}'.format(qvar)
     bs_vars_expr += '+{}'.format(args.vox_covar)
     bs_vars_expr = bs_vars_expr.strip('+')
     if args.vox_covar:
@@ -215,18 +227,8 @@ def __main__():
 
     ws_vars_entry = "-wsVars '{}'".format('*'.join(within_vars))
 
-    quant_covars_entry = ''     # todo: test
-    quant_covars_list = []
-    quant_covars_centers_entry = ''
-    if args.quant_covars:
-        quant_covars_entry = args.quant_covars
-        quant_covars_list.extend(quant_covars_entry.split(','))
-        if args.quant_covars_centers:
-            quant_covars_centers_entry = args.quant_covars_centers
-
-    # todo: put in q_vars with bs_vars?
     mvmtable = mri_data.gen_mvm_table(scans_dict=scan_map, within=within_vars, between=between_vars,
-                                      subbrick_mapping=perm_map, vox_covar=args.vox_covar,
+                                      subbrick_mapping=perm_map, vox_covar=args.vox_covar, covars=quant_covars_list,
                                       vox_covar_file_pattern=args.vox_covar_pattern, use_proc_run=args.proc_run)
 
     file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
@@ -242,7 +244,7 @@ def __main__():
                    'num_glts': num_glts,
                    'body_entry': body_entry,
                    'ws_vars_entry': ws_vars_entry,
-                   'bs_vars_entry': bs_vars_entry,
+                   'bs_vars_entry': bs_vars_entry,    # todo: fix this to specify model correctly (bsvar1*bsvar2*...*bsvarn+qvar1+...qvarn+vvar)
                    'quant_covars_entry': quant_covars_entry,
                    'quant_covars_centers_entry': quant_covars_centers_entry,    # todo: test
                    'vox_covar_entry': vox_covar_entry}
