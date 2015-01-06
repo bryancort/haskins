@@ -159,7 +159,7 @@ def _read_within_vars_spec_file(file_path):
     return within_vars, var_perms
 
 
-def _read_between_vars_spec_file(file_path, qvars):    # todo: fix this TEST
+def _read_between_vars_spec_file(file_path, qvars):
     subj_map = {}
     between_vars = {}
     between_vars_table = file_utils.readTable2(fPath=file_path)
@@ -180,7 +180,8 @@ def __main__():
     scriptName = os.path.splitext(os.path.basename(__file__))[0]
     parser = genArgParser()
     args = parser.parse_args()
-    if len(sys.argv) == 1 or args.debug:
+    # if len(sys.argv) == 1 or args.debug:
+    if args.debug:
         _debug(*_debug_cmd.split(' '))
         args = parser.parse_args()
     args.mri_dir = os.path.normpath(args.mri_dir)
@@ -194,13 +195,13 @@ def __main__():
     quant_covars_list = []
     quant_covars_centers_entry = ''
     if args.quant_covars:
-        quant_covars_entry = "-qVars '{}'".format(args.quant_covars)  # todo: fix to include -qVars TEST
+        quant_covars_entry = "-qVars '{}'".format(args.quant_covars)
         quant_covars_list.extend(args.quant_covars.split(','))
         if args.quant_covars_centers:
-            quant_covars_centers_entry = "-qVarCenters '{}'".format(args.quant_covars_centers)      # todo: fix to include -qVarCenters TEST
+            quant_covars_centers_entry = "-qVarCenters '{}'".format(args.quant_covars_centers)
 
     within_vars, perm_map = _read_within_vars_spec_file(args.within_vars_spec_file)
-    subj_map, between_vars = _read_between_vars_spec_file(args.between_vars_spec_file, quant_covars_list)      # todo: see note in func
+    subj_map, between_vars = _read_between_vars_spec_file(args.between_vars_spec_file, quant_covars_list)
 
     scan_map = {}
     for s, v in subj_map.iteritems():
@@ -244,7 +245,7 @@ def __main__():
                    'num_glts': num_glts,
                    'body_entry': body_entry,
                    'ws_vars_entry': ws_vars_entry,
-                   'bs_vars_entry': bs_vars_entry,    # todo: fix this to specify model correctly (bsvar1*bsvar2*...*bsvarn+qvar1+...qvarn+vvar)
+                   'bs_vars_entry': bs_vars_entry,
                    'quant_covars_entry': quant_covars_entry,
                    'quant_covars_centers_entry': quant_covars_centers_entry,    # todo: test
                    'vox_covar_entry': vox_covar_entry}
