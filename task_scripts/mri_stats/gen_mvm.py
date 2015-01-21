@@ -48,7 +48,7 @@ def genArgParser():
                              'a wildcard expression. '
                              'Default: {}'.format(proc_run_default))
 
-    output_dir_default = None
+    output_dir_default = '.'
     parser.add_argument('--output_dir', default=output_dir_default,
                         help='Output directory for MVM call and data table. '
                              'Default: {}'.format(output_dir_default))
@@ -81,7 +81,7 @@ def genArgParser():
                              'See README.md for more details and examples. '
                              'Default: {}'.format(body_entry_default))
 
-    num_jobs_default = '22'
+    num_jobs_default = '20'
     parser.add_argument('--num_jobs', default=num_jobs_default,
                         help='Number of jobs to run in parallel. '
                              'Default: {}'.format(num_jobs_default))
@@ -116,12 +116,6 @@ def genArgParser():
                              'that matches .HEAD/.BRIK files, be sure to add .HEAD. ie., instead of '
                              '*my_covariate_file*, use *my_covariate_file*.HEAD for this option.'
                              'Default: {}'.format(vox_covar_pattern_default))
-
-    # script action params
-    report_default = False
-    parser.add_argument('-r', '--report', action='store_true', default=report_default,
-                        help='Pass this flag to generate a run report.'
-                             'Default: {}'.format(report_default))
     return parser
 
 
