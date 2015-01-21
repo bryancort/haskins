@@ -275,6 +275,13 @@ def get_files_from_patterns(targ_dir, full_path, *patterns):
 
 
 def check_paths(inverse=False, *file_paths):
+    """
+    Checks for the existence of paths in file_paths
+
+    :param inverse: If True, return the paths that do not exist
+    :param file_paths: paths to check
+    :return: list of good (or bad, if inverse=True) file paths
+    """
     good_paths = {file_path for file_path in file_paths if os.path.exists(file_path)}
     if inverse:
         return set(file_paths) - good_paths

@@ -38,7 +38,7 @@ def genArgParser():
                              "Default: {}".format(mvm_template_default))
 
     mri_dir_default = None
-    parser.add_argument('--mri_dir', default=mri_dir_default,
+    parser.add_argument('--mri_dir', default=mri_dir_default, required=True,
                         help='Directory containing mri scan data. '
                              'Default: {}'.format(mri_dir_default))
 
@@ -64,22 +64,22 @@ def genArgParser():
                              'Default: {}'.format(output_call_name_default))
 
     within_vars_spec_file_default = None
-    parser.add_argument('--within_vars_spec_file', default=within_vars_spec_file_default,
+    parser.add_argument('--within_vars_spec_file', default=within_vars_spec_file_default, required=True,
                         help='File specifying within subjects variable information for the study. See README.md for '
                              'more details and examples. '
                              'Default: {}'.format(within_vars_spec_file_default))
 
     between_vars_spec_file_default = None
-    parser.add_argument('--between_vars_spec_file', default=between_vars_spec_file_default,
+    parser.add_argument('--between_vars_spec_file', default=between_vars_spec_file_default, required=True,
                         help='File specifying between subjects variable information for the study. See README.md for '
                              'more details and examples. '
                              'Default: {}'.format(between_vars_spec_file_default))
 
-    body_entry_default = None
-    parser.add_argument('--body_entry', default=body_entry_default,
+    body_entry_spec_file_default = None
+    parser.add_argument('--body_entry_spec_file', default=body_entry_spec_file_default, required=True,
                         help='Body of the MVM call. Should include (at least) GLT numbers and specifications. '
                              'See README.md for more details and examples. '
-                             'Default: {}'.format(body_entry_default))
+                             'Default: {}'.format(body_entry_spec_file_default))
 
     num_jobs_default = '20'
     parser.add_argument('--num_jobs', default=num_jobs_default,
@@ -128,7 +128,7 @@ def genArgParser():
 #              '--mri_dir /data1/bil/mri_subjects ' \
 #              '--within_vars_spec_file /data1/bil/mvm_params_test/a187_within.txt ' \
 #              '--between_vars_spec_file /data1/bil/mvm_params_test/a187_between.txt ' \
-#              '--body_entry /data1/bil/mvm_params_test/a187_glts.txt ' \
+#              '--body_entry_spec_file /data1/bil/mvm_params_test/a187_glts.txt ' \
 #              '--output_table scaled_SFNR_vox_covar_table.txt ' \
 #              '--output_call scaled_SFNR_vox_covar_call.sh ' \
 #              '--proc_run .scale ' \
@@ -182,7 +182,9 @@ def __main__():
     args.output_dir = os.path.normpath(args.output_dir)
     args.within_vars_spec_file = os.path.normpath(args.within_vars_spec_file)
     args.between_vars_spec_file = os.path.normpath(args.between_vars_spec_file)
-    args.body_entry = os.path.normpath(args.body_entry)
+    args.body_entry_spec_file = os.path.normpath(args.body_entry_spec_file)
+    bad_paths = file_utils.check_paths(True, args.mri_dir, args.output_dir, args.within_vars_spec_file,
+                                       args.between_vars_spec_file, args.body_entry_spec_file)
     output_table = os.path.join(args.output_dir, args.output_table_name)
     output_call = os.path.join(args.output_dir, args.output_call_name)
 
@@ -229,7 +231,7 @@ def __main__():
 
     file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
 
-    with open(args.body_entry) as infile:
+    with open(args.body_entry_spec_file) as infile:
         body_entry = infile.read()
         num_glts = len(body_entry.split('-gltLabel')) - 1
 
