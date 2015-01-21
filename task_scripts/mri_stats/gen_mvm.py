@@ -182,6 +182,7 @@ def __main__():
     args.output_dir = os.path.normpath(args.output_dir)
     args.within_vars_spec_file = os.path.normpath(args.within_vars_spec_file)
     args.between_vars_spec_file = os.path.normpath(args.between_vars_spec_file)
+    args.body_entry = os.path.normpath(args.body_entry)
     output_table = os.path.join(args.output_dir, args.output_table_name)
     output_call = os.path.join(args.output_dir, args.output_call_name)
 

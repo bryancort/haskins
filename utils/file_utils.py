@@ -259,7 +259,7 @@ def get_dirs_from_patterns(targ_dir, full_path, *patterns):
 
 def get_files_from_patterns(targ_dir, full_path, *patterns):
     """
-    gets all directory names (not full paths) in scan_dir matching patterns
+    gets all file names (not full paths) in targ_dir matching patterns
 
     :param targ_dir: directory to match patterns in
     :param patterns: patterns to match
@@ -272,3 +272,10 @@ def get_files_from_patterns(targ_dir, full_path, *patterns):
         for i, f in enumerate(file_list):
             file_list[i] = os.path.join(targ_dir, f)    # todo: test
     return file_list
+
+
+def check_paths(inverse=False, *file_paths):
+    good_paths = {file_path for file_path in file_paths if os.path.exists(file_path)}
+    if inverse:
+        return set(file_paths) - good_paths
+    return good_paths
