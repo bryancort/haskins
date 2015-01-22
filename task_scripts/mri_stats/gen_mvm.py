@@ -185,6 +185,11 @@ def __main__():
     args.body_entry_spec_file = os.path.normpath(args.body_entry_spec_file)
     bad_paths = file_utils.check_paths(True, args.mri_dir, args.output_dir, args.within_vars_spec_file,
                                        args.between_vars_spec_file, args.body_entry_spec_file)
+    if bad_paths:
+        print 'ERROR: The following paths do not exist'
+        for p in bad_paths:
+            print p
+        return
     output_table = os.path.join(args.output_dir, args.output_table_name)
     output_call = os.path.join(args.output_dir, args.output_call_name)
 
