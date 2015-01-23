@@ -249,8 +249,8 @@ def __main__():
 
     with open(args.mvm_template, 'r') as mvmcall:
         final_call = mvmcall.read().format(**format_args)
-        while '\n \\\n' in final_call:
-            final_call = final_call.replace('\n \\\n', '\n')
+        while ' \\\n \\\n' in final_call:
+            final_call = final_call.replace(' \\\n \\\n', ' \\\n')
         # fixme: This should be unnecessary, but the string replacement above is failing. Leaving both in for now.
         final_call_2 = []
         for line in final_call.split('\n'):
