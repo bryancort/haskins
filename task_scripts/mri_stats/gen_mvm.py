@@ -231,8 +231,6 @@ def __main__():
                                       subbrick_mapping=perm_map, vox_covar=args.vox_covar, covars=quant_covars_list,
                                       vox_covar_file_pattern=args.vox_covar_pattern, use_proc_run=args.proc_run)
 
-    # file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
-
     with open(args.body_entry_spec_file) as infile:
         body_entry = infile.read()
         num_glts = len(body_entry.split('-gltLabel')) - 1
