@@ -11,7 +11,7 @@ __author__ = 'cort'
 
 import argparse
 import os
-# import sys
+import sys
 from utils import base_utils, file_utils
 from core import mri_data
 
@@ -119,22 +119,19 @@ def genArgParser():
     return parser
 
 
-# def _debug(*cmd_args):
-#     sys.argv = [sys.argv[0]] + list(cmd_args)
-#
-#
-# _debug_cmd = '--mvm_output_prefix scaled_SFNR_vox_covar ' \
-#              '--output_dir /data1/bil/group_mvm_tables_test ' \
-#              '--mri_dir /data1/bil/mri_subjects ' \
-#              '--within_vars_spec_file /data1/bil/mvm_params_test/a187_within.txt ' \
-#              '--between_vars_spec_file /data1/bil/mvm_params_test/a187_between.txt ' \
-#              '--body_entry_spec_file /data1/bil/mvm_params_test/a187_glts.txt ' \
-#              '--output_table scaled_SFNR_vox_covar_table.txt ' \
-#              '--output_call scaled_SFNR_vox_covar_call.sh ' \
-#              '--proc_run .scale ' \
-#              '--quant_covars dummy_covar1,dummy_covar2 ' \
-#              '--vox_covar SFNR ' \
-#              '--vox_covar_pattern *SFNR*.HEAD'
+def _debug(*cmd_args):
+    sys.argv = [sys.argv[0]] + list(cmd_args)
+
+
+_debug_cmd = '--output_dir /data1/bil/group_mvm_tables_test ' \
+             '--mri_dir /data1/bil/mri_subjects ' \
+             '--within_vars_spec_file /data1/bil/mvm_params_test/a187_within.txt ' \
+             '--between_vars_spec_file /data1/bil/mvm_params_test/a187_between.txt ' \
+             '--body_entry_spec_file /data1/bil/mvm_params_test/a187_glts.txt ' \
+             '--proc_run .scale ' \
+             '--quant_covars dummy_covar1,dummy_covar2 ' \
+             '--vox_covar SFNR ' \
+             '--vox_covar_pattern *SFNR*.HEAD'
 
 
 def _read_within_vars_spec_file(file_path):
@@ -172,12 +169,12 @@ def _read_between_vars_spec_file(file_path, qvars):
 
 def __main__():
     scriptName = os.path.splitext(os.path.basename(__file__))[0]
+    if len(sys.argv) == 1:
+    # if args.debug:
+        _debug(*_debug_cmd.split(' '))
+        # args = parser.parse_args()
     parser = genArgParser()
     args = parser.parse_args()
-    # if len(sys.argv) == 1 or args.debug:
-    # if args.debug:
-    #     _debug(*_debug_cmd.split(' '))
-    #     args = parser.parse_args()
     args.mri_dir = os.path.normpath(args.mri_dir)
     args.output_dir = os.path.abspath(args.output_dir)
     args.within_vars_spec_file = os.path.normpath(args.within_vars_spec_file)
@@ -256,6 +253,12 @@ def __main__():
         final_call = mvmcall.read().format(**format_args)
         while '\n \\\n' in final_call:
             final_call = final_call.replace('\n \\\n', '\n')
+        final_call_2 = []
+        for line in final_call.split('\n'):
+            line = line.strip(' \\')
+            if line:
+                final_call_2.append(line)
+        final_call_2 = ' \\\n'.join(final_call_2)
         with open(output_call, 'w') as mvmcall_out:
             mvmcall_out.write(final_call)
     file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
