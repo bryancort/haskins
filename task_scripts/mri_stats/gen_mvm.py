@@ -11,7 +11,7 @@ __author__ = 'cort'
 
 import argparse
 import os
-import sys
+# import sys
 from utils import base_utils, file_utils
 from core import mri_data
 
@@ -179,7 +179,7 @@ def __main__():
     #     _debug(*_debug_cmd.split(' '))
     #     args = parser.parse_args()
     args.mri_dir = os.path.normpath(args.mri_dir)
-    args.output_dir = os.path.normpath(args.output_dir)
+    args.output_dir = os.path.abspath(args.output_dir)
     args.within_vars_spec_file = os.path.normpath(args.within_vars_spec_file)
     args.between_vars_spec_file = os.path.normpath(args.between_vars_spec_file)
     args.body_entry_spec_file = os.path.normpath(args.body_entry_spec_file)
@@ -234,7 +234,7 @@ def __main__():
                                       subbrick_mapping=perm_map, vox_covar=args.vox_covar, covars=quant_covars_list,
                                       vox_covar_file_pattern=args.vox_covar_pattern, use_proc_run=args.proc_run)
 
-    file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
+    # file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
 
     with open(args.body_entry_spec_file) as infile:
         body_entry = infile.read()
