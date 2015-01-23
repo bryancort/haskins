@@ -256,10 +256,9 @@ def __main__():
         # fixme: This should be unnecessary, but the string replacement above is failing. Leaving both in for now.
         final_call_2 = []
         for line in final_call.split('\n'):
-            line = line.strip(' \\')
-            if line:
+            if line != ' \\':
                 final_call_2.append(line)
-        final_call_2 = ' \\\n'.join(final_call_2)
+        final_call_2 = '\n'.join(final_call_2)
         with open(output_call, 'w') as mvmcall_out:
             mvmcall_out.write(final_call_2)
     file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
