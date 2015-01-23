@@ -261,7 +261,7 @@ def __main__():
                 final_call_2.append(line)
         final_call_2 = ' \\\n'.join(final_call_2)
         with open(output_call, 'w') as mvmcall_out:
-            mvmcall_out.write(final_call)
+            mvmcall_out.write(final_call_2)
     file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
 
 
