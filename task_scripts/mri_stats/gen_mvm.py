@@ -246,13 +246,14 @@ def __main__():
                    'ws_vars_entry': ws_vars_entry,
                    'bs_vars_entry': bs_vars_entry,
                    'quant_covars_entry': quant_covars_entry,
-                   'quant_covars_centers_entry': quant_covars_centers_entry,    # todo: test
+                   'quant_covars_centers_entry': quant_covars_centers_entry,
                    'vox_covar_entry': vox_covar_entry}
 
     with open(args.mvm_template, 'r') as mvmcall:
         final_call = mvmcall.read().format(**format_args)
         while '\n \\\n' in final_call:
             final_call = final_call.replace('\n \\\n', '\n')
+        # fixme: This should be unnecessary, but the string replacement above is failing. Leaving both in for now.
         final_call_2 = []
         for line in final_call.split('\n'):
             line = line.strip(' \\')
