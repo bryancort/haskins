@@ -250,17 +250,17 @@ def __main__():
         final_call = mvmcall.read().format(**format_args)
         while ' \\\n \\\n' in final_call:
             final_call = final_call.replace(' \\\n \\\n', ' \\\n')
-        # fixme: This should be unnecessary, but the string replacement above is failing. Leaving both in for now.
-        final_call_2 = []
-        for line in final_call.split('\n'):
-            if line != ' \\':
-                final_call_2.append(line)
-        # FIXME: DEBUG
-        for line in final_call_2:
-            print line, ' \\', line == ' \\'
-        final_call_2 = '\n'.join(final_call_2)
+        # # fixme: This should be unnecessary, but the string replacement above is failing. Leaving both in for now.
+        # final_call_2 = []
+        # for line in final_call.split('\n'):
+        #     if line != ' \\':
+        #         final_call_2.append(line)
+        # # FIXME: DEBUG
+        # for line in final_call_2:
+        #     print line, ' \\', line == ' \\'
+        # final_call_2 = '\n'.join(final_call_2)
         with open(output_call, 'w') as mvmcall_out:
-            mvmcall_out.write(final_call_2)
+            mvmcall_out.write(final_call)
     file_utils.writeTable(mvmtable, output_table, lineSep=' \\\n')
 
 
