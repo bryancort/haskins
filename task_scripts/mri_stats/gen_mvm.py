@@ -128,7 +128,6 @@ _debug_cmd = '--output_dir /data1/bil/group_mvm_tables_test ' \
              '--within_vars_spec_file /data1/bil/mvm_params_test/a187_within.txt ' \
              '--between_vars_spec_file /data1/bil/mvm_params_test/a187_between.txt ' \
              '--body_entry_spec_file /data1/bil/mvm_params_test/a187_glts.txt ' \
-             '--proc_run .scale ' \
              '--quant_covars dummy_covar1,dummy_covar2 ' \
              '--vox_covar SFNR ' \
              '--vox_covar_pattern *SFNR*.HEAD'

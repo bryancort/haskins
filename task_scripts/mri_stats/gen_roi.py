@@ -36,14 +36,25 @@ def genArgParser():
     #                          'Default: {}'.format(outputDir_default))
 
     search_space_default = None
-    parser.add_argument('--search_space', default=search_space_default,
+    parser.add_argument('--search_space', default=search_space_default, required=True,
                         help='Mask defining the search space.\n'
                              'Default: {}'.format(search_space_default))
 
     activation_map_default = None
-    parser.add_argument('--activation_map', default=activation_map_default,
+    parser.add_argument('--activation_map', default=activation_map_default, required=True,
                         help='Activation map to define ROIs from.\n'
                              'Default: {}'.format(activation_map_default))
+
+    warp_default = None
+    parser.add_argument('--warp', default=warp_default, required=True,
+                        help="Argument to the -warp option of 3dFractionalize. From the AFNI 3dFractionalize help:"
+                             "If this option is used, 'wset' is a dataset that provides a transformation (warp) from "
+                             "+orig coordinates to the coordinates of 'iset'.In this case, the output dataset will be "
+                             "in +orig coordinates rather than the coordinatesof 'iset'.  With this option:** 'tset' "
+                             "must be in +orig coordinates ** 'iset' must be in +acpc or +tlrc coordinates ** 'wset' "
+                             "must be in the same coordinates as 'iset'"
+                             'Default: {}'.format(warp_default))
+
 
     roi_size_default = 500
     parser.add_argument('--roi_size', default=roi_size_default,
@@ -57,15 +68,20 @@ def genArgParser():
                              'Default: {}'.format(report_default))
     return parser
 
-def _gen_search_space_map():
-    pass
 
-def _get_hottest_vox():
-    pass
-
-def _cluster_from_vox():
-    pass
-
-def _roi_from_cluster():
-    pass
-
+# Might not need these with the new 3dROIMaker feature
+# def _gen_search_space_map():
+#     pass
+#
+#
+# def _get_hottest_vox():
+#     pass
+#
+#
+# def _cluster_from_vox():
+#     pass
+#
+#
+# def _roi_from_cluster():
+#     pass
+#
