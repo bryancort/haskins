@@ -84,13 +84,14 @@ def genArgParser():
                         help='Clipping threshold for the mask. '
                              'Default: {}'.format(clip_default))
 
-    cluster_thresh_default = 0
+    cluster_thresh_default = -100000
     parser.add_argument('--thresh', default=cluster_thresh_default,
                         help='Default threshold for including voxels in the cluster. '
                              'Default: {} (this will always result in an '
                              'N-voxel cluster)'.format(cluster_thresh_default))
 
-    mask_output_prefix_default = 'int_mask.nii.gz'  # fixme: revert to None when testing complete
+    # fixme: revert to None when testing complete
+    mask_output_prefix_default = 'int_mask_{}.nii.gz'.format(base_utils.getLocalTime())
     parser.add_argument('--mask_output_prefix', default=mask_output_prefix_default,
                         help="Name for the search space mask. If 'None', the intermediate mask will be discarded after "
                              "processing is complete. Default: {}".format(mask_output_prefix_default))
