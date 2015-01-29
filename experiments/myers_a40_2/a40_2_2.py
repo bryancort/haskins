@@ -13,6 +13,7 @@ from psychopy import core, gui, visual
 import os
 import time
 import shutil
+import glob
 
 
 class A40P2TrialSequenceRunner(experiment.TrialSequenceRunner):  # todo: test
@@ -77,7 +78,7 @@ def _reformat_output(data_file_path, backup_dir):  # todo: test
                 responses = responses_str.split('), (')
                 for num, resp in enumerate(responses, start=1):
                     resp_split = resp.split(',')
-                    new_row = temp_row[:] + [str(num), resp_split[0], resp_split[1]]    # fixme
+                    new_row = temp_row[:] + [str(num), resp_split[0], resp_split[1]]
                     new_row = [entry.replace(' ', '') for entry in new_row]
                     new_table.append(temp_row[:] + [str(num), resp_split[0], resp_split[1]])
             else:
@@ -90,11 +91,11 @@ def _reformat_output(data_file_path, backup_dir):  # todo: test
 background_color = [0, 0, 0]
 foreground_color = [1, 1, 1]
 window_units = 'norm'
-fullscr = 0     # todo
+fullscr = 1
 window_scale = [1, 1]
 
 # experimental params
-run_nums = [1, 2, 3, 4, 5, 6]
+run_nums = [1, 2, 3, 4, 5, 6, 7, 8]
 inter_trial_interval = 0.0
 trial_duration = 12.0
 
@@ -105,7 +106,7 @@ mri_warmup_stim = stims.TextStimulus(value=mri_warmup_msg, color=foreground_colo
 start_wait_msg = 'waiting for mri'
 start_wait_stim = stims.TextStimulus(value=start_wait_msg, color=foreground_color)
 
-trial_output = ['ttype', 'trialnumber', 'response', 'stims', 'condition']
+trial_output = ['ttype', 'trialnumber', 'response', 'stims']
 
 # path params
 config_dir = os.path.normpath('config')
@@ -114,7 +115,7 @@ backup_dir = os.path.normpath('data/raw_backups')
 stims_dir = os.path.normpath('stim')
 
 subj_id_temp_filepath = os.path.join(config_dir, '.last_id.txt')
-stims_list_filepath = os.path.join(config_dir, 'stim_order_list.txt')
+stim_orders_list = glob.glob(os.path.join(config_dir, '*run*.txt'))
 
 
 def __main__():
@@ -156,32 +157,27 @@ def __main__():
         running_outfile_name = 'backup_{}'.format(outfile_name)
         running_outfile_path = os.path.join(data_dir, running_outfile_name)
 
-        run_id = 'run{}'.format(run)
-        cond_file = file_utils.match_single_file(path=config_dir, pattern='*{}*'.format(run_id),
-                                                 except_on_fail=True)
-        cond_table = file_utils.readTable2(cond_file)
-        cond_dict = base_utils.dicts_from_table(cond_table, row_nums_as_keys=False)
-
         # construct trials
-        stimfile_table = file_utils.readTable2(stims_list_filepath)
-        stim_dict = base_utils.dicts_from_table(stimfile_table, row_nums_as_keys=True)
+        setup_dict = {}
+        for run_config in stim_orders_list:
+            stimfile_table = file_utils.readTable2(stim_orders_list)
+            stim_dict = base_utils.dicts_from_table(stimfile_table, row_nums_as_keys=False)
+            run_name = os.path.split(run_config)[1].rstrip('.txt')
+            setup_dict[run_name] = stim_dict
         trials = []
-        for trial_num in stim_dict:
-            filename = stim_dict[trial_num][run_id]
-            condition = cond_dict[filename]['condition']
-            filepath = os.path.join(stims_dir, filename)
-            try:
+        for run_name in sorted(setup_dict):
+
+            for trial_num in stim_dict:
+                run_id = 'run{}'.format(run)
+                filename = stim_dict[trial_num][run_id]
+                filepath = os.path.join(stims_dir, filename)
                 trial_stims = (stims.SoundStimulus(name=filepath, stype='sound', value=filepath),) + base_stims
                 for stim in trial_stims:
                     stim.instantiate(window=win)
                 trials.append(experiment.Trial(trialnumber=int(trial_num), ttype='run{}'.format(run), list_attrs=trial_output,
-                                               duration=trial_duration, iti=inter_trial_interval,
-                                               stims=trial_stims, condition=condition))
-                # print '{} trial {} has file {}'.format(run_id, trial_num, filename)
-            except ValueError as e:
-                print 'ERROR: {} trial {} missing file {}'.format(run_id, trial_num, filename)
-                raise
-        trials.sort()
+                                               duration=trial_duration, iti=inter_trial_interval, stims=trial_stims,
+                                               condition=condition_num))
+            trials.sort()
     except:
         print 'Error while generating trials'
         raise
