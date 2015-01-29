@@ -170,16 +170,17 @@ def __main__():
             filename = stim_dict[trial_num][run_id]
             condition = cond_dict[filename]['condition']
             filepath = os.path.join(stims_dir, filename)
-            try:    # fixme
+            try:
                 trial_stims = (stims.SoundStimulus(name=filepath, stype='sound', value=filepath),) + base_stims
                 for stim in trial_stims:
                     stim.instantiate(window=win)
                 trials.append(experiment.Trial(trialnumber=int(trial_num), ttype='run{}'.format(run), list_attrs=trial_output,
                                                duration=trial_duration, iti=inter_trial_interval,
                                                stims=trial_stims, condition=condition))
-                print '{} trial {} has file {}'.format(run_id, trial_num, filename)
-            except ValueError as e: # fixme
+                # print '{} trial {} has file {}'.format(run_id, trial_num, filename)
+            except ValueError as e:
                 print 'ERROR: {} trial {} missing file {}'.format(run_id, trial_num, filename)
+                raise
         trials.sort()
     except:
         print 'Error while generating trials'
