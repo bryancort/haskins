@@ -68,7 +68,8 @@ class HoggingStaticPeriod(StaticPeriod):
 
 class Trial(Listable, KeyedMixin, ComparableMixin):
     def __init__(self, trialnumber=None, abstrialnumber=None, ttype=None, duration=None, iti=0.0, message=None,
-                 stims=(), response=None, correctresponse=None, rt=None, accuracy=None, list_attrs='all', displayed=0):
+                 stims=(), response=None, correctresponse=None, rt=None, accuracy=None, list_attrs='all', displayed=0,
+                 condition=None):
         """
         :param trialnumber:         Number of the trial within the containing block. Int, String, or None.
         :param abstrialnumber:	    Absolute number of the trial (does not reset between blocks). Int, String, or None.
@@ -84,6 +85,7 @@ class Trial(Listable, KeyedMixin, ComparableMixin):
         :param list_attrs:          Trial attributes to record in the list_attrs file. 'all', List of Strings, or None.
                                     NB: Default ('all') is very verbose.
         :param displayed:           Whether trial was displayed or not
+        :param condition:           Condition descriptor
         """
         Listable.__init__(self, list_attrs)
         self.iti = iti
@@ -99,6 +101,7 @@ class Trial(Listable, KeyedMixin, ComparableMixin):
         self.accuracy = accuracy
         self.list_attrs = list_attrs
         self.displayed = displayed
+        self.condition = condition
 
     def run(self):
         raise NotImplementedError("{} does not implement run().".format(self.__class__.__name__))

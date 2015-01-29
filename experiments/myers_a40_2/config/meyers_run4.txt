@@ -1,29 +1,30 @@
-1	TAR_SA_k_g.aiff	7
-2	DA_b_g.aiff	1
-3	SCN_Repeated_v.aiff	6
-4	TAR_Repeated_thv_SCN.aiff	7
-5	SCN_DA_v_thv.aiff	4
-6	SA_b_p.aiff	2
-7	SCN_DA_k_p.aiff	4
-8	DA_b_d.aiff	1
-9	SCN_SA_thv_z.aiff	5
-10	Repeated_k.aiff	3
-11	DA_th_f.aiff	1
-12	SA_b_v.aiff	2
-13	SCN_SA_v_b.aiff	5
-14	Repeated_th.aiff	3
-15	SCN_DA_z_v.aiff	4
-16	TAR_DA_t_p_SCN.aiff	7
-17	SCN_DA_p_t.aiff	4
-18	TAR_Repeated_d.aiff	7
-19	SCN_Repeated_p.aiff	6
-20	SA_p_f.aiff	2
-21	Repeated_f.aiff	3
-22	DA_s_f.aiff	1
-23	SCN_SA_p_b.aiff	5
-24	SCN_Repeated_g.aiff	6
-25	Repeated_b.aiff	3
-26	SCN_SA_s_t.aiff	5
-27	SCN_Repeated_d.aiff	6
-28	TAR_SA_f_v.aiff	7
-29	SA_thv_d.aiff	2
+filename	condition
+TAR_SA_k_g.aiff	7
+DA_b_g.aiff	1
+SCN_Repeated_v.aiff	6
+TAR_Repeated_thv_SCN.aiff	7
+SCN_DA_v_thv.aiff	4
+SA_b_p.aiff	2
+SCN_DA_k_p.aiff	4
+DA_b_d.aiff	1
+SCN_SA_thv_z.aiff	5
+Repeated_k.aiff	3
+DA_th_f.aiff	1
+SA_b_v.aiff	2
+SCN_SA_v_b.aiff	5
+Repeated_th.aiff	3
+SCN_DA_z_v.aiff	4
+TAR_DA_t_p_SCN.aiff	7
+SCN_DA_p_t.aiff	4
+TAR_Repeated_d.aiff	7
+SCN_Repeated_p.aiff	6
+SA_p_f.aiff	2
+Repeated_f.aiff	3
+DA_s_f.aiff	1
+SCN_SA_p_b.aiff	5
+SCN_Repeated_g.aiff	6
+Repeated_b.aiff	3
+SCN_SA_s_t.aiff	5
+SCN_Repeated_d.aiff	6
+TAR_SA_f_v.aiff	7
+SA_thv_d.aiff	2
