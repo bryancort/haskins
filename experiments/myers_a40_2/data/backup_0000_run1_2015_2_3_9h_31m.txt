@@ -1,5 +1,0 @@
-ttype	trialnumber	response	stims	condition
-run1	1	[]	(stim\TAR_DA_f_s.aiff, center_rect, +)	7
-run1	2	[]	(stim\SCN_SA_thv_z.aiff, center_rect, +)	5
-run1	3	[]	(stim\SCN_DA_p_t.aiff, center_rect, +)	4
-run1	4	[('q', 8.410428527044132)]	(stim\Repeated_k.aiff, center_rect, +)	3

@@ -1,2 +1,0 @@
-ttype	trialnumber	response	stims	condition
-run6	1	[]	(stim\TAR_Repeated_g.aiff, center_rect, +)	7

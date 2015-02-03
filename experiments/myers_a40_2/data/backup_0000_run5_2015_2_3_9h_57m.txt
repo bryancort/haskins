@@ -1,2 +1,0 @@
-ttype	trialnumber	response	stims	condition
-run5	1	[]	(stim\TAR_Repeated_v_SCN.aiff, center_rect, +)	7

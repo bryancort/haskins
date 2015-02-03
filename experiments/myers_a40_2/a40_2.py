@@ -192,12 +192,16 @@ def __main__():
                                                    running_outfile=running_outfile_path, quit_key=quit_key)
         sequence_runner.run_trials(delay=warmup_duration, delay_msg_stim=mri_warmup_stim,
                                    start_signal_keys=mri_signal_keys, start_signal_wait_stim=start_wait_stim)
+    except experiment.InputError as e:
+        print e.message
     except:
         print 'Error while running trials'
         raise
     try:
-        _reformat_output(outfile_path, backup_dir)
-        _reformat_output(running_outfile_path, backup_dir)
+        if os.path.exists(running_outfile_path):
+            _reformat_output(running_outfile_path, backup_dir)
+        if os.path.exists(outfile_path):
+            _reformat_output(outfile_path, backup_dir)
     except:
         print 'error reformatting files'
         raise
