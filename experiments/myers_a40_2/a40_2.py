@@ -77,8 +77,6 @@ def _reformat_output(data_file_path, backup_dir):  # todo: test
                 responses = responses_str.split('), (')
                 for num, resp in enumerate(responses, start=1):
                     resp_split = resp.split(',')
-                    new_row = temp_row[:] + [str(num), resp_split[0], resp_split[1]]  # fixme
-                    new_row = [entry.replace(' ', '') for entry in new_row]
                     new_table.append(temp_row[:] + [str(num), resp_split[0], resp_split[1]])
             else:
                 new_table.append(temp_row[:] + ['NA', 'NA', 'NA'])
