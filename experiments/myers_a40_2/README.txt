@@ -9,4 +9,11 @@ begin presenting trials. The experimentor can press 'q' at any time during the r
 current trial completes. Once all trials in the run have been presented, the program will exit. To start the next run, again 
 double click the A40_2_EXP shortcut and select the next run.
 
-Behavioral data is stored in myers_a40_2/data. Data is saved written to a 'raw' file first, and then reformatted to a more readable structure after each run. Primary data (saved after the each run completes successfully) is saved in the top level myers_a40_2/data directory as SubjID_run#_DateTime.txt. Behavioral data is also saved after each trial to a backup file named backup_SubjID_run#_DateTime.txt. This means that there should be 2 full data files for each full run, and one partial data file (containing only the trials that were run before the experiment terminated) for partial runs. For any formatted file (SubjID_run#_DateTime.txt or backup_SubjID_run#_DateTime.txt) 
+Behavioral data is stored in myers_a40_2/data. Data is saved written to a 'raw' file first, and then reformatted to a more 
+readable structure after each run. Primary data (saved after the each run completes successfully) is saved in the top level 
+myers_a40_2/data directory as SubjID_run#_DateTime.txt. Behavioral data is also saved after each trial to a backup file named 
+backup_SubjID_run#_DateTime.txt. This means that there should be 2 full data files for each full run, and one partial data file 
+(containing only the trials that were run before the experiment terminated) for partial runs. For any formatted file 
+(SubjID_run#_DateTime.txt or backup_SubjID_run#_DateTime.txt) there should also be a copy of the raw, unformatted data in 
+myers_a40_2/data/raw_backups. Naming should be identical except that each of the raw backup files will have 'raw_' prepended to 
+the name, eg. raw_SubjID_run#_DateTime.txt or raw_backup_SubjID_run#_DateTime.txt
