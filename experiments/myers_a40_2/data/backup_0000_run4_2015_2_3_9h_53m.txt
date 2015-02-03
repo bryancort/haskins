@@ -1,0 +1,2 @@
+ttype	trialnumber	response	stims	condition
+run4	1	[]	(stim\TAR_SA_k_g.aiff, center_rect, +)	7

@@ -1,0 +1,1 @@
+ttype	trialnumber	response	stims	condition
