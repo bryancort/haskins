@@ -18,6 +18,10 @@ class ExpUtilError(Exception):
     pass
 
 
+class InputError(Exception):
+    pass
+
+
 class Listable(object):
     def __init__(self, list_attrs=()):
         """
@@ -165,13 +169,15 @@ class Experiment(Listable):
 
 
 class TrialSequenceRunner:
-    def __init__(self, trials, window, outfile, running_outfile=None, outfile_sep='\t', hogging_period=True):
+    def __init__(self, trials, window, outfile, quit_key=None, running_outfile=None, outfile_sep='\t',
+                 hogging_period=True):
         """
         Class for running trial sequences with precise timing
 
         :param trials: iterable of trials to run
         :param window: window to run trials in
         :param outfile: file to save list_attrs to at the end of the run
+        :param quit_key: key to listen for to exit the trial sequence prematurely
         :param running_outfile: file to save list_attrs to after each trial (in case of experiment crash/data loss)
         :param outfile_sep: separator to use when formatting the list_attrs files
         :param hogging_period: use a hogging static period (True) or a regular static period (False). rt collection
@@ -179,6 +185,7 @@ class TrialSequenceRunner:
         """
         self.window = window
         self.outfile = outfile
+        self.quit_key = quit_key
         self.running_outfile = running_outfile
         self.outfile_sep = outfile_sep
         self.trials = trials
@@ -249,6 +256,11 @@ class TrialSequenceRunner:
         self._last_trial = self._current_trial
         self._current_trial = self._next_trial
 
+        if last_responses and self.quit_key:    # todo: test with no timestamping
+            for r in last_responses:
+                if r == self.quit_key or self.quit_key in r:
+                    raise InputError("Experiment manually terminated")
+
         if self._last_trial:
             self._last_trial.response = last_responses
             self._save_last_trial()
@@ -277,7 +289,7 @@ class TrialSequenceRunner:
         """
         run all trials in the sequence and save the data
 
-        :param delay: time to wait before beginning trials
+        :param delay: time to wait before beginning trials;
         :param delay_msg_stim: stim to display while waiting to being trials
         :param start_signal_keys: list of keys to listen for to begin the run. if none, run begins immediately
         :param start_signal_wait_stim: stim to display while waiting for the start signal

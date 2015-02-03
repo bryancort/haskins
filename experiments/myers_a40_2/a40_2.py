@@ -68,7 +68,7 @@ def _reformat_output(data_file_path, backup_dir):  # todo: test
         new_table = [new_table_header]
         for row in data:
             temp_row = row[:]
-            #fix out stim column since we're here anyway
+            # fix out stim column since we're here anyway
             stims_str = row[stims_index].strip('()')
             stim_filename = stims_str.split(',')[0]
             temp_row[stims_index] = stim_filename.split(os.path.sep)[-1]
@@ -77,7 +77,7 @@ def _reformat_output(data_file_path, backup_dir):  # todo: test
                 responses = responses_str.split('), (')
                 for num, resp in enumerate(responses, start=1):
                     resp_split = resp.split(',')
-                    new_row = temp_row[:] + [str(num), resp_split[0], resp_split[1]]    # fixme
+                    new_row = temp_row[:] + [str(num), resp_split[0], resp_split[1]]  # fixme
                     new_row = [entry.replace(' ', '') for entry in new_row]
                     new_table.append(temp_row[:] + [str(num), resp_split[0], resp_split[1]])
             else:
@@ -90,7 +90,7 @@ def _reformat_output(data_file_path, backup_dir):  # todo: test
 background_color = [0, 0, 0]
 foreground_color = [1, 1, 1]
 window_units = 'norm'
-fullscr = 0     # todo
+fullscr = 1
 window_scale = [1, 1]
 
 # experimental params
@@ -100,6 +100,7 @@ trial_duration = 12.0
 
 warmup_duration = 12.0
 mri_signal_keys = ['5']
+quit_key = 'q'
 mri_warmup_msg = 'starting run'
 mri_warmup_stim = stims.TextStimulus(value=mri_warmup_msg, color=foreground_color)
 start_wait_msg = 'waiting for mri'
@@ -174,9 +175,10 @@ def __main__():
                 trial_stims = (stims.SoundStimulus(name=filepath, stype='sound', value=filepath),) + base_stims
                 for stim in trial_stims:
                     stim.instantiate(window=win)
-                trials.append(experiment.Trial(trialnumber=int(trial_num), ttype='run{}'.format(run), list_attrs=trial_output,
-                                               duration=trial_duration, iti=inter_trial_interval,
-                                               stims=trial_stims, condition=condition))
+                trials.append(
+                    experiment.Trial(trialnumber=int(trial_num), ttype='run{}'.format(run), list_attrs=trial_output,
+                                     duration=trial_duration, iti=inter_trial_interval,
+                                     stims=trial_stims, condition=condition))
                 # print '{} trial {} has file {}'.format(run_id, trial_num, filename)
             except ValueError as e:
                 print 'ERROR: {} trial {} missing file {}'.format(run_id, trial_num, filename)
@@ -187,7 +189,7 @@ def __main__():
         raise
     try:
         sequence_runner = A40P2TrialSequenceRunner(trials=trials, window=win, outfile=outfile_path,
-                                                   running_outfile=running_outfile_path)
+                                                   running_outfile=running_outfile_path, quit_key=quit_key)
         sequence_runner.run_trials(delay=warmup_duration, delay_msg_stim=mri_warmup_stim,
                                    start_signal_keys=mri_signal_keys, start_signal_wait_stim=start_wait_stim)
     except:
