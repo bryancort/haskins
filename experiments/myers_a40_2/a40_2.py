@@ -96,7 +96,7 @@ run_nums = [1, 2, 3, 4, 5, 6]
 inter_trial_interval = 0.0
 trial_duration = 12.0
 
-warmup_duration = 12.0
+warmup_duration = 0.0
 mri_signal_keys = ['5']
 quit_key = 'q'
 mri_warmup_msg = 'starting run'
@@ -154,6 +154,8 @@ def __main__():
         outfile_path = os.path.join(data_dir, outfile_name)
         running_outfile_name = 'backup_{}'.format(outfile_name)
         running_outfile_path = os.path.join(data_dir, running_outfile_name)
+        event_log_name = 'EVENTS_{}_run{}_{}.txt'.format(subj_id, run, base_utils.getLocalTime())
+        event_log_path = os.path.join(data_dir, event_log_name)
 
         run_id = 'run{}'.format(run)
         cond_file = file_utils.match_single_file(path=config_dir, pattern='*{}*'.format(run_id),
@@ -187,7 +189,8 @@ def __main__():
         raise
     try:
         sequence_runner = A40P2TrialSequenceRunner(trials=trials, window=win, outfile=outfile_path,
-                                                   running_outfile=running_outfile_path, quit_key=quit_key)
+                                                   running_outfile=running_outfile_path, quit_key=quit_key,
+                                                   event_log_path=event_log_path)
         sequence_runner.run_trials(delay=warmup_duration, delay_msg_stim=mri_warmup_stim,
                                    start_signal_keys=mri_signal_keys, start_signal_wait_stim=start_wait_stim)
     except experiment.InputError as e:
