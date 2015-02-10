@@ -18,6 +18,10 @@ class ExpUtilError(Exception):
     pass
 
 
+class InputError(Exception):
+    pass
+
+
 class Listable(object):
     def __init__(self, list_attrs=()):
         """
@@ -164,21 +168,43 @@ class Experiment(Listable):
         return '{}_Experiment'.format(str(self.name))
 
 
+class ExperimentEvent(Listable, KeyedMixin, ComparableMixin):
+    def __init__(self, timestamp, event_string, list_attrs='all'):
+        Listable.__init__(self, list_attrs)
+        self.timestamp = timestamp
+        self.event_string = event_string
+
+    def __key__(self):
+        return self.timestamp
+
+    def __str__(self):
+        return '{}---{}'.format(str(self.timestamp), str(self.event_string))
+
+    def __repr__(self):
+        return '{}---{}'.format(str(self.timestamp), str(self.event_string))
+
+
 class TrialSequenceRunner:
-    def __init__(self, trials, window, outfile, running_outfile=None, outfile_sep='\t', hogging_period=True):
+    def __init__(self, trials, window, outfile, quit_key=None, running_outfile=None, outfile_sep='\t',
+                 hogging_period=True, event_log_path=None):
         """
         Class for running trial sequences with precise timing
 
         :param trials: iterable of trials to run
         :param window: window to run trials in
         :param outfile: file to save list_attrs to at the end of the run
+        :param quit_key: key to listen for to exit the trial sequence prematurely
         :param running_outfile: file to save list_attrs to after each trial (in case of experiment crash/data loss)
         :param outfile_sep: separator to use when formatting the list_attrs files
         :param hogging_period: use a hogging static period (True) or a regular static period (False). rt collection
             requires a hogging static period.
+        :param event_log_path: log file path for non-trial specific events
         """
+        self.event_log = []  # list for ExperimentEvents
+        self.event_log_path = event_log_path
         self.window = window
         self.outfile = outfile
+        self.quit_key = quit_key
         self.running_outfile = running_outfile
         self.outfile_sep = outfile_sep
         self.trials = trials
@@ -194,7 +220,11 @@ class TrialSequenceRunner:
 
         self.clock = core.Clock()
 
-        # self._load_next_trial()
+        if self.running_outfile:
+            self._write_outfile_header(self.running_outfile)
+
+        self._load_next_trial()
+        # self.window.callOnFlip(self.clock.reset)
 
     def _save_last_trial(self):
         """
@@ -204,6 +234,16 @@ class TrialSequenceRunner:
             with open(self.running_outfile, 'a') as running_outfile:
                 running_outfile.write('\n')
                 running_outfile.write(self.outfile_sep.join(self._last_trial.gen_attr_list()))
+
+    def _log_events(self, *events):
+        """
+        log the events from this trial sequence
+        """
+        if self.event_log_path:
+            self.event_log.sort()
+            event_log_strs = [str(e) for e in self.event_log]
+            with open(self.event_log_path, 'w') as event_log:
+                event_log.write('\n'.join(event_log_strs))
 
     def _save_all_trials(self):
         """
@@ -238,16 +278,33 @@ class TrialSequenceRunner:
         """
         self.period.complete()  # complete the current trial
         self.period.start(duration=self._next_trial.duration)
+        trial_start = self.clock.getTime()
         self.window.flip()
         if self._next_trial:
             self._additional_trial_init()
-
+        stims_start = self.clock.getTime()
         last_responses = event.getKeys(timeStamped=self.clock)
         event.clearEvents()
-        self.clock.reset()
+
+        self.event_log.append(ExperimentEvent(timestamp=trial_start,
+                                              event_string="Trial {} started".format(self._next_trial.trialnumber)))
+        self.event_log.append(ExperimentEvent(timestamp=stims_start,
+                                              event_string="Trial {} stims started".format(
+                                                  self._next_trial.trialnumber)))
+
+        # TODO
+        # ADD PULSE EXTRACTION TO POST RUN LOG FORMATTING
+        # ADD TIMESTAMP FORMATTING TO THE BEHAVIORAL DATA LOG
+
+        # self.clock.reset()
 
         self._last_trial = self._current_trial
         self._current_trial = self._next_trial
+
+        if last_responses and self.quit_key:  # todo: test with no timestamping
+            for r in last_responses:
+                if r == self.quit_key or self.quit_key in r:
+                    raise InputError("Experiment manually terminated")
 
         if self._last_trial:
             self._last_trial.response = last_responses
@@ -277,42 +334,80 @@ class TrialSequenceRunner:
         """
         run all trials in the sequence and save the data
 
-        :param delay: time to wait before beginning trials
+        :param delay: time to wait before beginning trials;
         :param delay_msg_stim: stim to display while waiting to being trials
         :param start_signal_keys: list of keys to listen for to begin the run. if none, run begins immediately
         :param start_signal_wait_stim: stim to display while waiting for the start signal
         """
-        if start_signal_keys:
-            if start_signal_wait_stim:
-                start_signal_wait_stim.present(window=self.window, clear=True)
-            event.waitKeys(keyList=start_signal_keys)
-        self.period.start(delay)
-        #debug
-        self.clock.reset()
-        if delay_msg_stim:
-            delay_msg_stim.present(window=self.window, clear=True)
-        if self.running_outfile:
-            self._write_outfile_header(self.running_outfile)
-        self.window.callOnFlip(self.clock.reset)
-        self.window.clearBuffer()
-        self._load_next_trial()
-        self.period.complete()
+
+        # TODO: TEST TIMING
         self.period.start(self._next_trial.duration)
-        self.window.flip()
-        self._load_next_trial()     # this shouldn't be necessary, but for some reason the fixation cross was not being
-        self.window.flip()          # drawn in front of the darker rect on the first trial.
-        self._additional_trial_init()
-        event.clearEvents()
-        self._current_trial = self._next_trial
-        self._next_trial = self.trials[self.trials.index(self._current_trial) + 1]
-        self._load_next_trial()
-        while self._next_trial:
-            self._run_next_trial()
-        self._save_all_trials()
+        try:
+            run_start = self.clock.getTime()
+
+            if start_signal_keys:
+                if start_signal_wait_stim:
+                    self.window.clearBuffer()
+                    start_signal_wait_stim.present(window=self.window, clear=True)
+                    self._load_next_trial()
+                    # self.window.callOnFlip(self.clock.reset)
+                event.waitKeys(keyList=start_signal_keys)
+                self.period.start(self._next_trial.duration)
+
+            delay_start = None
+            if delay:
+                self.period.start(delay)
+                delay_start = self.clock.getTime()
+                self.window.clearBuffer()
+                # wait for specified keypress to start
+                if start_signal_keys:
+                    if start_signal_wait_stim:
+                        start_signal_wait_stim.present(window=self.window, clear=True)
+                    event.waitKeys(keyList=start_signal_keys)
+                    self.period.start(delay)
+                # debug
+                # self.clock.reset()
+                if delay_msg_stim:
+                    delay_msg_stim.present(window=self.window, clear=True)
+                # self.window.callOnFlip(self.clock.reset)
+                self.window.clearBuffer()
+                self._load_next_trial()
+                self.period.complete()
+                self.period.start(self._next_trial.duration)
+
+            trial_start = self.clock.getTime()
+            self._additional_trial_init()
+            self.window.flip()
+            stims_start = self.clock.getTime()
+            self._load_next_trial()  # this shouldn't be necessary, but for some reason the fixation cross was not being
+            self.window.flip()  # drawn in front of the darker rect on the first trial.
+            event.clearEvents()
+
+            self.event_log.append(ExperimentEvent(timestamp=run_start, event_string="Run started"))
+            if delay:
+                self.event_log.append(ExperimentEvent(timestamp=delay_start,
+                                                      event_string="Delay ({}) started".format(delay)))
+            self.event_log.append(ExperimentEvent(timestamp=trial_start,
+                                                  event_string="Trial {} started".format(self._next_trial.trialnumber)))
+            self.event_log.append(ExperimentEvent(timestamp=stims_start,
+                                                  event_string="Trial {} stims started".format(
+                                                      self._next_trial.trialnumber)))
+            self._current_trial = self._next_trial
+            self._next_trial = self.trials[self.trials.index(self._current_trial) + 1]
+            self._load_next_trial()
+
+            while self._next_trial:
+                self._run_next_trial()
+            self._save_all_trials()
+            self._log_events()
+        except:
+            self._log_events()
+            raise
 
 
 def main():
     pass
+
 
 if __name__ == '__main__':
     main()
