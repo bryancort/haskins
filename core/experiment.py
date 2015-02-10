@@ -382,9 +382,6 @@ class TrialSequenceRunner:
             self._load_next_trial()  # this shouldn't be necessary, but for some reason the fixation cross was not being
             self.window.flip()  # drawn in front of the darker rect on the first trial.
             event.clearEvents()
-            self._current_trial = self._next_trial
-            self._next_trial = self.trials[self.trials.index(self._current_trial) + 1]
-            self._load_next_trial()
 
             self.event_log.append(ExperimentEvent(timestamp=run_start, event_string="Run started"))
             if delay:
@@ -395,6 +392,9 @@ class TrialSequenceRunner:
             self.event_log.append(ExperimentEvent(timestamp=stims_start,
                                                   event_string="Trial {} stims started".format(
                                                       self._next_trial.trialnumber)))
+            self._current_trial = self._next_trial
+            self._next_trial = self.trials[self.trials.index(self._current_trial) + 1]
+            self._load_next_trial()
 
             while self._next_trial:
                 self._run_next_trial()
