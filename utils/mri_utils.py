@@ -9,8 +9,7 @@
 
 import subprocess
 from subprocess import PIPE as PIPE
-
-import utils.base_utils
+from utils import exceptions
 
 
 class BetweenVarMismatchError(Exception):
