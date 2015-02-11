@@ -42,13 +42,25 @@ class RunChoiceMenu(interface.Menu):
         self.__init__(win=window)
 
 
-def _reformat_output(data_file_path, backup_dir):  # todo: test
+def _reformat_output(data_file_path, backup_dir, global_log=None, pulse_id='5', event_list=None):  # todo: test
     """
     reformat our output into something that's a little easier to work with
 
     :param data_file_path: data file to back up
     :param backup_dir: directory to send our raw data backups to
+    :param global_log: path to global log file
+    :param pulse_id: string id of magnet pulse
+    :param event_list: event list from the TrialSequenceRunner whose trials we are logging
     """
+    events = []
+    try:
+        if global_log:
+            if event_list:
+                events = event_list
+    except:
+        events = [experiment.ExperimentEvent(-1, 'ERROR REFORMATTING EVENT LOG')]
+        raise  # todo: remove after testing
+
     data_file_dir, data_file_name = os.path.split(data_file_path)
     raw_backup_name = 'raw_{}'.format(data_file_name)
     shutil.copy2(data_file_path,
@@ -66,21 +78,37 @@ def _reformat_output(data_file_path, backup_dir):  # todo: test
         new_table_header.remove('response')
         new_table_header += ['response_number', 'response_value', 'response_rt']
         new_table = [new_table_header]
+        pulse_events = []
         for row in data:
             temp_row = row[:]
-            # fix out stim column since we're here anyway
+            # fix our stim column since we're here anyway
             stims_str = row[stims_index].strip('()')
             stim_filename = stims_str.split(',')[0]
             temp_row[stims_index] = stim_filename.split(os.path.sep)[-1]
             responses_str = temp_row.pop(response_index).strip('[]()')
             if responses_str:
                 responses = responses_str.split('), (')
-                for num, resp in enumerate(responses, start=1):
-                    resp_split = resp.split(',')
-                    new_table.append(temp_row[:] + [str(num), resp_split[0], resp_split[1]])
+                for i in xrange(len(responses) - 1, -1, -1):
+                    resp_split = responses[i].split(',')
+                    if resp_split[0] == pulse_id:
+                        pulse_events.append(experiment.ExperimentEvent(resp_split[1], 'magnet pulse'))
+                        del responses[i]
+                if responses:
+                    for num, resp in enumerate(responses, start=1):
+                        resp_split = resp.split(',')
+                        # todo: add relative RT here
+                        new_table.append(temp_row[:] + [str(num), resp_split[0], resp_split[1]])
+                else:
+                    new_table.append(temp_row[:] + ['NA', 'NA', 'NA'])
             else:
                 new_table.append(temp_row[:] + ['NA', 'NA', 'NA'])
         file_utils.writeTable(new_table, data_file_path)
+        if global_log:
+            events = events + pulse_events
+            events.sort()
+            events_str = '\n'.join([str(e) for e in events])
+            with open(global_log, 'w') as global_log:
+                global_log.write(events_str)
         return 1
 
 # todo: move this setup to __init__.py?
@@ -97,7 +125,7 @@ inter_trial_interval = 0.0
 trial_duration = 12.0
 
 warmup_duration = 0.0
-mri_signal_keys = ['5']
+pulse_id = ['5']
 quit_key = 'q'
 mri_warmup_msg = 'starting run'
 mri_warmup_stim = stims.TextStimulus(value=mri_warmup_msg, color=foreground_color)
@@ -111,6 +139,9 @@ config_dir = os.path.normpath('config')
 data_dir = os.path.normpath('data')
 backup_dir = os.path.normpath('data/raw_backups')
 stims_dir = os.path.normpath('stim')
+
+if not os.path.exists(backup_dir):
+    os.makedirs(backup_dir)
 
 subj_id_temp_filepath = os.path.join(config_dir, '.last_id.txt')
 stims_list_filepath = os.path.join(config_dir, 'stim_order_list.txt')
@@ -187,24 +218,31 @@ def __main__():
     except:
         print 'Error while generating trials'
         raise
+    sequence_runner = None
     try:
         sequence_runner = A40P2TrialSequenceRunner(trials=trials, window=win, outfile=outfile_path,
                                                    running_outfile=running_outfile_path, quit_key=quit_key,
                                                    event_log_path=event_log_path)
         sequence_runner.run_trials(delay=warmup_duration, delay_msg_stim=mri_warmup_stim,
-                                   start_signal_keys=mri_signal_keys, start_signal_wait_stim=start_wait_stim)
+                                   start_signal_keys=pulse_id, start_signal_wait_stim=start_wait_stim)
     except experiment.InputError as e:
         print e.message
     except:
         print 'Error while running trials'
         raise
     try:
+        global_log = event_log_path
         if os.path.exists(running_outfile_path):
-            _reformat_output(running_outfile_path, backup_dir)
-        if os.path.exists(outfile_path):
-            _reformat_output(outfile_path, backup_dir)
+            _reformat_output(running_outfile_path, backup_dir, global_log=global_log, event_list=sequence_runner.events)
+            global_log = None
     except:
-        print 'error reformatting files'
+        print 'error reformatting backup data'
+        raise
+    try:
+        if os.path.exists(outfile_path):
+            _reformat_output(outfile_path, backup_dir, global_log=global_log, event_list=sequence_runner.events)
+    except:
+        print 'error reformatting primary data'
         raise
 
 
