@@ -357,7 +357,7 @@ class TrialSequenceRunner:
         try:
             run_start = self.clock.getTime()
 
-            if start_signal_keys:
+            if start_signal_keys and not delay:     # todo: clean this logic up?
                 if start_signal_wait_stim:
                     self.window.clearBuffer()
                     start_signal_wait_stim.present(window=self.window, clear=True)
@@ -377,6 +377,7 @@ class TrialSequenceRunner:
                         start_signal_wait_stim.present(window=self.window, clear=True)
                     event.waitKeys(keyList=start_signal_keys)
                     self.period.start(delay)
+                    delay_start = self.clock.getTime()
                 # debug
                 # self.clock.reset()
                 if delay_msg_stim:

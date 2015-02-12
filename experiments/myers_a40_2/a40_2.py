@@ -76,10 +76,11 @@ def _reformat_output(data_file_path, backup_dir, global_log=None, pulse_id='5', 
         new_table_header = header[:]
         new_table_header[stims_index] = 'stim_file'
         new_table_header.remove('response')
-        new_table_header += ['response_number', 'response_value', 'response_rt']
+        new_table_header += ['response_number', 'response_value', 'response_timestamp', 'trial_rt']
         new_table = [new_table_header]
         pulse_events = []
-        for row in data:
+        for i, row in enumerate(data, start=1):
+            base_time = _get_onsets(event_list, i)[1]
             temp_row = row[:]
             # fix our stim column since we're here anyway
             stims_str = row[stims_index].strip('()')
@@ -88,20 +89,21 @@ def _reformat_output(data_file_path, backup_dir, global_log=None, pulse_id='5', 
             responses_str = temp_row.pop(response_index).strip('[]()')
             if responses_str:
                 responses = responses_str.split('), (')
-                for i in xrange(len(responses) - 1, -1, -1):
-                    resp_split = responses[i].split(',')
+                for ii in xrange(len(responses) - 1, -1, -1):
+                    resp_split = responses[ii].split(',')
                     if resp_split[0] == pulse_id:
-                        pulse_events.append(experiment.ExperimentEvent(resp_split[1], 'magnet pulse'))
-                        del responses[i]
+                        pulse_events.append(experiment.ExperimentEvent(float(resp_split[1]), 'magnet pulse'))
+                        del responses[ii]
                 if responses:
                     for num, resp in enumerate(responses, start=1):
                         resp_split = resp.split(',')
-                        # todo: add relative RT here
-                        new_table.append(temp_row[:] + [str(num), resp_split[0], resp_split[1]])
+                        # getting the rt relative to stims; [0] would be rt relative to trial start. ~10ms difference
+                        rel_rt = float(resp_split[1]) - base_time
+                        new_table.append(temp_row[:] + [str(num), resp_split[0], resp_split[1], str(rel_rt)])
                 else:
-                    new_table.append(temp_row[:] + ['NA', 'NA', 'NA'])
+                    new_table.append(temp_row[:] + ['NA', 'NA', 'NA', 'NA'])
             else:
-                new_table.append(temp_row[:] + ['NA', 'NA', 'NA'])
+                new_table.append(temp_row[:] + ['NA', 'NA', 'NA', 'NA'])
         file_utils.writeTable(new_table, data_file_path)
         if global_log:
             events = events + pulse_events
@@ -110,6 +112,30 @@ def _reformat_output(data_file_path, backup_dir, global_log=None, pulse_id='5', 
             with open(global_log, 'w') as global_log:
                 global_log.write(events_str)
         return 1
+
+# helper logging functions
+def _get_onsets(events, trial_number, trial_match_str='Trial {} started', stims_match_str='Trial {} stims started'):
+    """
+    :param events: list of ExperimentEvent objects for this sequence
+    :param trial_number: trial number to retrieve onsets for
+    :param trial_match_str: string to match for trial onset
+    :param stims_match_str: string to match for stims onset
+    :return: trial onset, stims onset tuple
+    """
+    if not events:
+        return 'NA', 'NA'
+    trial_start = None
+    stims_start = None
+    trial_str = trial_match_str.format(trial_number)
+    stims_str = stims_match_str.format(trial_number)
+    for event in events:
+        if event.event_string == trial_str:
+            trial_start = event.timestamp
+        if event.event_string == stims_str:
+            stims_start = event.timestamp
+        if trial_start and stims_start:
+            return trial_start, stims_start
+    return trial_start, stims_start
 
 # todo: move this setup to __init__.py?
 # visual params
@@ -124,7 +150,7 @@ run_nums = [1, 2, 3, 4, 5, 6]
 inter_trial_interval = 0.0
 trial_duration = 12.0
 
-warmup_duration = 0.0
+warmup_duration = 10.0
 pulse_id = ['5']
 quit_key = 'q'
 mri_warmup_msg = 'starting run'
