@@ -148,8 +148,8 @@ def proc_hebb(subjID=None, outDir=None, hebb_file_path=None):
 
     #Read in subject response, expected response file
     if not hebb_file_path:
-        hebb_file_path = tkFileDialog.askopenfilename(title="Select the input file:"), 'rU'
-    with open(hebb_file_path) as infile:
+        hebb_file_path = tkFileDialog.askopenfilename(title="Select the input file:")
+    with open(hebb_file_path, 'rU') as infile:
         currLine = infile.readline()
         splitLine = currLine.split('\t')
 
@@ -296,6 +296,7 @@ def proc_hebb(subjID=None, outDir=None, hebb_file_path=None):
 
 
 def __main__():
+    # sys.argv.append("/Volumes/KINGSTON/HEBB TO BE SCORED")
     if len(sys.argv) == 2:
         hebb_dir = os.path.normpath(sys.argv[1])
         proc_dir(hebb_dir)
