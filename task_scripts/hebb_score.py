@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# This is a quick rewrite of older code to run full directories
+# BC: Added pull directory processing and now ignores case
 
 import tkFileDialog
 import fnmatch
@@ -66,6 +66,9 @@ def LD(seq1, seq2):
 
     #// for all i and j, d[i,j] will hold the Levenshtein distance between
     #// the first i characters of s and the first j characters of t
+
+    seq1 = [i.lower() for i in seq1]
+    seq2 = [i.lower() for i in seq2]
 
     #Rows: seq1, s1, i, m
     #Columns: seq2, s2, j, n
