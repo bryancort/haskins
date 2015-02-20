@@ -132,6 +132,7 @@ def proc_dir(dir_path):
         except:
             traceback.print_exc()
             print "Skipping file {}".format(f)
+            raise
 
 
 def proc_hebb(subjID=None, outDir=None, hebb_file_path=None):
