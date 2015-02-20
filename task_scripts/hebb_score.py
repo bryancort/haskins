@@ -149,7 +149,7 @@ def proc_hebb(subjID=None, outDir=None, hebb_file_path=None):
     #Read in subject response, expected response file
     if not hebb_file_path:
         hebb_file_path = tkFileDialog.askopenfilename(title="Select the input file:"), 'rU'
-    with open(hebb_file_path) as infile, open(os.path.join(outDir, 'out.' + str(subjID) + '.txt'), 'w') as outfile:
+    with open(hebb_file_path) as infile:
         currLine = infile.readline()
         splitLine = currLine.split('\t')
 
@@ -208,6 +208,7 @@ def proc_hebb(subjID=None, outDir=None, hebb_file_path=None):
         seqLength = len(seqMap['all'][1][0].heard)
 
         #Write the output
+    with open(os.path.join(outDir, 'out.' + str(subjID) + '.txt'), 'w') as outfile:
         outfile.write('SubjNum\tRun\tTrialType\tHebbNumber\tEditDistance\tEditDistanceScore\tSlotDistanceScore')
         for hNum in sorted(seqMap['all'].keys()):
             for trialPair in seqMap['all'][hNum]:
