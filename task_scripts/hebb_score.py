@@ -114,6 +114,9 @@ def LD(seq1, seq2):
 def __main__():
     if len(sys.argv) == 2:
         hebb_dir = os.path.normpath(sys.argv[1])
+        proc_dir(hebb_dir)
+    else:
+        proc_hebb()
 
 
 if __name__ == '__main__':
