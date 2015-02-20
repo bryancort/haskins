@@ -9,6 +9,7 @@ import numpy as np
 import os
 import sys
 import glob
+import traceback
 
 #Trying to fix import issues in the compiled version
 ##from scipy.special import _ufuncs
@@ -129,6 +130,7 @@ def proc_dir(dir_path):
             proc_hebb(subj_id, out_dir, hebb_file_path)
             print "Processed file {}".format(f)
         except:
+            traceback.print_exc()
             print "Skipping file {}".format(f)
 
 
