@@ -9,6 +9,7 @@
 
 from psychopy import event, core
 from mixins import KeyedMixin, ComparableMixin
+from utils import file_utils
 # for HoggingStaticPeriod
 from psychopy.core import StaticPeriod, wait
 from psychopy.constants import *
@@ -184,6 +185,17 @@ class ExperimentEvent(Listable, KeyedMixin, ComparableMixin):
         return '{}---{}'.format(str(self.timestamp), str(self.event_string))
 
 
+def event_list_from_log(logfile):
+    # with open(logfile, 'rU') as logfile:
+    # lines = logfile.read().split('\n')
+    #     for line in lines:
+    events = []
+    event_table = file_utils.readTable2(logfile, delim='---')
+    for line in event_table:
+        events.append(ExperimentEvent(event_table[0], event_table[1]))
+    return events
+
+
 class TrialSequenceRunner:
     def __init__(self, trials, window, outfile, quit_key=None, running_outfile=None, outfile_sep='\t',
                  hogging_period=True, event_log_path=None):
@@ -200,7 +212,7 @@ class TrialSequenceRunner:
             requires a hogging static period.
         :param event_log_path: log file path for non-trial specific events
         """
-        self.event_log = []  # list for ExperimentEvents
+        self.events = []  # list for ExperimentEvents
         self.event_log_path = event_log_path
         self.window = window
         self.outfile = outfile
@@ -240,8 +252,8 @@ class TrialSequenceRunner:
         log the events from this trial sequence
         """
         if self.event_log_path:
-            self.event_log.sort()
-            event_log_strs = [str(e) for e in self.event_log]
+            self.events.sort()
+            event_log_strs = [str(e) for e in self.events]
             with open(self.event_log_path, 'w') as event_log:
                 event_log.write('\n'.join(event_log_strs))
 
@@ -286,11 +298,11 @@ class TrialSequenceRunner:
         last_responses = event.getKeys(timeStamped=self.clock)
         event.clearEvents()
 
-        self.event_log.append(ExperimentEvent(timestamp=trial_start,
-                                              event_string="Trial {} started".format(self._next_trial.trialnumber)))
-        self.event_log.append(ExperimentEvent(timestamp=stims_start,
-                                              event_string="Trial {} stims started".format(
-                                                  self._next_trial.trialnumber)))
+        self.events.append(ExperimentEvent(timestamp=trial_start,
+                                           event_string="Trial {} started".format(self._next_trial.trialnumber)))
+        self.events.append(ExperimentEvent(timestamp=stims_start,
+                                           event_string="Trial {} stims started".format(
+                                               self._next_trial.trialnumber)))
 
         # TODO
         # ADD PULSE EXTRACTION TO POST RUN LOG FORMATTING
@@ -345,7 +357,7 @@ class TrialSequenceRunner:
         try:
             run_start = self.clock.getTime()
 
-            if start_signal_keys:
+            if start_signal_keys and not delay:     # todo: clean this logic up?
                 if start_signal_wait_stim:
                     self.window.clearBuffer()
                     start_signal_wait_stim.present(window=self.window, clear=True)
@@ -365,6 +377,7 @@ class TrialSequenceRunner:
                         start_signal_wait_stim.present(window=self.window, clear=True)
                     event.waitKeys(keyList=start_signal_keys)
                     self.period.start(delay)
+                    delay_start = self.clock.getTime()
                 # debug
                 # self.clock.reset()
                 if delay_msg_stim:
@@ -383,15 +396,15 @@ class TrialSequenceRunner:
             self.window.flip()  # drawn in front of the darker rect on the first trial.
             event.clearEvents()
 
-            self.event_log.append(ExperimentEvent(timestamp=run_start, event_string="Run started"))
+            self.events.append(ExperimentEvent(timestamp=run_start, event_string="Run started"))
             if delay:
-                self.event_log.append(ExperimentEvent(timestamp=delay_start,
-                                                      event_string="Delay ({}) started".format(delay)))
-            self.event_log.append(ExperimentEvent(timestamp=trial_start,
-                                                  event_string="Trial {} started".format(self._next_trial.trialnumber)))
-            self.event_log.append(ExperimentEvent(timestamp=stims_start,
-                                                  event_string="Trial {} stims started".format(
-                                                      self._next_trial.trialnumber)))
+                self.events.append(ExperimentEvent(timestamp=delay_start,
+                                                   event_string="Delay ({}) started".format(delay)))
+            self.events.append(ExperimentEvent(timestamp=trial_start,
+                                               event_string="Trial {} started".format(self._next_trial.trialnumber)))
+            self.events.append(ExperimentEvent(timestamp=stims_start,
+                                               event_string="Trial {} stims started".format(
+                                                   self._next_trial.trialnumber)))
             self._current_trial = self._next_trial
             self._next_trial = self.trials[self.trials.index(self._current_trial) + 1]
             self._load_next_trial()
