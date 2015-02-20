@@ -111,18 +111,6 @@ def LD(seq1, seq2):
     return d[m - 1][n - 1]
 
 
-def __main__():
-    if len(sys.argv) == 2:
-        hebb_dir = os.path.normpath(sys.argv[1])
-        proc_dir(hebb_dir)
-    else:
-        proc_hebb()
-
-
-if __name__ == '__main__':
-    __main__()
-
-
 def tokenize2(fname):
     leading_path, _file_name = os.path.split(fname)
     file_name, file_ext = os.path.splitext(_file_name)
@@ -301,3 +289,15 @@ def proc_hebb(subjID=None, outDir=None, hebb_file_path=None):
             outfile.write('\tslope\tintercept\trValue\tpValue\tstdError\trSquared')
             outfile.write('\nFILLER\t' + '\t'.join(map(str, fillerRegression)) + '\t' + str(fillerRegression[2] ** 2))
             outfile.write('\nHEBB\t' + '\t'.join(map(str, hebbRegression)) + '\t' + str(hebbRegression[2] ** 2))
+
+
+def __main__():
+    if len(sys.argv) == 2:
+        hebb_dir = os.path.normpath(sys.argv[1])
+        proc_dir(hebb_dir)
+    else:
+        proc_hebb()
+
+
+if __name__ == '__main__':
+    __main__()
