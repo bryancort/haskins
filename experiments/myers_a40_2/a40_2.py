@@ -7,10 +7,13 @@
 # Created:     12/13/2014
 # -------------------------------------------------------------------------------
 
+import sys
+import os
+sys.path.append(os.path.normpath('../..'))
+
 from core import experiment, interface, stims
 from utils import file_utils, base_utils
 from psychopy import core, gui, visual
-import os
 import time
 import shutil
 
@@ -176,7 +179,7 @@ stims_list_filepath = os.path.join(config_dir, 'stim_order_list.txt')
 def __main__():
     run = None
     try:
-        if time.time() - os.path.getmtime(subj_id_temp_filepath) > 7200.0:  # 2 hours
+        if os.path.exists(subj_id_temp_filepath) and time.time() - os.path.getmtime(subj_id_temp_filepath) > 7200.0:  # 2 hours
             os.remove(subj_id_temp_filepath)
         subj_id_dict = {'subject id': ''}
         if os.path.exists(subj_id_temp_filepath):
@@ -200,12 +203,11 @@ def __main__():
         base_stims = (center_rect_stim, fix_cross)
         run_menu = RunChoiceMenu(win, run_ids=run_nums, text_color=foreground_color)
         run = run_menu.run()['run']
+        if not run:
+            core.quit()
     except:
         print 'Error while getting subject id and run number'
         raise
-    finally:
-        if not run:
-            core.quit()
     try:
         outfile_name = '{}_run{}_{}.txt'.format(subj_id, run, base_utils.getLocalTime())
         outfile_path = os.path.join(data_dir, outfile_name)
