@@ -12,13 +12,7 @@ import shutil
 import glob
 import fnmatch
 import tarfile
-
 from utils import file_utils
-# from servertools import *
-
-# add_tbs()
-
-# global idMap
 
 
 def mapIDs(ftable='idTable.txt'):
@@ -79,345 +73,6 @@ def tokenize(fname):
 
     return (oldname, fext, tokens)
 
-
-# #Functions to rename and move files for each task
-# def rnbiopac(fname):
-#     """
-#     Renames biopac files
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'biopac'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[0].strip('tb')
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = tokens[1].strip('sS')
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnhebb(fname):
-#     """
-#     Renames hebb files (HaskinsHebb)
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'hebb'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[1]
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = tokens[2]
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnhebb2(fname):
-#     """
-#     Renames hebb2 files (LouisaHebb)
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'hebb2'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[2]
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = tokens[3]
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnSALfmri(fname):
-#     """
-#     Renames SALfmri files
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'SALfmri'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[2]
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = tokens[3]
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnSALtrain(fname):
-#     """
-#     Renames SALTrain files, except those with .edf or .EDF extensions; these are saved with a different naming pattern
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'SALtrain'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[2]
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = tokens[3]
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnSALtrainEDF(fname):
-#     """
-#     Renames SALTrain files with .edf or .EDF extensions (eyetracker files)
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'SALtrain'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[0]
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = tokens[1]
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnSCC(fname):
-#     """
-#     Renames SCC files
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'SCC'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[0].lstrip('CC').rstrip('dat')
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = 1
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnSRTT(fname):
-#     """
-#     Renames SRTT files
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'SRTT'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[1]
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = tokens[2]
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnstopsignal(fname):
-#     """
-#     Renames stopsignal files
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'stopsignal'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[0].strip('st')
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = 1
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnstrain(fname):
-#     """
-#     Renames strain files
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'strain'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[0]
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = 1
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnVAL3train(fname):
-#     """
-#     Renames VAL3Train files
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'VAL3train'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[2]
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = tokens[3]
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnVAL3fmri(fname):
-#     """
-#     Renames VAL3Train files
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'VAL3fmri'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[2]
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = tokens[3]
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
-#
-# def rnzeo(fname):
-#     """
-#     Renames zeo files
-#     Args
-#         fname: name (not full path) of the file to rename
-#     Returns
-#         (newname, task) tuple
-#     """
-#     task = 'zeo'
-#
-#     oldname, fext, tokens = tokenize(fname)
-#
-#     #get the mri or subject id
-#     fID = tokens[0]
-#     #convert it to a subject id
-#     if fID in idMap.keys():
-#         subjID = idMap[fID]
-#     else:
-#         print 'No id table match for {0}'.format(fID)
-#         subjID = fID
-#     #get session name from filename
-#     session = 1
-#
-#     newname = '{0}_{1}_{2}_[{3}].{4}'.format(subjID, session, task, oldname, fext)
-#     return (newname, task)
 
 def tarStrain(d):
     """
@@ -482,21 +137,16 @@ def _id_filter(tokens, filters):
         for pair in filters:
             if fnmatch.fnmatch(token, pair[0]):
                 _match.append(token[pair[1]:pair[2]])
-    match = _match.pop()
-    if not match:
+    if not _match:
         return 0
+    match = _match.pop()
     if _match:
         return None
-        # raise Exception("More than one match in {} for filters {}".format(tokens, filters))
     return match
 
 
-# def _rename(old_name, ):
-#     pass
-
-
 def main():
-    dry_run = True
+    dry_run = False
 
     #directory paths
     # todo: replace this with an argument parser and useful defaults
@@ -509,7 +159,7 @@ def main():
     dataDir = os.path.normpath("DATA")
 
     idMap = mapIDs()
-    #fname pattern : function map
+    # FIXME: CODE CHECKS TASK NAME FOR THE STRING 'fmri' TO DECIDE WHETHER AN ID IS SUBJECT OR MRI
     pmap = {"tb????[-_]*.*": 'biopac',
             "*HaskinsHebb[-_]*[-_]*.[et][dxa][atr]*": 'hebb',
             "*HebbLouisa*.[et][dxa][atr]*": 'hebb2',
@@ -541,7 +191,7 @@ def main():
         #tar.gz any strain recordings
         tarStrain(triple[0])
         #get a simple list of all the file paths
-        transfer_files.append(glob.glob(os.path.join(triple[0], '*.*')))
+        transfer_files.extend(glob.glob(os.path.join(triple[0], '*.*')))
 
     moved_raw = []
     moved_data = []
@@ -549,122 +199,81 @@ def main():
     duplicate_data = []
     unmatched_files = []
     no_id_files = []
+    full_log = []
 
-    for transfer_file in transfer_files:
-        try:
-            task = None
-            transfer_file_name = os.path.split(transfer_file)
-            for pattern in pmap:
-                if fnmatch.fnmatch(transfer_file_name, pattern):
-                    task = pmap[pattern]
-            if task:
-                transfer_file_name_noext, transfer_file_ext, transfer_file_tokens = tokenize(transfer_file_name)
-                scan_id = _id_filter(transfer_file_tokens, id_filters)
-                try:
-                    subj_id = idMap[scan_id]
-                except KeyError:
-                    print "No subject ID mapped to {}; {} not moved".format(scan_id, transfer_file)
-                    break
-                session_id = _id_filter(transfer_file_tokens, session_filters)
-                if session_id == 0:
-                    session_id= 1
-                if session_id == None:
-                    print "Warning: multiple session ID matches for {}".format(transfer_file)
-                new_file_name = "{}_{}_{}_[{}].{}".format(subj_id, session_id, task, transfer_file_name_noext,
-                                                          transfer_file_ext)
+    try:
+        for transfer_file in transfer_files:
+            full_log.append(transfer_file)
+            try:
+                task = None
+                transfer_file_name = os.path.split(transfer_file)[1]
+                for pattern in pmap:
+                    if fnmatch.fnmatch(transfer_file_name, pattern):
+                        task = pmap[pattern]
+                if task:
+                    transfer_file_name_noext, transfer_file_ext, transfer_file_tokens = tokenize(transfer_file_name)
+                    scan_id = _id_filter(transfer_file_tokens, id_filters)
+                    try:
+                        if 'fmri' in task:
+                            subj_id = idMap['tb' + scan_id]
+                        else:
+                            subj_id = idMap[scan_id]
+                    except KeyError:
+                        no_id_files.append(transfer_file)
+                        full_log.append("No subject ID mapped")
+                        continue
+                    session_id = _id_filter(transfer_file_tokens, session_filters)
+                    if session_id == 0:
+                        session_id= 1
+                    if session_id == None:
+                        print "Warning: multiple session ID matches for {}".format(transfer_file)
+                    new_file_name = "{}_{}_{}_[{}].{}".format(subj_id, session_id, task, transfer_file_name_noext,
+                                                              transfer_file_ext)
 
-                if not checkDir(new_file_name, rawdataDir):
-                    new_file_path = os.path.join(rawdataDir, new_file_name)
-                    if not dry_run:
-                        shutil.copy(transfer_file, new_file_path)
-                    moved_raw.append("{} --> {}".format(transfer_file, new_file_path))
-                    # rawlog.write('{0}\n'.format(fkey))
-                    # rawMoved += 1
+                    if not checkDir(new_file_name, rawdataDir):
+                        new_file_path = os.path.join(rawdataDir, new_file_name)
+                        if not dry_run:
+                            shutil.copy(transfer_file, new_file_path)
+                        moved_raw.append("{} --> {}".format(transfer_file, new_file_path))
+                        full_log.append("Added to RAWDATA")
+                    else:
+                        duplicate_raw.append(transfer_file)
+                        full_log.append("Already in RAWDATA")
+                    if not checkDir(new_file_name, os.path.join(dataDir, task)):
+                        new_file_path = os.path.join(dataDir, task, new_file_name)
+                        if not dry_run:
+                            shutil.copy(transfer_file, new_file_path)
+                        moved_data.append("{} --> {}".format(transfer_file, new_file_path))
+                        full_log.append("Added to DATA")
+                    else:
+                        duplicate_data.append(transfer_file)
+                        full_log.append("Already in DATA")
                 else:
-                    duplicate_raw.append(transfer_file)
-                if not checkDir(new_file_name, os.path.join(dataDir, task)):
-                    new_file_path = os.path.join(dataDir, task, new_file_name)
-                    if not dry_run:
-                        shutil.copy(transfer_file, new_file_path)
-                    moved_data.append("{} --> {}".format(transfer_file, new_file_path))
-                    # datalog.write('{0}\n'.format(fkey))
-                    # dataMoved += 1
-                else:
-                    duplicate_data.append(transfer_file)
-            else:
-                unmatched_files += 1
-        except:
-            print "Unhandled exception while processing {}".format(transfer_file)
-            raise
-        finally:
-            with open('rawdataTransferLog.txt', 'w') as rawlog:
-                rawlog.write("\n".join(moved_raw))
-            with open('dataTransferLog.txt', 'w') as datalog:
-                datalog.write("\n".join(moved_data))
-            with open('rawdataTransferLog.txt', 'w') as unmatchedlog:
-                unmatchedlog.write("\n".join(moved_raw))
-            with open('rawdataTransferLog.txt', 'w') as no_id_log:
-                no_id_log.write("\n".join(moved_raw))
-            print '{} files moved to {}'.format(len(moved_raw), rawdataDir)
-            print '{} files moved to {}'.format(len(moved_data), dataDir)
-            print '{} duplicate files not moved to {}'.format(len(duplicate_raw), rawdataDir)
-            print '{} duplicate files not moved to {}'.format(len(duplicate_data), dataDir)
-            print '{} files could not be matched to a task'.format(len(no_id_files))
-            print '{} files could not be matched to an ID'.format(len(unmatched_files))
+                    unmatched_files.append(transfer_file)
+                    full_log.append("No matching task")
 
-
-    # #map of {oldPath : [oldname, newname, path]}
-    # fmap = {}
-    # for flist in transfer_files:
-    #     for f in flist:
-    #         if f:
-    #             fn = f.rsplit(os.path.sep, 1)[1]
-    #             fmap[f] = [fn]  #preparing to make this {path: [oldname, newname]}
-    # #counts of how many files went to each dir
-    # rawMoved = 0
-    # dataMoved = 0
-    # rawDup = 0
-    # dataDup = 0
-    # #get the new filenames for each file
-    # with open('rawdataTransferLog.txt', 'w') as rawlog, open('dataTransferLog.txt', 'w') as datalog:
-    #     rawlog.write('FILES TRANSFERED TO RAWDATA\n')
-    #     datalog.write('FILES TRANSFERED TO DATA\n')
-    #     for fkey in fmap.keys():
-    #         f = fmap[fkey]
-    #         fpatt = []
-    #         for pattern in pmap:
-    #             if fnmatch.fnmatch(f[0], pattern):
-    #                 fpatt.append(pattern)
-    #         #only copy the file if we got a pattern match
-    #         if fpatt:
-    #             p = fpatt.pop()
-    #             if fpatt:
-    #                 raise Exception("More than one pattern match for {0}".format(f))
-    #             try:
-    #                 f.extend(pmap[p](f[0]))
-    #             except:
-    #                 print 'Failed to rename {0}'.format(f[0])
-    #                 raise
-    #             try:
-    #                 #copy the files that don't yet exist in DATA or RAWDATA to those directories
-    #                 if not checkDir(f[1], rawdataDir):
-    #                     shutil.copy(fkey, os.path.join(rawdataDir, f[1]))
-    #                     rawlog.write('{0}\n'.format(fkey))
-    #                     rawMoved += 1
-    #                 else:
-    #                     rawDup += 1
-    #                 if not checkDir(f[1], os.path.join(dataDir, f[2])):
-    #                     shutil.copy(fkey, os.path.join(dataDir, f[2], f[1]))
-    #                     datalog.write('{0}\n'.format(fkey))
-    #                     dataMoved += 1
-    #                 else:
-    #                     dataDup += 1
-    #             except:
-    #                 print 'Error for {0}'.format(fkey)
-    #     print 'Moved {} files to {}'.format(rawMoved, rawdataDir)
-    #     print 'Moved {} files to {}'.format(dataMoved, dataDir)
-    #     print '{} duplicate files not moved to {}'.format(rawDup, rawdataDir)
-    #     print '{} duplicate files not moved to {}'.format(dataDup, dataDir)
+            except Exception as e:
+                print "Unhandled exception while processing {}".format(transfer_file)
+    except:
+        raise
+    finally:
+        with open('rawdataTransferLog.txt', 'w') as rawlog:
+            rawlog.write("\n".join(moved_raw))
+        with open('dataTransferLog.txt', 'w') as datalog:
+            datalog.write("\n".join(moved_data))
+        with open('unmatched_task_files.txt', 'w') as unmatchedlog:
+            unmatchedlog.write("\n".join(unmatched_files))
+        with open('unmatched_id_files.txt', 'w') as no_id_log:
+            no_id_log.write("\n".join(no_id_files))
+        with open('full_log.txt', 'w') as full_log_file:
+            full_log_file.write("\n".join(full_log))
+        print '{} total files'.format(len(transfer_files))
+        print '{} files moved to {}'.format(len(moved_raw), rawdataDir)
+        print '{} files moved to {}'.format(len(moved_data), dataDir)
+        print '{} duplicate files not moved to {}'.format(len(duplicate_raw), rawdataDir)
+        print '{} duplicate files not moved to {}'.format(len(duplicate_data), dataDir)
+        print '{} files could not be matched to a task'.format(len(unmatched_files))
+        print '{} files could not be matched to an ID'.format(len(no_id_files))
 
 
 if __name__ == '__main__':
