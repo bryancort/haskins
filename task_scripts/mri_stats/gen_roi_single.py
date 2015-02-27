@@ -44,25 +44,25 @@ def genArgParser():
                         help='Mask defining the search space. '
                              'Default: {}'.format(search_space_default))
 
-    activation_map_default = None
-    parser.add_argument('--activation_map', default=activation_map_default, required=True,
-                        help='Activation map to define ROIs from. '
-                             'Default: {}'.format(activation_map_default))
+    activation_map_tag_default = None
+    parser.add_argument('--activation_map_tag', default=activation_map_tag_default, required=True,
+                        help='Substring uniquely identifying the activation map to define ROIs from for each subject. '
+                             'Default: {}'.format(activation_map_tag_default))
 
-    activation_map_subbrick_default = 0
-    parser.add_argument('--activation_map_subbrick', default=activation_map_subbrick_default,
-                        help='Activation map subbrick to use. '
-                             'Default: {}'.format(activation_map_subbrick_default))
+    contrast_subbrick_default = 0
+    parser.add_argument('--contrast_subbrick', default=contrast_subbrick_default,
+                        help='Activation map subbrick to use. Should be the t-stat, NOT the coefficients.'
+                             'Default: {}'.format(contrast_subbrick_default))
 
-    warp_default = None
-    parser.add_argument('--warp', default=warp_default,
+    warp_tag_default = None
+    parser.add_argument('--warp_tag', default=warp_tag_default,
                         help="Argument to the -warp option of 3dFractionalize. From the AFNI 3dFractionalize help:"
                              "If this option is used, 'wset' is a dataset that provides a transformation (warp) from "
                              "+orig coordinates to the coordinates of 'iset'.In this case, the output dataset will be "
                              "in +orig coordinates rather than the coordinatesof 'iset'.  With this option:** 'tset' "
                              "must be in +orig coordinates ** 'iset' must be in +acpc or +tlrc coordinates ** 'wset' "
                              "must be in the same coordinates as 'iset'"
-                             'Default: {}'.format(warp_default))
+                             'Default: {}'.format(warp_tag_default))
 
     output_dir_default = '.'
     parser.add_argument('--output_dir', default=output_dir_default,
@@ -116,9 +116,9 @@ def _debug(*cmd_args):
 # fixme
 _debug_cmd = '--output_dir /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/output ' \
              '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa+tlrc.HEAD ' \
-             '--activation_map /data1/A182/mri_subjects/tb0027/tb0027.fastloc/stats.tb0027_REML+orig.HEAD ' \
+             '--activation_map_tag /data1/A182/mri_subjects/tb0027/tb0027.fastloc/stats.tb0027_REML+orig.HEAD ' \
              '--warp /data1/A182/mri_subjects/tb0027/tb0027.fastloc/Sag3DMPRAGEs002a1001_ns+tlrc.HEAD ' \
-             '--activation_map_subbrick 25'
+             '--contrast_subbrick 25'
 
 
 def __main__():
@@ -128,7 +128,7 @@ def __main__():
     parser = genArgParser()
     args = parser.parse_args()
 
-    bad_paths = file_utils.check_paths(True, args.output_dir, args.activation_map, args.search_space)
+    bad_paths = file_utils.check_paths(True, args.output_dir, args.activation_map_tag, args.search_space)
 
     if bad_paths:
         print 'ERROR: The following paths do not exist'
@@ -143,12 +143,12 @@ def __main__():
         mask_path = temp_mask_name
     mask_path = os.path.join(args.output_dir, mask_path)
 
-    act_map = "{}'[{}]'".format(args.activation_map, args.activation_map_subbrick)
+    act_map = "{}'[{}]'".format(args.activation_map_tag, args.contrast_subbrick)
 
     # 3dFractionalize to warp (if needed) and downsample our mask to the subject
     # see example 2 in the 3dFractionalize help for details and explanation
     fract_call = "3dfractionize -template {subj_functional} -input {search_space_mask} -warp {subj_anat_tlrc} " \
-    "-preserve -clip {clip_value} -prefix {temp_xformed_mask}".format(subj_functional=args.activation_map,
+    "-preserve -clip {clip_value} -prefix {temp_xformed_mask}".format(subj_functional=args.activation_map_tag,
                                                                       search_space_mask=args.search_space,
                                                                       subj_anat_tlrc=args.warp, clip_value=args.clip,
                                                                       temp_xformed_mask=mask_path)

@@ -44,10 +44,10 @@ def genArgParser():
                         help='Mask defining the search space. '
                              'Default: {}'.format(search_space_default))
 
-    activation_map_tag_default = None
-    parser.add_argument('--activation_map_tag', default=activation_map_tag_default, required=True,
+    activation_map_pattern_default = None
+    parser.add_argument('--activation_map_pattern', default=activation_map_pattern_default, required=True,
                         help='Substring uniquely identifying the activation map to define ROIs from for each subject. '
-                             'Default: {}'.format(activation_map_tag_default))
+                             'Default: {}'.format(activation_map_pattern_default))
 
     contrast_subbrick_default = 0
     parser.add_argument('--contrast_subbrick', default=contrast_subbrick_default,
@@ -107,6 +107,10 @@ def genArgParser():
     #                     help='Pass this flag to run in debug mode.'
     #                          'Default: {}'.format(debug_default))
     return parser
+
+
+def gen_subj_roi(search_space, activation_map_pattern, contrast_subbrick, warp_tag, mask_output_prefix):
+    pass
 
 
 def _debug(*cmd_args):
