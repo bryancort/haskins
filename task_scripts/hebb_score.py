@@ -45,7 +45,7 @@ class HebbSequencePair:
         self.editDist = LD(heard, produced)
         self.absMatch = 0
         for h, p in zip(self.heard, self.produced):
-            if h == p:
+            if h.lower() == p.lower():
                 self.absMatch += 1
 
     def setHebbNum(self, hebbNum):

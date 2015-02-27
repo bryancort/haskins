@@ -10,10 +10,12 @@
 import sys
 import os
 sys.path.append(os.path.normpath('../..'))
-
+import psychopy
+psychopy.prefs.general['audioLib'] = ['pyo']
 from core import experiment, interface, stims
 from utils import file_utils, base_utils
 from psychopy import core, gui, visual
+
 import time
 import shutil
 
@@ -231,7 +233,8 @@ def __main__():
             condition = cond_dict[filename]['condition']
             filepath = os.path.join(stims_dir, filename)
             try:
-                trial_stims = (stims.SoundStimulus(name=filepath, stype='sound', value=filepath),) + base_stims
+                trial_stims = (stims.SoundStimulus(name=filepath, stype='sound',
+                                                   value=filepath, start=0.020),) + base_stims
                 for stim in trial_stims:
                     stim.instantiate(window=win)
                 trials.append(
