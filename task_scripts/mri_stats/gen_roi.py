@@ -39,10 +39,22 @@ def genArgParser():
     """
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('patterns', nargs='+',
+                        help='One or more unix-style wildcard expressions to generate the list of subject data '
+                             'subdirectories.')
+
+    mri_data_dir_default = None
+    parser.add_argument('--mri_data_dir', default=mri_data_dir_default, required=True,
+                        help='Directory containing scans. Default: {}'.format(mri_data_dir_default))
+
     search_space_default = None
     parser.add_argument('--search_space', default=search_space_default, required=True,
-                        help='Mask defining the search space. '
-                             'Default: {}'.format(search_space_default))
+                        help='Mask defining the search space. Default: {}'.format(search_space_default))
+
+    proc_run_default = 'fastloc'
+    parser.add_argument('--proc_run', default=proc_run_default, required=True,
+                        help='Tag uniquely identifying the proc run to search for the activation map. '
+                             'Default: {}'.format(proc_run_default))
 
     activation_map_pattern_default = None
     parser.add_argument('--activation_map_pattern', default=activation_map_pattern_default, required=True,
@@ -56,7 +68,9 @@ def genArgParser():
 
     warp_tag_default = None
     parser.add_argument('--warp_tag', default=warp_tag_default,
-                        help="Argument to the -warp option of 3dFractionalize. From the AFNI 3dFractionalize help:"
+                        help="Argument to the -warp option of 3dfractionize. This "
+                             ""
+                             " From the AFNI 3dfractionize help:"
                              "If this option is used, 'wset' is a dataset that provides a transformation (warp) from "
                              "+orig coordinates to the coordinates of 'iset'.In this case, the output dataset will be "
                              "in +orig coordinates rather than the coordinatesof 'iset'.  With this option:** 'tset' "
@@ -64,9 +78,10 @@ def genArgParser():
                              "must be in the same coordinates as 'iset'"
                              'Default: {}'.format(warp_tag_default))
 
-    output_dir_default = '.'
+    output_dir_default = None
     parser.add_argument('--output_dir', default=output_dir_default,
-                        help='Output directory for results. '
+                        help='Output directory (relative to the subject directory) for results. If none, output for '
+                             'will be generated in the subject directory.'
                              'Default: {}'.format(output_dir_default))
 
     output_file_prefix_default = 'ROI_{}'.format(base_utils.getLocalTime())
@@ -81,14 +96,14 @@ def genArgParser():
 
     clip_default = 0.2
     parser.add_argument('--clip', default=clip_default,
-                        help='Clipping threshold for the mask. '
+                        help='Clipping threshold for the mask. Passed directly to the -clip option of 3dfractionize.'
                              'Default: {}'.format(clip_default))
 
     cluster_thresh_default = -100000
     parser.add_argument('--thresh', default=cluster_thresh_default,
-                        help='Default threshold for including voxels in the cluster. '
-                             'Default: {} (this will always result in an '
-                             'N-voxel cluster)'.format(cluster_thresh_default))
+                        help="Default threshold for including voxels in the cluster. Don't change this unless you know "
+                             "exactly what you're doing."
+                             "Default: {} (an [roi_size] voxel cluster)".format(cluster_thresh_default))
 
     # fixme: revert to None when testing complete
     mask_output_prefix_default = 'int_mask_{}.nii.gz'.format(base_utils.getLocalTime())
@@ -118,9 +133,9 @@ def _debug(*cmd_args):
 
 
 # fixme
-_debug_cmd = '--output_dir /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/output ' \
+_debug_cmd = '--output_dir roi_output ' \
              '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa+tlrc.HEAD ' \
-             '--activation_map_tag /data1/A182/mri_subjects/tb0027/tb0027.fastloc/stats.tb0027_REML+orig.HEAD ' \
+             '--activation_map_pattern /data1/A182/mri_subjects/tb0027/tb0027.fastloc/stats.tb0027_REML+orig.HEAD ' \
              '--warp /data1/A182/mri_subjects/tb0027/tb0027.fastloc/Sag3DMPRAGEs002a1001_ns+tlrc.HEAD ' \
              '--contrast_subbrick 25'
 
@@ -132,7 +147,7 @@ def __main__():
     parser = genArgParser()
     args = parser.parse_args()
 
-    bad_paths = file_utils.check_paths(True, args.output_dir, args.activation_map_tag, args.search_space)
+    bad_paths = file_utils.check_paths(True, args.activation_map_tag, args.search_space)
 
     if bad_paths:
         print 'ERROR: The following paths do not exist'
@@ -140,11 +155,16 @@ def __main__():
             print p
         return
 
+    subj_dirs = file_utils.get_dirs_from_patterns(args.mri_data_dir, True, *args.patterns)
+    for subj_dir in subj_dirs:
+
+
     # some filepath and data set specification
     temp_mask_name = 'mask_temp.nii.gz'
     mask_path = args.mask_output_prefix
     if not mask_path:
         mask_path = temp_mask_name
+    # fixme
     mask_path = os.path.join(args.output_dir, mask_path)
 
     act_map = "{}'[{}]'".format(args.activation_map_tag, args.contrast_subbrick)

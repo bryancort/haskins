@@ -269,8 +269,8 @@ def get_dirs_from_patterns(targ_dir, full_path, *patterns):
     gets all directory names (optionally full paths) in targ_dir matching patterns
 
     :param targ_dir: directory to match patterns in
-    :param patterns: patterns to match
     :param full_path: return full paths, not directory names
+    :param patterns: patterns to match
     :return: list of directory names (or paths, if called with full_path=True)
     """
     subdir_list = get_immediate_subdirectories(targdir=targ_dir)
