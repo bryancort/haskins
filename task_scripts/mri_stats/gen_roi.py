@@ -157,6 +157,8 @@ def __main__():
 
     subj_dirs = file_utils.get_dirs_from_patterns(args.mri_data_dir, True, *args.patterns)
     for subj_dir in subj_dirs:
+        pass
+        # FIXME: LEFT OFF HERE
 
 
     # some filepath and data set specification
