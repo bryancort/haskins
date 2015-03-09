@@ -8,7 +8,7 @@
 # -------------------------------------------------------------------------------
 from collections import OrderedDict
 import itertools
-
+import traceback
 import subprocess
 import os
 import glob
@@ -18,77 +18,95 @@ from utils import mri_utils, file_utils
 
 
 class AfniDataDir(object):
-    def __init__(self, code_exec_dir):
+    def __init__(self, root_dir):
         super(AfniDataDir, self).__init__()
-        self.code_exec_dir = code_exec_dir
+        self.root_dir = root_dir
 
     def execute_cmd(self, cmd):
         curr_dir = os.getcwd()
-        os.chdir(self.code_exec_dir)
+        os.chdir(self.root_dir)
         subprocess.call(cmd, shell=True)
         os.chdir(curr_dir)
 
+    # todo: better behavior for this than silently defaulting to None on a failed match_single_file()
+    def get_files(self, pattern, require_singlet=False):
+        if require_singlet:
+            return file_utils.match_single_file(path=self.root_dir, pattern=pattern)
+        else:
+            return glob.glob(os.path.join(self.root_dir, pattern))
 
-class ProcRun(AfniDataDir):  # todo: make Keyed
-    def __init__(self, scan, proc_tag, active_stats_file_tag='REML'):
+
+# TODO: RETEST
+class ProcRun(AfniDataDir):
+    def __init__(self, scan, proc_tag, active_stats_file_pattern='stats.*REML+*.HEAD*',
+                 active_anat_pattern="*ns+tlrc.HEAD"):
+        """
+        :param scan: scan name.
+        :param proc_tag: substring uniquely identifying the proc run directory.
+        :param active_stats_file_tag: substring uniquely identifying the stats file (.nii) or files (.HEAD/.BRIK pair).
+            defaults to the REML stats file.
+        :param active_anat_pattern: pattern to match to a single anat file. defaults to the skull stripped standard
+            space anat.
+        """
         self.scan = scan
         self.proc_tag = proc_tag
-        self.run_dir = None
+        self.root_dir = None
         self.run_script = None
         self.run_script_output = None
         self.active_stats_file = None  # .HEAD or .nii file
-        self._find_run_files(self.scan, self.proc_tag)
-        self.set_active_stats_file(active_stats_file_tag)
-        super(ProcRun, self).__init__(code_exec_dir=self.run_dir)
+        self.active_anat_file = None
+        self._find_run_files(self.scan, self.proc_tag)      # fixme: self.root_dir is set here, so:
+        self.set_active_anat_file(active_anat_pattern)
+        self.set_active_stats_file(active_stats_file_pattern)
+        super(ProcRun, self).__init__(root_dir=self.root_dir)   # fixme: don't need the super init here?
 
     def _find_run_files(self, scan, proc_tag):
-        self.run_dir = file_utils.match_single_dir(path=scan.data_dir, pattern='*{}*'.format(proc_tag),
+        self.root_dir = file_utils.match_single_dir(path=scan.root_dir, pattern='*{}*'.format(proc_tag),
                                                    except_on_fail=True)
-        leaf_name = os.path.split(self.run_dir)[1]
+        leaf_name = os.path.split(self.root_dir)[1]
         script_name = 'afni_{}.tcsh'.format(leaf_name).replace('.results', '')
         script_output_name = 'output.{}'.format(script_name)
-        self.run_script = file_utils.match_single_file(path=scan.data_dir, pattern=script_name)
-        self.run_script_output = file_utils.match_single_file(path=scan.data_dir, pattern=script_output_name)
+        self.run_script = file_utils.match_single_file(path=scan.root_dir, pattern=script_name)
+        self.run_script_output = file_utils.match_single_file(path=scan.root_dir, pattern=script_output_name)
         # todo: implement actual logging here
         if not self.run_script:
             print 'WARNING: could not find a unique run script for {} run of {}'.format(self.proc_tag, self.scan)
         if not self.run_script_output:
             print 'WARNING: could not find a unique run script output for {} run of {}'.format(self.proc_tag, self.scan)
 
-    def set_active_stats_file(self, stats_file_tag):
-        stats_head = file_utils.match_single_file(self.run_dir, 'stats.*{}+*.HEAD*'.format(stats_file_tag))
-        stats_brik = file_utils.match_single_file(self.run_dir, 'stats.*{}+*.BRIK*'.format(stats_file_tag))
-        stats_nii = file_utils.match_single_file(self.run_dir, 'stats.*{}+*.nii'.format(stats_file_tag))
-        if stats_head and stats_brik:
-            self.active_stats_file = stats_head
-        elif stats_nii:
-            self.active_stats_file = stats_nii
-        else:
-            raise file_utils.FileError("Could not find unique head/brik pair or nii stats files for {} in {} "
-                                       "with tag {}".format(self.scan, self.run_dir, stats_file_tag))
+    def set_active_stats_file(self, stats_file_pattern):
+        try:
+            stats_head = file_utils.match_single_file(path=self.root_dir, pattern=stats_file_pattern,
+                                                      except_on_fail=True)
+        except:
+            print "Could not set stats file for {} using pattern {}:".format(self, stats_file_pattern)
+            print traceback.format_exc()
+            print "Active stats file reverted to {}".format(self.active_stats_file)
 
-    # todo: better behavior for this than silently defaulting to None on a failed match_single_file()
-    def get_files(self, pattern, require_singlet=False):
-        if require_singlet:
-            return file_utils.match_single_file(path=self.run_dir, pattern=pattern)
-        else:
-            return glob.glob(os.path.join(self.run_dir, pattern))
+    def set_active_anat_file(self, anat_pattern):
+        try:
+            self.active_anat_file = file_utils.match_single_file(self.root_dir, anat_pattern, except_on_fail=True)
+        except:
+            print "Could not set anat file for {} using pattern {}:".format(self, anat_pattern)
+            print traceback.format_exc()
+            print "Active anat file reverted to {}".format(self.active_anat_file)
 
     def __str__(self):
-        return 'Proc Run {} of {} located at {}'.format(self.proc_tag, self.scan, self.run_dir)
+        return 'Proc Run {} of {} located at {}'.format(self.proc_tag, self.scan, self.root_dir)
 
     def __repr__(self):  # fixme: need a real __repr__ here
-        return 'Proc Run {} of {} located at {}'.format(self.proc_tag, self.scan, self.run_dir)
+        return 'Proc Run {} of {} located at {}'.format(self.proc_tag, self.scan, self.root_dir)
 
 
 class Scan(KeyedMixin, ComparableMixin, AfniDataDir):
-    def __init__(self, scan_id, data_dir, proc_runs=()):
+    def __init__(self, scan_id, root_dir, proc_runs=()):
         self.scan_id = scan_id
-        self.data_dir = os.path.normpath(data_dir)
+        # self.root_dir = os.path.normpath(root_dir)
         self.proc_runs = {}
         for run in proc_runs:
-            self.add_proc_run(run)
-        AfniDataDir.__init__(self, code_exec_dir=self.data_dir)
+            if run:
+                self.add_proc_run(run)
+        AfniDataDir.__init__(self, root_dir=os.path.normpath(root_dir))
 
     def add_proc_run(self, proc_tag, run_name=None):
         if not run_name:

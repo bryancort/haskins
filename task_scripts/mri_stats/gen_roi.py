@@ -22,6 +22,7 @@ import sys
 import argparse
 import subprocess
 from utils import base_utils, file_utils
+from core import mri_data
 
 # from pete:
 # todo: if you wanted your life to be easier, you could run
@@ -51,15 +52,21 @@ def genArgParser():
     parser.add_argument('--search_space', default=search_space_default, required=True,
                         help='Mask defining the search space. Default: {}'.format(search_space_default))
 
-    proc_run_default = 'fastloc'
+    proc_run_default = "fastloc"
     parser.add_argument('--proc_run', default=proc_run_default, required=True,
                         help='Tag uniquely identifying the proc run to search for the activation map. '
                              'Default: {}'.format(proc_run_default))
 
     activation_map_pattern_default = None
     parser.add_argument('--activation_map_pattern', default=activation_map_pattern_default, required=True,
-                        help='Substring uniquely identifying the activation map to define ROIs from for each subject. '
+                        help='Pattern to match to find the activation map to define ROIs from for each subject. '
                              'Default: {}'.format(activation_map_pattern_default))
+
+    #todo: merge this with warp_tag (keep this option, add help text from warp)
+    anat_pattern_default = None
+    parser.add_argument('--anat_pattern', default=anat_pattern_default, required=True,
+                        help='Pattern to match to find the anat for each subject. '
+                             'Default: {}'.format(anat_pattern_default))
 
     contrast_subbrick_default = 0
     parser.add_argument('--contrast_subbrick', default=contrast_subbrick_default,
@@ -105,6 +112,8 @@ def genArgParser():
                              "exactly what you're doing."
                              "Default: {} (an [roi_size] voxel cluster)".format(cluster_thresh_default))
 
+    # todo: allow custom anat/func to be passed and override the ones in the proc_run?
+
     # fixme: revert to None when testing complete
     mask_output_prefix_default = 'int_mask_{}.nii.gz'.format(base_utils.getLocalTime())
     parser.add_argument('--mask_output_prefix', default=mask_output_prefix_default,
@@ -140,48 +149,23 @@ _debug_cmd = '--output_dir roi_output ' \
              '--contrast_subbrick 25'
 
 
-def __main__():
-    scriptName = os.path.splitext(os.path.basename(__file__))[0]
-    # if len(sys.argv) == 1 :
-    #     _debug(*_debug_cmd.split(' '))
-    parser = genArgParser()
-    args = parser.parse_args()
-
-    bad_paths = file_utils.check_paths(True, args.activation_map_tag, args.search_space)
-
-    if bad_paths:
-        print 'ERROR: The following paths do not exist'
-        for p in bad_paths:
-            print p
-        return
-
-    subj_dirs = file_utils.get_dirs_from_patterns(args.mri_data_dir, True, *args.patterns)
-    for subj_dir in subj_dirs:
-        pass
-        # FIXME: LEFT OFF HERE
-
-
-    # some filepath and data set specification
-    temp_mask_name = 'mask_temp.nii.gz'
-    mask_path = args.mask_output_prefix
-    if not mask_path:
-        mask_path = temp_mask_name
-    # fixme
-    mask_path = os.path.join(args.output_dir, mask_path)
-
-    act_map = "{}'[{}]'".format(args.activation_map_tag, args.contrast_subbrick)
+def gen_roi(output_dir, *placeholder):
 
     # 3dFractionalize to warp (if needed) and downsample our mask to the subject
     # see example 2 in the 3dFractionalize help for details and explanation
     fract_call = "3dfractionize -template {subj_functional} -input {search_space_mask} -warp {subj_anat_tlrc} " \
     "-preserve -clip {clip_value} -prefix {temp_xformed_mask}".format(subj_functional=args.activation_map_tag,
                                                                       search_space_mask=args.search_space,
-                                                                      subj_anat_tlrc=args.warp, clip_value=args.clip,
+                                                                      subj_anat_tlrc=args.warp,
+                                                                      clip_value=args.clip,
                                                                       temp_xformed_mask=mask_path)
     if not args.warp:
         fract_call = fract_call.replace('-warp ', '')
+
     out_file = os.path.join(args.output_dir, args.output_file_prefix)
-    subprocess.call(fract_call, shell=True)  # 3dROIMaker to generate our functionally defined ROI
+    subprocess.call(fract_call, shell=True)
+
+    # 3dROIMaker to generate our functionally defined ROI
     roimaker_call = "3dROIMaker -inset {subj_functional} -thresh {act_thresh} -prefix {outfile_name} " \
                     "-mask {temp_xformed_mask} -only_conn_top {roi_size}".format(subj_functional=act_map,
                                                                                  act_thresh=args.thresh,
@@ -192,6 +176,68 @@ def __main__():
 
     if os.path.exists(os.path.join(args.output_dir, temp_mask_name)):
         os.remove(os.path.join(args.output_dir, temp_mask_name))
+
+
+def __main__():
+    scriptName = os.path.splitext(os.path.basename(__file__))[0]
+    # if len(sys.argv) == 1 :
+    #     _debug(*_debug_cmd.split(' '))
+    parser = genArgParser()
+    args = parser.parse_args()
+
+    bad_paths = file_utils.check_paths(True, args.search_space, args.mri_data_dir)
+
+    if bad_paths:
+        print 'ERROR: The following paths do not exist'
+        for p in bad_paths:
+            print p
+        return
+
+    subj_dirs = file_utils.get_dirs_from_patterns(args.mri_data_dir, True, *args.patterns)
+    for subj_dir in subj_dirs:
+        subj_scan = mri_data.Scan(scan_id=os.path.split(subj_dir)[1], root_dir=subj_dir, proc_runs=(args.proc_run,))
+        proc_run = subj_scan.proc_runs[args.proc_run]
+        # check that we have the necessary files
+        if not proc_run.active_stats_file and not proc_run.active_anat_file:
+            print "{} is missing a required file; check the stats and anat in {}".format(subj_scan, proc_run)
+            continue    # todo adjust this for when we override defaults
+
+        # some filepath and data set specification
+        temp_mask_name = 'mask_temp.nii.gz'
+        mask_name = args.mask_output_prefix
+        if not mask_name:
+            mask_name = temp_mask_name
+
+        act_map = proc_run.active_stats_file
+        if args.activation_map_pattern:
+            act_map = proc_run.set_active_stats_file(args.activation_map_pattern)
+        act_map_volume = "{}'[{}]'".format(act_map, args.contrast_subbrick)
+        anat = proc_run.active_anat_file
+        if args.anat_pattern:
+            anat = proc_run.set_active_anat_file(args.anat_pattern)
+
+        #set the output dir
+        subj_out_dir = subj_scan.root_dir
+        if args.output_dir:
+            subj_out_dir = os.path.join(subj_scan.root_dir, args.output_dir)
+        if not os.path.exists(subj_out_dir):
+            os.mkdir(subj_out_dir)
+
+        mask_output_path = os.path.join(args.output_dir, mask_name)
+
+        bad_paths = file_utils.check_paths(True, act_map, anat, subj_out_dir)
+
+        if bad_paths:
+            print 'ERROR: The following paths do not exist'
+            for p in bad_paths:
+                print p
+            return
+
+        gen_roi(subj_scan, proc_run, act_map_volume, anat, args.search_space, subj_out_dir, mask_output_path,
+                args.roi_size, args.clip, args.cluster_thresh)
+
+
+
 
 
 if __name__ == '__main__':
