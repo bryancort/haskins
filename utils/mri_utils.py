@@ -9,7 +9,7 @@
 
 import subprocess
 from subprocess import PIPE as PIPE
-from utils import exceptions
+from utils import haskins_exceptions
 
 
 class BetweenVarMismatchError(Exception):

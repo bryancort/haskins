@@ -2,7 +2,7 @@ import codecs
 import time
 import itertools
 import fnmatch
-from utils import exceptions
+from utils import haskins_exceptions
 
 __author__ = 'cort'
 
@@ -98,7 +98,7 @@ def filter_singlet(strings, pattern, except_on_fail=False):     # todo: test
     elif not except_on_fail:
         return None
     else:
-        raise exceptions.FileError('filter_singlet found {} matches'.format(len(filtered_strings)))
+        raise haskins_exceptions.FileError('filter_singlet found {} matches'.format(len(filtered_strings)))
 
 
 def getLocalTime(hr_min=True):

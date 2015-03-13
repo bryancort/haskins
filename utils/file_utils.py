@@ -17,7 +17,7 @@ import itertools
 
 import numpy as np
 
-from utils.exceptions import *
+from utils.haskins_exceptions import *
 
 
 def readTable(fPath, delim='\t'):
@@ -220,6 +220,38 @@ def copy_files(source, dest, *args):
     paths = []
     for p in args:
         paths.extend(glob.glob(os.path.join(source, p)))
+    if paths and not os.path.exists(dest):
+        os.makedirs(dest)
+    for f in paths:
+        if os.path.isdir(f):
+            shutil.copytree(f, os.path.join(dest, os.path.basename(f)))
+        else:
+            shutil.copy2(f, dest)
+
+
+def copy_files2(source, dest, overwrite, *args):
+    """
+    Copies files and/or directories in source matching any unix-style wildcard pattern in *args to dest.
+
+    :param source: source directory
+    :param dest: destination directory
+    :param overwrite: silently overwrite existing paths in the destination dir
+    :param args: one or more patterns to match files in source to; only files which match a pattern will be moved
+    """
+    dest = os.path.normpath(dest)
+    paths = []
+    for p in args:
+        paths.extend(glob.glob(os.path.join(source, p)))
+
+    if not overwrite:
+        conflicts = []
+        for f in paths:
+            d = os.path.join(dest, os.path.basename(f))
+            if os.path.exists(d):
+                conflicts.append((f, d))
+                raise FileError("The following files pairs conflict: {}\nUse "
+                                "overwrite=True to override these conflicts and replace the files.".format(conflicts))
+
     if paths and not os.path.exists(dest):
         os.makedirs(dest)
     for f in paths:

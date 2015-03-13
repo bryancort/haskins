@@ -15,7 +15,7 @@ import sys
 from utils import mri_utils, file_utils
 from core import mri_data
 
-from utils.exceptions import *
+from utils.haskins_exceptions import *
 
 
 def genArgParser():

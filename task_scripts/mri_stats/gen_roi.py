@@ -11,7 +11,7 @@
 
 # If you use this program, please reference the introductory/description
 # paper for the FATCAT toolbox:
-#         Taylor PA, Saad ZS (2013).  FATCAT: (An Efficient) Functional
+# Taylor PA, Saad ZS (2013).  FATCAT: (An Efficient) Functional
 #         And Tractographic Connectivity Analysis Toolbox. Brain
 #         Connectivity 3(5):523-535.
 
@@ -19,19 +19,19 @@ __author__ = 'cort'
 
 import os
 import sys
+import glob
+import fnmatch
 import argparse
 import subprocess
+import traceback
 from utils import base_utils, file_utils
 from core import mri_data
+from utils.haskins_exceptions import AfniError, FileError
 
 # from pete:
 # todo: if you wanted your life to be easier, you could run
 # todo: @auto_tlrc -base TT_N27+tlrc -input anat_final.tb1234+orig.HEAD -init_xform CENTER - no_ss on each subject
 # todo: and then you'd be guaranteed to have an anat_final*+tlrc
-
-
-def gen_standard_anat(mri_subject, anat_tag='anat'):
-    pass
 
 
 def genArgParser():
@@ -49,41 +49,32 @@ def genArgParser():
                         help='Directory containing scans. Default: {}'.format(mri_data_dir_default))
 
     search_space_default = None
-    parser.add_argument('--search_space', default=search_space_default, required=True,
+    parser.add_argument('--search_space', default=search_space_default,
                         help='Mask defining the search space. Default: {}'.format(search_space_default))
 
-    proc_run_default = "fastloc"
-    parser.add_argument('--proc_run', default=proc_run_default, required=True,
+    proc_run_default = ".fastloc"
+    parser.add_argument('--proc_run', default=proc_run_default,
                         help='Tag uniquely identifying the proc run to search for the activation map. '
                              'Default: {}'.format(proc_run_default))
 
-    activation_map_pattern_default = None
-    parser.add_argument('--activation_map_pattern', default=activation_map_pattern_default, required=True,
-                        help='Pattern to match to find the activation map to define ROIs from for each subject. '
-                             'Default: {}'.format(activation_map_pattern_default))
+    func_pattern_default = None
+    parser.add_argument('--func_pattern', default=func_pattern_default, required=True,
+                        help='Pattern to match to find the functional activation map to define ROIs from for each '
+                             'subject. Commonly stats.*REML+*.HEAD* or stats.??????+*.HEAD*'
+                             'Default: {}'.format(func_pattern_default))
 
-    #todo: merge this with warp_tag (keep this option, add help text from warp)
-    anat_pattern_default = None
-    parser.add_argument('--anat_pattern', default=anat_pattern_default, required=True,
-                        help='Pattern to match to find the anat for each subject. '
-                             'Default: {}'.format(anat_pattern_default))
+    anat_tlrc_pattern_default = None
+    parser.add_argument('--anat_tlrc_pattern', default=anat_tlrc_pattern_default,
+                        help='Pattern to match to find the anat for each subject. This anat file will be passed to the '
+                             '-warp option of 3dfractionize. This should be in standard space; it is used for the '
+                             'transformation from standard space back to subject space. For more details, see: '
+                             'http://afni.nimh.nih.gov/pub/dist/doc/program_help/3dfractionize.html '
+                             'Default: {}'.format(anat_tlrc_pattern_default))
 
-    contrast_subbrick_default = 0
+    contrast_subbrick_default = 26  # 26 is the A182 print - falsefont tstat
     parser.add_argument('--contrast_subbrick', default=contrast_subbrick_default,
                         help='Activation map subbrick to use. Should be the t-stat, NOT the coefficients.'
                              'Default: {}'.format(contrast_subbrick_default))
-
-    warp_tag_default = None
-    parser.add_argument('--warp_tag', default=warp_tag_default,
-                        help="Argument to the -warp option of 3dfractionize. This "
-                             ""
-                             " From the AFNI 3dfractionize help:"
-                             "If this option is used, 'wset' is a dataset that provides a transformation (warp) from "
-                             "+orig coordinates to the coordinates of 'iset'.In this case, the output dataset will be "
-                             "in +orig coordinates rather than the coordinatesof 'iset'.  With this option:** 'tset' "
-                             "must be in +orig coordinates ** 'iset' must be in +acpc or +tlrc coordinates ** 'wset' "
-                             "must be in the same coordinates as 'iset'"
-                             'Default: {}'.format(warp_tag_default))
 
     output_dir_default = None
     parser.add_argument('--output_dir', default=output_dir_default,
@@ -91,12 +82,12 @@ def genArgParser():
                              'will be generated in the subject directory.'
                              'Default: {}'.format(output_dir_default))
 
-    output_file_prefix_default = 'ROI_{}'.format(base_utils.getLocalTime())
-    parser.add_argument('--output_file_prefix', default=output_file_prefix_default,
+    output_roi_prefix_default = 'ROI_{}'.format(base_utils.getLocalTime())
+    parser.add_argument('--output_roi_prefix', default=output_roi_prefix_default,
                         help='Output prefix for the final ROI. '
                              'Default: ROI_[DATE_TIME].nii.gz')
 
-    roi_size_default = 500
+    roi_size_default = 200
     parser.add_argument('--roi_size', default=roi_size_default,
                         help='Number of voxels to include in the ROI. '
                              'Default: {}'.format(roi_size_default))
@@ -106,19 +97,31 @@ def genArgParser():
                         help='Clipping threshold for the mask. Passed directly to the -clip option of 3dfractionize.'
                              'Default: {}'.format(clip_default))
 
-    cluster_thresh_default = -100000
-    parser.add_argument('--thresh', default=cluster_thresh_default,
+    threshold_default = -100000
+    parser.add_argument('--threshold', default=threshold_default,
                         help="Default threshold for including voxels in the cluster. Don't change this unless you know "
                              "exactly what you're doing."
-                             "Default: {} (an [roi_size] voxel cluster)".format(cluster_thresh_default))
+                             "Default: {} (an [roi_size] voxel cluster)".format(threshold_default))
 
-    # todo: allow custom anat/func to be passed and override the ones in the proc_run?
+    warped_ss_prefix_default = None
+    parser.add_argument('--warped_ss_prefix', default=warped_ss_prefix_default,
+                        help="Name to save the subject space (+orig) search space mask. If 'None', the "
+                             "intermediate mask will be discarded after processing is complete. "
+                             "Default: {}".format(warped_ss_prefix_default))
 
-    # fixme: revert to None when testing complete
-    mask_output_prefix_default = 'int_mask_{}.nii.gz'.format(base_utils.getLocalTime())
-    parser.add_argument('--mask_output_prefix', default=mask_output_prefix_default,
-                        help="Name for the search space mask. If 'None', the intermediate mask will be discarded after "
-                             "processing is complete. Default: {}".format(mask_output_prefix_default))
+    copy_anat_pattern_default = None
+    parser.add_argument('--copy_anat_pattern', default=copy_anat_pattern_default,
+                        help="Copy anat file(s) matching this pattern to the output_dir (probably for checking your "
+                             "results using afni). Default: {}".format(copy_anat_pattern_default))
+
+    warped_ss_exists_default = False
+    parser.add_argument('--warped_ss_exists', action="store_true", default=warped_ss_exists_default,
+                        help="Pass this flag to use an existing warped search space (with prefix specified from "
+                             "--warped_ss_prefix) in output_dir. Default: {}".format(warped_ss_exists_default))
+
+    make_snapshots_default = None
+    parser.add_argument('--make_snapshots_default', default=make_snapshots_default,
+                        help="Placeholder snapshots option. Default: {}".format(make_snapshots_default))
 
     # debugging and logging
     # report_default = False
@@ -133,59 +136,120 @@ def genArgParser():
     return parser
 
 
-def gen_subj_roi(search_space, activation_map_pattern, contrast_subbrick, warp_tag, mask_output_prefix):
-    pass
-
-
 def _debug(*cmd_args):
     sys.argv = [sys.argv[0]] + list(cmd_args)
 
 
-# fixme
-_debug_cmd = '--output_dir roi_output ' \
+_debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
              '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa+tlrc.HEAD ' \
-             '--activation_map_pattern /data1/A182/mri_subjects/tb0027/tb0027.fastloc/stats.tb0027_REML+orig.HEAD ' \
-             '--warp /data1/A182/mri_subjects/tb0027/tb0027.fastloc/Sag3DMPRAGEs002a1001_ns+tlrc.HEAD ' \
-             '--contrast_subbrick 25'
+             '--func_pattern stats.*REML+*.HEAD* ' \
+             '--anat_tlrc *ns+tlrc.HEAD ' \
+             '--contrast_subbrick 25 ' \
+             '--warped_ss_prefix vwfa_ss+orig ' \
+             '--copy_anat_pattern *ns+orig* ' \
+             '--output_dir rois/func_roi_vwfa ' \
+             '--roi_size 100 ' \
+             '--output_roi_prefix vwfa_100 ' \
+             '--warped_ss_exists ' \
+             'tb5688 tb5689 tb5722'
+
+# _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
+#              '--func_pattern stats.*REML+*.HEAD* ' \
+#              '--contrast_subbrick 25 ' \
+#              '--warped_ss_prefix vwfa_ss+orig ' \
+#              '--copy_anat_pattern *ns+orig* ' \
+#              '--output_dir rois/func_roi_vwfa_500 ' \
+#              '--roi_size 500 ' \
+#              '--output_roi_prefix vwfa_550 ' \
+#              '--warped_ss_exists ' \
+#              'tb5688 tb5689'
+
+def gen_snapshots():
+    pass
 
 
-def gen_roi(output_dir, *placeholder):
+def _get_warped_mask(dir, prefix):
+    return file_utils.match_single_file(dir, "{}*".format(prefix), except_on_fail=True, select_headfile=True)
 
-    # 3dFractionalize to warp (if needed) and downsample our mask to the subject
+
+def warp_search_space(func, search_space, clip, mask_out, anat_tlrc=None):
+    """
+    Downsamples search_space to the resolution of func and (if anat_tlrc is provided) warps search_space from +tlrc to
+    +orig.
+
+    :param func: functional volume with sub-brick specification, eg., subj_func.HEAD[1] or subj_func.HEAD[print]
+    :param search_space: search space to define the ROI within; should be a one-subbrick volume containing a mask
+    :param anat_tlrc: The +tlrc skull stripped anatomical for the subject in func. This will be passed directly
+        to the -warp option of 3dfractionize and used to warp search_space from +tlrc to +orig. This parameter should
+        only be filled if search_space is +tlrc and func is +orig.
+    :param clip: clipping value to pass directly to the -clip argument of 3dfractionize
+    :param mask_out: output path for the mask
+    """
+    if not anat_tlrc:
+        anat_tlrc = ''
+    # 3dFractionalize to warp (if needed) and downsample our search space to the subject
     # see example 2 in the 3dFractionalize help for details and explanation
-    fract_call = "3dfractionize -template {subj_functional} -input {search_space_mask} -warp {subj_anat_tlrc} " \
-    "-preserve -clip {clip_value} -prefix {temp_xformed_mask}".format(subj_functional=args.activation_map_tag,
-                                                                      search_space_mask=args.search_space,
-                                                                      subj_anat_tlrc=args.warp,
-                                                                      clip_value=args.clip,
-                                                                      temp_xformed_mask=mask_path)
-    if not args.warp:
+    # Might need to cd into output_path[0] and use output_path[1] as the arg (after splitting output_path)
+    fract_call = "3dfractionize -template {func} -input {search_space} -warp {anat_tlrc} " \
+                 "-preserve -clip {clip} -prefix {mask_out}".format(func=func, search_space=search_space,
+                                                                    anat_tlrc=anat_tlrc,
+                                                                    clip=clip, mask_out=mask_out)
+    if not anat_tlrc:
         fract_call = fract_call.replace('-warp ', '')
 
-    out_file = os.path.join(args.output_dir, args.output_file_prefix)
+    # todo: more intelligent matching for prefixes
+    ss_warp_files = glob.glob("{}*".format(mask_out))
+    if ss_warp_files:
+        raise AfniError("Files with prefix {} already exist; Aborted 3dfractionize call.".format(mask_out))
+
     subprocess.call(fract_call, shell=True)
 
-    # 3dROIMaker to generate our functionally defined ROI
-    roimaker_call = "3dROIMaker -inset {subj_functional} -thresh {act_thresh} -prefix {outfile_name} " \
-                    "-mask {temp_xformed_mask} -only_conn_top {roi_size}".format(subj_functional=act_map,
-                                                                                 act_thresh=args.thresh,
-                                                                                 outfile_name=out_file,
-                                                                                 temp_xformed_mask=mask_path,
-                                                                                 roi_size=args.roi_size)
-    subprocess.call(roimaker_call, shell=True)
+    # todo: more intelligent matching for prefixes
+    ss_warp_files = glob.glob("{}*".format(mask_out))
+    if ss_warp_files:
+        return ss_warp_files
+    else:
+        raise AfniError("3dfractionize did not successfully generate the file {}".format(mask_out))
 
-    if os.path.exists(os.path.join(args.output_dir, temp_mask_name)):
-        os.remove(os.path.join(args.output_dir, temp_mask_name))
+
+def gen_func_roi(func, search_space, threshold, roi_size, output_path, remove_search_space=False):
+    # 3dROIMaker to generate our functionally defined ROI
+    # Might need to cd into output_path[0] and use output_path[1] as the arg (after splitting output_path)
+    roimaker_call = "3dROIMaker -inset {func} -thresh {threshold} -prefix {output_path} " \
+                    "-mask {search_space} -only_conn_top {roi_size}".format(func=func, threshold=threshold,
+                                                                            output_path=output_path,
+                                                                            search_space=search_space,
+                                                                            roi_size=roi_size)
+    # todo: more intelligent matching for prefixes
+    roi_files = glob.glob("{}*".format(output_path))
+    if roi_files:
+        raise AfniError("Files with prefix {} already exist; Aborted 3droimaker call. ")
+
+    subprocess.call(roimaker_call, shell=True)
+    if remove_search_space:
+        if os.path.exists(search_space):
+            os.remove(search_space)
+
+    # todo: more intelligent matching for prefixes
+    roi_files = glob.glob("{}*".format(output_path))
+    if roi_files:
+        return roi_files
+    else:
+        raise AfniError("3droimaker did not successfully generate files with prefix {}".format(output_path))
 
 
 def __main__():
     scriptName = os.path.splitext(os.path.basename(__file__))[0]
-    # if len(sys.argv) == 1 :
-    #     _debug(*_debug_cmd.split(' '))
+    if len(sys.argv) == 1:
+        _debug(*_debug_cmd.split(' '))
     parser = genArgParser()
     args = parser.parse_args()
 
-    bad_paths = file_utils.check_paths(True, args.search_space, args.mri_data_dir)
+    check_paths = [args.mri_data_dir]
+    if args.search_space:
+        check_paths.append(args.search_space)
+
+    bad_paths = file_utils.check_paths(True, *check_paths)
 
     if bad_paths:
         print 'ERROR: The following paths do not exist'
@@ -194,38 +258,47 @@ def __main__():
         return
 
     subj_dirs = file_utils.get_dirs_from_patterns(args.mri_data_dir, True, *args.patterns)
-    for subj_dir in subj_dirs:
-        subj_scan = mri_data.Scan(scan_id=os.path.split(subj_dir)[1], root_dir=subj_dir, proc_runs=(args.proc_run,))
+    for subj_dir in sorted(subj_dirs):
+        try:
+            subj_scan = mri_data.Scan(scan_id=os.path.split(subj_dir)[1], root_dir=subj_dir, proc_runs=(args.proc_run,))
+        except:
+            print "Failed to instantiate a scan object for {}; skipping {}".format(subj_dir, subj_dir)
+            continue
+
         proc_run = subj_scan.proc_runs[args.proc_run]
-        # check that we have the necessary files
-        if not proc_run.active_stats_file and not proc_run.active_anat_file:
-            print "{} is missing a required file; check the stats and anat in {}".format(subj_scan, proc_run)
-            continue    # todo adjust this for when we override defaults
 
         # some filepath and data set specification
-        temp_mask_name = 'mask_temp.nii.gz'
-        mask_name = args.mask_output_prefix
+        temp_mask_name = 'int_mask.nii.gz'
+        mask_name = args.warped_ss_prefix
+        discard_mask = False
         if not mask_name:
             mask_name = temp_mask_name
+            discard_mask = True
 
-        act_map = proc_run.active_stats_file
-        if args.activation_map_pattern:
-            act_map = proc_run.set_active_stats_file(args.activation_map_pattern)
-        act_map_volume = "{}'[{}]'".format(act_map, args.contrast_subbrick)
-        anat = proc_run.active_anat_file
-        if args.anat_pattern:
-            anat = proc_run.set_active_anat_file(args.anat_pattern)
+        # set the correct functional and anat
+        if args.func_pattern:
+            proc_run.set_active_stats_file(args.func_pattern)
+        act_map = "{}'[{}]'".format(proc_run.active_stats_file, args.contrast_subbrick)
+        anat = ''
+        if args.anat_tlrc_pattern:
+            proc_run.set_active_anat_file(args.anat_tlrc_pattern)
+            anat = proc_run.active_anat_file
 
-        #set the output dir
+        # check that we have the necessary files
+        if not proc_run.active_stats_file or (not proc_run.active_anat_file and args.anat_tlrc_pattern):
+            print "{} is missing a required file; check the stats and anat in {}".format(subj_scan, proc_run)
+            continue
+
+        # set the output dir
         subj_out_dir = subj_scan.root_dir
         if args.output_dir:
             subj_out_dir = os.path.join(subj_scan.root_dir, args.output_dir)
         if not os.path.exists(subj_out_dir):
-            os.mkdir(subj_out_dir)
+            os.makedirs(subj_out_dir)
 
-        mask_output_path = os.path.join(args.output_dir, mask_name)
+        warped_ss_prefix = os.path.join(subj_out_dir, mask_name)
 
-        bad_paths = file_utils.check_paths(True, act_map, anat, subj_out_dir)
+        bad_paths = file_utils.check_paths(True, proc_run.active_stats_file, subj_out_dir)
 
         if bad_paths:
             print 'ERROR: The following paths do not exist'
@@ -233,30 +306,41 @@ def __main__():
                 print p
             return
 
-        gen_roi(subj_scan, proc_run, act_map_volume, anat, args.search_space, subj_out_dir, mask_output_path,
-                args.roi_size, args.clip, args.cluster_thresh)
+        ss_warp = None
+        try:
+            if args.warped_ss_exists:
+                ss_warp = _get_warped_mask(subj_out_dir, mask_name)
+            else:
+                ss_warp_files = warp_search_space(func=proc_run.active_stats_file, search_space=args.search_space,
+                                                  anat_tlrc=anat, clip=args.clip, mask_out=warped_ss_prefix)
 
+                # todo: pathni module with this functionality
+                ss_warp = fnmatch.filter(ss_warp_files, "*.HEAD")[0]
+        except:
+            print "Warp/downsample failed for {}".format(subj_scan)
+            print "This could be due to a warped/downsampled mask already existing at the specified output path. " \
+                  "Specify a new path or use the --warped_ss_exists option to use the existing mask.\nError Message:"
+            print traceback.format_exc()
+            continue
+        try:
+            output_path = os.path.join(subj_out_dir, args.output_roi_prefix)
 
+            func_roi_files = gen_func_roi(func=act_map, search_space=ss_warp, threshold=args.threshold,
+                                          roi_size=args.roi_size, output_path=output_path,
+                                          remove_search_space=discard_mask)
+            print "Generated functional ROI files for {}:\n{}\n".format(subj_scan, "\n".join(func_roi_files))
 
+            if args.copy_anat_pattern:
+                try:
+                    file_utils.copy_files2(proc_run.root_dir, subj_out_dir, False, args.copy_anat_pattern)
+
+                except:
+                    print "Error copying anat files matching pattern {}:".format(args.copy_anat_pattern)
+                    print traceback.format_exc()
+        except:
+            print "ROI generation failed for {}".format(subj_scan)
+            print traceback.format_exc()
 
 
 if __name__ == '__main__':
     __main__()
-
-
-# Might not need these with the new 3dROIMaker feature
-# def _gen_search_space_map():
-#     pass
-#
-#
-# def _get_hottest_vox():
-#     pass
-#
-#
-# def _cluster_from_vox():
-#     pass
-#
-#
-# def _roi_from_cluster():
-#     pass
-#

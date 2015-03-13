@@ -36,7 +36,6 @@ class AfniDataDir(object):
             return glob.glob(os.path.join(self.root_dir, pattern))
 
 
-# TODO: RETEST
 class ProcRun(AfniDataDir):
     def __init__(self, scan, proc_tag, active_stats_file_pattern='stats.*REML+*.HEAD*',
                  active_anat_pattern="*ns+tlrc.HEAD"):
@@ -62,7 +61,7 @@ class ProcRun(AfniDataDir):
 
     def _find_run_files(self, scan, proc_tag):
         self.root_dir = file_utils.match_single_dir(path=scan.root_dir, pattern='*{}*'.format(proc_tag),
-                                                   except_on_fail=True)
+                                                    except_on_fail=True)
         leaf_name = os.path.split(self.root_dir)[1]
         script_name = 'afni_{}.tcsh'.format(leaf_name).replace('.results', '')
         script_output_name = 'output.{}'.format(script_name)
@@ -76,7 +75,7 @@ class ProcRun(AfniDataDir):
 
     def set_active_stats_file(self, stats_file_pattern):
         try:
-            stats_head = file_utils.match_single_file(path=self.root_dir, pattern=stats_file_pattern,
+            self.active_stats_file = file_utils.match_single_file(path=self.root_dir, pattern=stats_file_pattern,
                                                       except_on_fail=True)
         except:
             print "Could not set stats file for {} using pattern {}:".format(self, stats_file_pattern)
@@ -100,13 +99,13 @@ class ProcRun(AfniDataDir):
 
 class Scan(KeyedMixin, ComparableMixin, AfniDataDir):
     def __init__(self, scan_id, root_dir, proc_runs=()):
+        AfniDataDir.__init__(self, root_dir=os.path.normpath(root_dir))
         self.scan_id = scan_id
         # self.root_dir = os.path.normpath(root_dir)
         self.proc_runs = {}
         for run in proc_runs:
             if run:
                 self.add_proc_run(run)
-        AfniDataDir.__init__(self, root_dir=os.path.normpath(root_dir))
 
     def add_proc_run(self, proc_tag, run_name=None):
         if not run_name:
