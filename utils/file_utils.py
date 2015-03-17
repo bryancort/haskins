@@ -14,6 +14,7 @@ import hashlib
 import glob
 import fnmatch
 import itertools
+import traceback
 
 import numpy as np
 
@@ -237,28 +238,39 @@ def copy_files2(source, dest, overwrite, *args):
     :param dest: destination directory
     :param overwrite: silently overwrite existing paths in the destination dir
     :param args: one or more patterns to match files in source to; only files which match a pattern will be moved
+    :returns: (files_copied, dirs_copied) tuple of paths successfully copied
     """
     dest = os.path.normpath(dest)
     paths = []
-    for p in args:
-        paths.extend(glob.glob(os.path.join(source, p)))
+    files_copied = []
+    dirs_copied = []
+    try:
+        for p in args:
+            paths.extend(glob.glob(os.path.join(source, p)))
 
-    if not overwrite:
-        conflicts = []
+        if not overwrite:
+            conflicts = []
+            for f in paths:
+                d = os.path.join(dest, os.path.basename(f))
+                if os.path.exists(d):
+                    conflicts.append((f, d))
+                    raise FileError("The following files pairs conflict: {}\nUse "
+                                    "overwrite=True to override these conflicts and replace the files.".format(conflicts))
+
+        if paths and not os.path.exists(dest):
+            os.makedirs(dest)
         for f in paths:
-            d = os.path.join(dest, os.path.basename(f))
-            if os.path.exists(d):
-                conflicts.append((f, d))
-                raise FileError("The following files pairs conflict: {}\nUse "
-                                "overwrite=True to override these conflicts and replace the files.".format(conflicts))
-
-    if paths and not os.path.exists(dest):
-        os.makedirs(dest)
-    for f in paths:
-        if os.path.isdir(f):
-            shutil.copytree(f, os.path.join(dest, os.path.basename(f)))
-        else:
-            shutil.copy2(f, dest)
+            if os.path.isdir(f):
+                shutil.copytree(f, os.path.join(dest, os.path.basename(f)))
+                dirs_copied.append(os.path.join(dest, os.path.basename(f)))
+            else:
+                shutil.copy2(f, dest)
+                files_copied.append(os.path.join(dest, os.path.basename(f)))
+    except:
+        print "Some copy operations did not complete successfully:"
+        print traceback.format_exc()
+    finally:
+        return files_copied, dirs_copied
 
 
 def rename_files(dest, oldSubstr, newSubstr):

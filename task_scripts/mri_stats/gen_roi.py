@@ -23,8 +23,9 @@ import glob
 import fnmatch
 import argparse
 import subprocess
+from subprocess import PIPE as PIPE
 import traceback
-from utils import base_utils, file_utils
+from utils import base_utils, file_utils, pathni
 from core import mri_data
 from utils.haskins_exceptions import AfniError, FileError
 
@@ -146,26 +147,60 @@ _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
              '--anat_tlrc *ns+tlrc.HEAD ' \
              '--contrast_subbrick 25 ' \
              '--warped_ss_prefix vwfa_ss+orig ' \
-             '--copy_anat_pattern *ns+orig* ' \
+             '--copy_anat_pattern Sag*ns+orig* ' \
              '--output_dir rois/func_roi_vwfa ' \
              '--roi_size 100 ' \
              '--output_roi_prefix vwfa_100 ' \
              '--warped_ss_exists ' \
-             'tb5688 tb5689 tb5722'
+             '--clip 0.9 ' \
+             'tb5689'
 
 # _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
 #              '--func_pattern stats.*REML+*.HEAD* ' \
 #              '--contrast_subbrick 25 ' \
 #              '--warped_ss_prefix vwfa_ss+orig ' \
-#              '--copy_anat_pattern *ns+orig* ' \
+#              '--copy_anat_pattern Sag*ns+orig* ' \
 #              '--output_dir rois/func_roi_vwfa_500 ' \
 #              '--roi_size 500 ' \
 #              '--output_roi_prefix vwfa_550 ' \
 #              '--warped_ss_exists ' \
 #              'tb5688 tb5689'
 
-def gen_snapshots():
-    pass
+def gen_snapshots(out_dir, anat_file, roi_file, out_prefix):
+    curr_dir = os.getcwd()
+    os.chdir(out_dir)
+    anat = os.path.basename(anat_file)
+    roi = os.path.basename(roi_file)
+    out_prefix_fb = out_prefix + "_ss_full_brain"
+    out_prefix_rz = out_prefix + "_ss_roi_zoom"
+
+    center_cmd = "3dCM {}".format(anat_file)
+    center_anat = subprocess.Popen(center_cmd, universal_newlines=True,
+                                   stdout=PIPE, shell=True).communicate()[0]
+
+    center_cmd = "3dCM {}".format(roi_file)
+    center_roi = subprocess.Popen(center_cmd, universal_newlines=True,
+                                  stdout=PIPE, shell=True).communicate()[0]
+
+    # fixme: closing/reopening the window is maybe not necessary, but keeping it for now
+    full_brain_snapshot_cmd = '''/opt/X11/bin/Xvfb :1 -screen 0 1024x768x24 & afni -com "OPEN_WINDOW A.axialimage \
+mont=6x5:3 geom=600x600+800+600" \
+-com "CLOSE_WINDOW A.sagittalimage" \
+-com "SWITCH_UNDERLAY {anat_file}" \
+-com "SET_FUNC_AUTORANGE A.-" \
+-com "SET_FUNC_RANGE A.10" \
+-com "SWITCH_OVERLAY {roi_file}" \
+-com "SET_DICOM_XYZ A {center_fb}" \
+-com "SAVE_JPEG A.axialimage {out_prefix_fb}" \
+-com "CLOSE_WINDOW A.axialimage" \
+-com "OPEN_WINDOW A.axialimage mont=6x5:1 geom=600x600+800+600" \
+-com "SET_DICOM_XYZ A {center_rz}" \
+-com "SAVE_JPEG A.axialimage {out_prefix_rz}" \
+-com "QUIT"'''.format(anat_file=anat, roi_file=roi, center_fb=center_anat,
+                      center_rz=center_roi, out_dir=out_dir, out_prefix_fb=out_prefix_fb, out_prefix_rz=out_prefix_rz)
+
+    subprocess.call(full_brain_snapshot_cmd, shell=True)
+    os.chdir(curr_dir)
 
 
 def _get_warped_mask(dir, prefix):
@@ -306,7 +341,6 @@ def __main__():
                 print p
             return
 
-        ss_warp = None
         try:
             if args.warped_ss_exists:
                 ss_warp = _get_warped_mask(subj_out_dir, mask_name)
@@ -331,15 +365,30 @@ def __main__():
             print "Generated functional ROI files for {}:\n{}\n".format(subj_scan, "\n".join(func_roi_files))
 
             if args.copy_anat_pattern:
+                anat_files = None
                 try:
-                    file_utils.copy_files2(proc_run.root_dir, subj_out_dir, False, args.copy_anat_pattern)
+                    # fixme: overwriting for convenience. This should never be an issue, but still bad practice.
+                    anat_files = file_utils.copy_files2(proc_run.root_dir, subj_out_dir, True,
+                                                        args.copy_anat_pattern)[0]
 
                 except:
                     print "Error copying anat files matching pattern {}:".format(args.copy_anat_pattern)
                     print traceback.format_exc()
+                try:
+                    # fixme: this will fail in some corner cases, like identical prefix and both +orig and +tlrc files
+                    roi_files = fnmatch.filter(func_roi_files,
+                                               os.path.join("*","{}_GM+????.????".format(args.output_roi_prefix)))
+                    roi_file = pathni.get_headfile(roi_files)
+                    anat_file = pathni.get_headfile(anat_files)
+                    gen_snapshots(out_dir=subj_out_dir, anat_file=anat_file, roi_file=roi_file,
+                                  out_prefix=args.output_roi_prefix)
+                except:
+                    print "Error generating snapshots for {}:".format(subj_scan)
+                    print traceback.format_exc()
         except:
-            print "ROI generation failed for {}".format(subj_scan)
+            print "ROI generation failed for {}:".format(subj_scan)
             print traceback.format_exc()
+            continue
 
 
 if __name__ == '__main__':
