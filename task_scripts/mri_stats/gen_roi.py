@@ -142,7 +142,7 @@ def _debug(*cmd_args):
 
 
 _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
-             '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa+tlrc.HEAD ' \
+             '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa/vwfa+tlrc.HEAD ' \
              '--func_pattern stats.*REML+*.HEAD* ' \
              '--anat_tlrc *ns+tlrc.HEAD ' \
              '--contrast_subbrick 25 ' \
@@ -153,7 +153,7 @@ _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
              '--output_roi_prefix vwfa_100 ' \
              '--warped_ss_exists ' \
              '--clip 0.9 ' \
-             'tb5689'
+             'tb5688'
 
 # _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
 #              '--func_pattern stats.*REML+*.HEAD* ' \
@@ -250,7 +250,8 @@ def warp_search_space(func, search_space, clip, mask_out, anat_tlrc=None):
 def gen_func_roi(func, search_space, threshold, roi_size, output_path, remove_search_space=False):
     # 3dROIMaker to generate our functionally defined ROI
     # Might need to cd into output_path[0] and use output_path[1] as the arg (after splitting output_path)
-    roimaker_call = "3dROIMaker -inset {func} -thresh {threshold} -prefix {output_path} " \
+    #fixme: arbitrary volthr
+    roimaker_call = "3dROIMaker -inset {func} -thresh {threshold} -prefix {output_path} -volthr {roi_size} " \
                     "-mask {search_space} -only_conn_top {roi_size}".format(func=func, threshold=threshold,
                                                                             output_path=output_path,
                                                                             search_space=search_space,
@@ -260,6 +261,7 @@ def gen_func_roi(func, search_space, threshold, roi_size, output_path, remove_se
     if roi_files:
         raise AfniError("Files with prefix {} already exist; Aborted 3droimaker call. ")
 
+    print roimaker_call
     subprocess.call(roimaker_call, shell=True)
     if remove_search_space:
         if os.path.exists(search_space):
