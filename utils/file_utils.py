@@ -273,21 +273,36 @@ def copy_files2(source, dest, overwrite, *args):
         return files_copied, dirs_copied
 
 
-def rename_files(dest, oldSubstr, newSubstr):
+def change_all_references(dest, oldSubstr, newSubstr, look_in_files_matching=()):
     """
-    Searches a directory (recursively) for all instances of oldSubstr in filenames and replaces them with newSubstr
+    Searches a directory (recursively) for all instances of oldSubstr in file names, directory names, and inside any
+    files matching patterns specified in look_in_files_matching, and replaces them with newSubstr. The main purpose of
+    this function is to correct mri scan naming errors (eg., tb0137 -> tb1037) that were not caught before processing.
 
     :param dest: Directory to search in
     :param oldSubstr: Substring to replace
     :param newSubstr: Substring to insert
+    :param look_in_files_matching: look inside files matching this pattern for this substring and replace it
     """
     dest = os.path.normpath(dest)
     for td, ds, fs in os.walk(dest, topdown=False):
         for f in fs:
-            # basePath, leaf = os.path.split(f)
+            oldPath = os.path.join(td, f)
+            for pattern in look_in_files_matching:
+                if fnmatch.fnmatch(f, pattern):
+                    with open(oldPath, 'rU') as infile:
+                        print "Replacing references to {} with {} in file {} matching pattern {}".format(oldSubstr,
+                                                                                                         newSubstr,
+                                                                                                         oldPath,
+                                                                                                         pattern)
+                        old_text = infile.read()
+                        new_text = old_text.replace(oldSubstr, newSubstr)
+                        if old_text == new_text:
+                            print 'NO REPLACEMENTS'
+                    with open(oldPath, 'w') as outfile:
+                        outfile.write(new_text)
             if oldSubstr in f:
                 newLeaf = f.replace(oldSubstr, newSubstr)
-                oldPath = os.path.join(td, f)
                 newPath = os.path.join(td, newLeaf)
                 shutil.move(oldPath, newPath)
         basePath, leaf = os.path.split(td)

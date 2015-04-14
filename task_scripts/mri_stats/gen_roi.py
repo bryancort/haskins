@@ -25,9 +25,9 @@ import argparse
 import subprocess
 from subprocess import PIPE as PIPE
 import traceback
-from utils import base_utils, file_utils, pathni
+from utils import base_utils, file_utils, mri_utils, pathni
 from core import mri_data
-from utils.haskins_exceptions import AfniError, FileError
+from utils.haskins_exceptions import AfniError
 
 # from pete:
 # todo: if you wanted your life to be easier, you could run
@@ -88,7 +88,7 @@ def genArgParser():
                         help='Output prefix for the final ROI. '
                              'Default: ROI_[DATE_TIME].nii.gz')
 
-    roi_size_default = 200
+    roi_size_default = 50
     parser.add_argument('--roi_size', default=roi_size_default,
                         help='Number of voxels to include in the ROI. '
                              'Default: {}'.format(roi_size_default))
@@ -120,9 +120,20 @@ def genArgParser():
                         help="Pass this flag to use an existing warped search space (with prefix specified from "
                              "--warped_ss_prefix) in output_dir. Default: {}".format(warped_ss_exists_default))
 
-    make_snapshots_default = None
-    parser.add_argument('--make_snapshots_default', default=make_snapshots_default,
-                        help="Placeholder snapshots option. Default: {}".format(make_snapshots_default))
+    make_ss_snapshots_default = False
+    parser.add_argument('--make_ss_snapshots', action="store_true", default=make_ss_snapshots_default,
+                        help="Pass this flag to generate search space snapshots for each subject. "
+                             "Default: {}".format(make_ss_snapshots_default))
+
+    create_masked_func_default = False
+    parser.add_argument('--create_masked_func', action="store_true", default=create_masked_func_default,
+                        help="Pass this flag to generate a masked functional image and accompanying snapshots. "
+                             "Default: {}".format(create_masked_func_default))
+
+    save_peak_default = None
+    parser.add_argument('--save_peak', default=save_peak_default,
+                        help="Filename to which to save the peak voxel coordinates. "
+                             "Default: {}".format(save_peak_default))
 
     # debugging and logging
     # report_default = False
@@ -142,18 +153,20 @@ def _debug(*cmd_args):
 
 
 _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
-             '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa/vwfa+tlrc.HEAD ' \
+             '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa/VWFA_restricted+tlrc.HEAD ' \
              '--func_pattern stats.*REML+*.HEAD* ' \
              '--anat_tlrc *ns+tlrc.HEAD ' \
-             '--contrast_subbrick 25 ' \
-             '--warped_ss_prefix vwfa_ss+orig ' \
+             '--contrast_subbrick 26 ' \
              '--copy_anat_pattern Sag*ns+orig* ' \
+             '--roi_size 50 ' \
+             '--clip 0.2 ' \
              '--output_dir rois/func_roi_vwfa ' \
-             '--roi_size 100 ' \
-             '--output_roi_prefix vwfa_100 ' \
-             '--warped_ss_exists ' \
-             '--clip 0.9 ' \
-             'tb5688'
+             '--warped_ss_prefix vwfa_ss+orig ' \
+             '--output_roi_prefix vwfa_50 ' \
+             '--make_ss_snapshots ' \
+             '--create_masked_func ' \
+             '--save_peak peak_vox.txt ' \
+             'tb7065'
 
 # _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
 #              '--func_pattern stats.*REML+*.HEAD* ' \
@@ -166,6 +179,7 @@ _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
 #              '--warped_ss_exists ' \
 #              'tb5688 tb5689'
 
+# todo: generalize and move to mri_utils (DONE); replace this call?
 def gen_snapshots(out_dir, anat_file, roi_file, out_prefix):
     curr_dir = os.getcwd()
     os.chdir(out_dir)
@@ -183,12 +197,10 @@ def gen_snapshots(out_dir, anat_file, roi_file, out_prefix):
                                   stdout=PIPE, shell=True).communicate()[0]
 
     # fixme: closing/reopening the window is maybe not necessary, but keeping it for now
-    full_brain_snapshot_cmd = '''/opt/X11/bin/Xvfb :1 -screen 0 1024x768x24 & afni -com "OPEN_WINDOW A.axialimage \
-mont=6x5:3 geom=600x600+800+600" \
+    full_brain_snapshot_cmd = '''/opt/X11/bin/Xvfb :1 -screen 0 1024x768x24 & afni -no_detach \
+-com "OPEN_WINDOW A.axialimage mont=6x5:3 geom=600x600+800+600" \
 -com "CLOSE_WINDOW A.sagittalimage" \
 -com "SWITCH_UNDERLAY {anat_file}" \
--com "SET_FUNC_AUTORANGE A.-" \
--com "SET_FUNC_RANGE A.10" \
 -com "SWITCH_OVERLAY {roi_file}" \
 -com "SET_DICOM_XYZ A {center_fb}" \
 -com "SAVE_JPEG A.axialimage {out_prefix_fb}" \
@@ -197,7 +209,7 @@ mont=6x5:3 geom=600x600+800+600" \
 -com "SET_DICOM_XYZ A {center_rz}" \
 -com "SAVE_JPEG A.axialimage {out_prefix_rz}" \
 -com "QUIT"'''.format(anat_file=anat, roi_file=roi, center_fb=center_anat,
-                      center_rz=center_roi, out_dir=out_dir, out_prefix_fb=out_prefix_fb, out_prefix_rz=out_prefix_rz)
+                      center_rz=center_roi, out_prefix_fb=out_prefix_fb, out_prefix_rz=out_prefix_rz)
 
     subprocess.call(full_brain_snapshot_cmd, shell=True)
     os.chdir(curr_dir)
@@ -237,6 +249,7 @@ def warp_search_space(func, search_space, clip, mask_out, anat_tlrc=None):
     if ss_warp_files:
         raise AfniError("Files with prefix {} already exist; Aborted 3dfractionize call.".format(mask_out))
 
+    print fract_call
     subprocess.call(fract_call, shell=True)
 
     # todo: more intelligent matching for prefixes
@@ -250,7 +263,6 @@ def warp_search_space(func, search_space, clip, mask_out, anat_tlrc=None):
 def gen_func_roi(func, search_space, threshold, roi_size, output_path, remove_search_space=False):
     # 3dROIMaker to generate our functionally defined ROI
     # Might need to cd into output_path[0] and use output_path[1] as the arg (after splitting output_path)
-    #fixme: arbitrary volthr
     roimaker_call = "3dROIMaker -inset {func} -thresh {threshold} -prefix {output_path} -volthr {roi_size} " \
                     "-mask {search_space} -only_conn_top {roi_size}".format(func=func, threshold=threshold,
                                                                             output_path=output_path,
@@ -301,96 +313,131 @@ def __main__():
         except:
             print "Failed to instantiate a scan object for {}; skipping {}".format(subj_dir, subj_dir)
             continue
-
-        proc_run = subj_scan.proc_runs[args.proc_run]
-
-        # some filepath and data set specification
-        temp_mask_name = 'int_mask.nii.gz'
-        mask_name = args.warped_ss_prefix
-        discard_mask = False
-        if not mask_name:
-            mask_name = temp_mask_name
-            discard_mask = True
-
-        # set the correct functional and anat
-        if args.func_pattern:
-            proc_run.set_active_stats_file(args.func_pattern)
-        act_map = "{}'[{}]'".format(proc_run.active_stats_file, args.contrast_subbrick)
-        anat = ''
-        if args.anat_tlrc_pattern:
-            proc_run.set_active_anat_file(args.anat_tlrc_pattern)
-            anat = proc_run.active_anat_file
-
-        # check that we have the necessary files
-        if not proc_run.active_stats_file or (not proc_run.active_anat_file and args.anat_tlrc_pattern):
-            print "{} is missing a required file; check the stats and anat in {}".format(subj_scan, proc_run)
-            continue
-
-        # set the output dir
-        subj_out_dir = subj_scan.root_dir
-        if args.output_dir:
-            subj_out_dir = os.path.join(subj_scan.root_dir, args.output_dir)
-        if not os.path.exists(subj_out_dir):
-            os.makedirs(subj_out_dir)
-
-        warped_ss_prefix = os.path.join(subj_out_dir, mask_name)
-
-        bad_paths = file_utils.check_paths(True, proc_run.active_stats_file, subj_out_dir)
-
-        if bad_paths:
-            print 'ERROR: The following paths do not exist'
-            for p in bad_paths:
-                print p
-            return
-
         try:
-            if args.warped_ss_exists:
-                ss_warp = _get_warped_mask(subj_out_dir, mask_name)
-            else:
-                ss_warp_files = warp_search_space(func=proc_run.active_stats_file, search_space=args.search_space,
-                                                  anat_tlrc=anat, clip=args.clip, mask_out=warped_ss_prefix)
+            proc_run = subj_scan.proc_runs[args.proc_run]
 
-                # todo: pathni module with this functionality
-                ss_warp = fnmatch.filter(ss_warp_files, "*.HEAD")[0]
-        except:
-            print "Warp/downsample failed for {}".format(subj_scan)
-            print "This could be due to a warped/downsampled mask already existing at the specified output path. " \
-                  "Specify a new path or use the --warped_ss_exists option to use the existing mask.\nError Message:"
-            print traceback.format_exc()
-            continue
-        try:
-            output_path = os.path.join(subj_out_dir, args.output_roi_prefix)
+            # some filepath and data set specification
+            temp_mask_name = 'int_mask.nii.gz'
+            mask_name = args.warped_ss_prefix
+            discard_mask = False
+            if not mask_name:
+                mask_name = temp_mask_name
+                discard_mask = True
 
-            func_roi_files = gen_func_roi(func=act_map, search_space=ss_warp, threshold=args.threshold,
-                                          roi_size=args.roi_size, output_path=output_path,
-                                          remove_search_space=discard_mask)
-            print "Generated functional ROI files for {}:\n{}\n".format(subj_scan, "\n".join(func_roi_files))
+            # set the correct functional and anat
+            if args.func_pattern:
+                proc_run.set_active_stats_file(args.func_pattern)
+            act_map = "{}'[{}]'".format(proc_run.active_stats_file, args.contrast_subbrick)
+            anat = ''
+            if args.anat_tlrc_pattern:
+                proc_run.set_active_anat_file(args.anat_tlrc_pattern)
+                anat = proc_run.active_anat_file
 
-            if args.copy_anat_pattern:
+            # check that we have the necessary files
+            if not proc_run.active_stats_file or (not proc_run.active_anat_file and args.anat_tlrc_pattern):
+                print "{} is missing a required file; check the stats and anat in {}".format(subj_scan, proc_run)
+                continue
+
+            # set the output dir
+            subj_out_dir = subj_scan.root_dir
+            if args.output_dir:
+                subj_out_dir = os.path.join(subj_scan.root_dir, args.output_dir)
+            if not os.path.exists(subj_out_dir):
+                os.makedirs(subj_out_dir)
+
+            warped_ss_prefix = os.path.join(subj_out_dir, mask_name)
+
+            bad_paths = file_utils.check_paths(True, proc_run.active_stats_file, subj_out_dir)
+
+            if bad_paths:
+                print 'ERROR: The following paths do not exist'
+                for p in bad_paths:
+                    print p
+                return
+
+            try:
+                if args.warped_ss_exists:
+                    ss_warp = _get_warped_mask(subj_out_dir, mask_name)
+                else:
+                    ss_warp_files = warp_search_space(func=proc_run.active_stats_file, search_space=args.search_space,
+                                                      anat_tlrc=anat, clip=args.clip, mask_out=warped_ss_prefix)
+
+                    # todo: pathni module with this functionality
+                    ss_warp = fnmatch.filter(ss_warp_files, "*.HEAD")[0]
+            except:
+                print "Warp/downsample failed for {}".format(subj_scan)
+                print "This could be due to a warped/downsampled mask already existing at the specified output path. " \
+                      "Specify a new path or use the --warped_ss_exists option to use the existing mask."
+                print traceback.format_exc()
+                continue
+            masked_func = None
+            if args.create_masked_func:
+                try:
+                    masked_func = mri_utils.apply_mask(mask=ss_warp, dataset=act_map,
+                                                       prefix=os.path.join(subj_out_dir, "func_masked"))
+                    print "Masked functional created at {}".format(masked_func)
+                except:
+                    print "Failed to create masked functional " \
+                          "from mask {} and functional {} for {}".format(ss_warp, act_map, subj_scan)
+                    print traceback.format_exc()
+                    print "Continuing processing for {}".format(subj_scan)
+            try:
+                output_path = os.path.join(subj_out_dir, args.output_roi_prefix)
                 anat_files = None
-                try:
-                    # fixme: overwriting for convenience. This should never be an issue, but still bad practice.
-                    anat_files = file_utils.copy_files2(proc_run.root_dir, subj_out_dir, True,
-                                                        args.copy_anat_pattern)[0]
+                if args.copy_anat_pattern:
+                    try:
+                        # fixme: overwriting for convenience. This should never be an issue, but still bad practice.
+                        anat_files = file_utils.copy_files2(proc_run.root_dir, subj_out_dir, True,
+                                                            args.copy_anat_pattern)[0]
+                        if args.make_ss_snapshots:
+                            anat_file = pathni.get_headfile(anat_files)
+                            gen_snapshots(out_dir=subj_out_dir, anat_file=anat_file, roi_file=ss_warp,
+                                          out_prefix=args.warped_ss_prefix)
 
-                except:
-                    print "Error copying anat files matching pattern {}:".format(args.copy_anat_pattern)
-                    print traceback.format_exc()
-                try:
-                    # fixme: this will fail in some corner cases, like identical prefix and both +orig and +tlrc files
-                    roi_files = fnmatch.filter(func_roi_files,
-                                               os.path.join("*","{}_GM+????.????".format(args.output_roi_prefix)))
-                    roi_file = pathni.get_headfile(roi_files)
-                    anat_file = pathni.get_headfile(anat_files)
-                    gen_snapshots(out_dir=subj_out_dir, anat_file=anat_file, roi_file=roi_file,
-                                  out_prefix=args.output_roi_prefix)
-                except:
-                    print "Error generating snapshots for {}:".format(subj_scan)
-                    print traceback.format_exc()
+                    except:
+                        print "Error copying anat files matching pattern {}:".format(args.copy_anat_pattern)
+                        print traceback.format_exc()
+
+                func_roi_files = gen_func_roi(func=act_map, search_space=ss_warp, threshold=args.threshold,
+                                              roi_size=args.roi_size, output_path=output_path,
+                                              remove_search_space=discard_mask)
+                print "Generated functional ROI files for {}:\n{}\n".format(subj_scan, "\n".join(func_roi_files))
+
+                if args.save_peak:
+                    pass
+                    # todo: get xyz peak voxel, warp back to standard space
+                    # @auto_tlrc -apar anat+tlrc -input roi+orig -dxyz 3 -rmode NN
+
+                if anat_files:
+                    if args.create_masked_func:
+                        try:
+                            anat_file = pathni.get_headfile(anat_files)
+                            mri_utils.gen_snapshots(underlay=anat_file, overlay=masked_func,
+                                                    out_prefix=os.path.join(subj_out_dir, "masked_func"),
+                                                    mont_dims=(6,5,1), center_on="overlay")
+                        except:
+                            print "Error generating snapshots for masked functional {} for {}".format(masked_func,
+                                                                                                      subj_scan)
+                            print traceback.format_exc()
+                    try:
+                        # fixme: this will fail in some corner cases, like identical prefix with both +orig and +tlrc
+                        roi_files = fnmatch.filter(func_roi_files,
+                                                   os.path.join("*", "{}_GM+????.????".format(args.output_roi_prefix)))
+                        roi_file = pathni.get_headfile(roi_files)
+                        anat_file = pathni.get_headfile(anat_files)
+                        gen_snapshots(out_dir=subj_out_dir, anat_file=anat_file, roi_file=roi_file,
+                                      out_prefix=args.output_roi_prefix)
+                    except:
+                        print "Error generating snapshots for {}:".format(subj_scan)
+                        print traceback.format_exc()
+            except:
+                print "ROI generation failed for {}:".format(subj_scan)
+                print traceback.format_exc()
+                continue
         except:
-            print "ROI generation failed for {}:".format(subj_scan)
+            print "Unhandled exception while processing {}; check files for that subject.".format(subj_scan)
             print traceback.format_exc()
-            continue
+            print "Skipping {}".format(subj_scan)
 
 
 if __name__ == '__main__':

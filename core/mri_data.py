@@ -14,7 +14,33 @@ import os
 import glob
 from mixins import ComparableMixin, KeyedMixin
 from utils.mri_utils import BetweenVarMismatchError
-from utils import mri_utils, file_utils
+from utils import mri_utils, file_utils, pathni, haskins_exceptions
+
+
+#todo
+class AfniData(object):
+    def __init__(self, fpath):
+        self.ftype = pathni.get_type(fpath)
+        if not self.ftype:
+            raise haskins_exceptions.FileError("{} is not a recognized afni file.".format(fpath))
+        if self.ftype == ".BRIK":
+            fpath = pathni.head_from_brik(fpath)
+            self.ftype = ".HEAD"
+        self.fpath = os.path.abspath(fpath)
+        self.space = pathni.get_space(self)
+
+    # fixme: unfinished
+    def copy(self, dest_path):
+        copy_call = "3dcopy {} {}".format()
+
+    def move(self):
+        move_call = ""
+
+    def rename(self):
+        rename_call = ""
+
+    def delete(self):
+        delete_call = ""
 
 
 class AfniDataDir(object):
@@ -189,23 +215,3 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping, covars=None, vo
                 mvmtable.append([s.scan_id] + between_vals + quant_covars_vals + list(perm) + subj_filepaths)
 
     return mvmtable
-
-    # mvmtable = [mvmheader]
-    # configTable = readTable2(configFile)
-    # conditionTable = readTable2(conditionFile)
-    # basetable = subtable(configTable, keep_header=True, **kwargs)
-    # s1 = basetable[1][0]    # [0][0] is the header
-    # stats1 = get_stats_file(s1, statsDir)
-    # subBrickMap = get_subBrick_Map(stats1)
-    #
-    # id_ind = getColumn(basetable, 'id')
-    # site_ind = getColumn(basetable, 'site')
-    #
-    # for lang, mod, lex in itertools.product(langs, mods, lexs):
-    #     for line in basetable[1:]:
-    #         subj = line[id_ind]
-    #         site = line[site_ind]
-    #         statsfile = get_stats_file(subj, statsDir)
-    #         subBrickName = subBrickMap[get_subBrick_number(conditionTable, Lang=lang, Mod=mod, Lex=lex)]
-    #         mvmtable.append([subj, lang, mod, lex, site, "{}'[{}]'".format(statsfile, subBrickName)])   # fixme: type?
-

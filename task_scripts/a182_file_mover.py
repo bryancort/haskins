@@ -29,8 +29,8 @@ def mapIDs(ftable='idTable.txt'):
         for entry in row:
             if entry in idMap.keys():
                 continue
-            idMap[str(entry)] = str(row[
-                0])  #This maps subjIDs to themselves; this is important for renaming functions to work on both MRI IDs and subject IDs
+            # This maps subjIDs to themselves; this is important for renaming functions to work on both MRI IDs and subject IDs
+            idMap[str(entry)] = str(row[0])
     return idMap
 
 
@@ -136,7 +136,13 @@ def _id_filter(tokens, filters):
     for token in tokens:
         for pair in filters:
             if fnmatch.fnmatch(token, pair[0]):
-                _match.append(token[pair[1]:pair[2]])
+                if pair[1]:
+                    filtered = ''
+                    for ind in pair[1]:
+                        filtered += token[ind]
+                    _match.append(filtered)
+                else:
+                    _match.append(token)
     if not _match:
         return 0
     match = _match.pop()
@@ -163,11 +169,12 @@ def main():
     pmap = {"tb????[-_]*.*": 'biopac',
             "*HaskinsHebb[-_]*[-_]*.[et][dxa][atr]*": 'hebb',
             "*HebbLouisa*.[et][dxa][atr]*": 'hebb2',
+            "[0-9][0-9][0-9][0-9]_hebb_version[0-9].txt": 'hebb2',  # FIXME: is this actually a separate version? or 2?
             "*ALL_fMRI[-_]*[-_]*.*": 'SALfmri',
             "*ArtLex_A182ET[-_]*[-_]*.*": 'SALtrain',
             "[0-9][0-9][0-9][0-9][-_][0-9].[eE][dD][fF]": 'SALtrain',
             "*CC[0-9][0-9][0-9]*dat.*": 'SCC',
-            "*SRT2[-_]*[-_]*.*": 'SRTT',
+            "*SRT2[-_]*[-_][123].*": 'SRTT',    # fixme: also checking for SRTT to tag files as scans
             "st[0-9][0-9][0-9][0-9].*": 'stopsignal',
             "*[-_]Strain*.[tcl][xsao][tvrg]*": 'strain',  #covers txt, csv, log, .tar.gz files
             "A182Exp2[-_]VAL3[-_]*[-_]*.*": 'VAL3train',
@@ -175,13 +182,14 @@ def main():
             "*VAL_fMRI[-_]*[-_]*.*": 'VAL3fmri'
     }
 
-    id_filters = (('tb[0-9][0-9][0-9][0-9]', None, None),
-                  ('[0-9][0-9][0-9][0-9]', None, None),
-                  ('CC[0-9][0-9][0-9][0-9]dat', 2, 6),
-                  ('st[0-9][0-9][0-9][0-9]', 2, None))
+    id_filters = (('tb[0-9][0-9][0-9][0-9]', None),
+                  ('[0-9][0-9][0-9][0-9]', None),
+                  ('CC[0-9][0-9][0-9][0-9]dat', (2, 3, 4, 5)),
+                  ('st[0-9][0-9][0-9][0-9]', (2, 3, 4, 5)))
 
-    session_filters = (('s[0-9]', 1, None),
-                       ('[0-9]', None, None))
+    session_filters = (('s[0-9]', (1,)),
+                       ('[0-9]', None),
+                       ('version[0-9]', (0,7)))
 
     #read in all the files and map full path name : filename
     transfer_files = []
@@ -214,17 +222,17 @@ def main():
                     transfer_file_name_noext, transfer_file_ext, transfer_file_tokens = tokenize(transfer_file_name)
                     scan_id = _id_filter(transfer_file_tokens, id_filters)
                     try:
-                        if 'fmri' in task:
+                        if 'fmri' in task or 'SRTT' in task:
                             subj_id = idMap['tb' + scan_id]
                         else:
                             subj_id = idMap[scan_id]
                     except KeyError:
                         no_id_files.append(transfer_file)
-                        full_log.append("No subject ID mapped")
+                        full_log.append("No subject ID mapped to {}".format(scan_id))
                         continue
                     session_id = _id_filter(transfer_file_tokens, session_filters)
                     if session_id == 0:
-                        session_id= 1
+                        session_id = 1
                     if session_id == None:
                         print "Warning: multiple session ID matches for {}".format(transfer_file)
                     new_file_name = "{}_{}_{}_[{}].{}".format(subj_id, session_id, task, transfer_file_name_noext,
