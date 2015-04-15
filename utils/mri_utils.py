@@ -10,7 +10,7 @@
 import os
 import subprocess
 from subprocess import PIPE as PIPE
-from utils import  pathni
+from utils import pathni, haskins_exceptions
 
 
 class BetweenVarMismatchError(Exception):
@@ -177,6 +177,47 @@ def gen_snapshots2(underlay, overlay, out_prefix, mont_dims=(6, 5, 3), center_on
 def tlrc_to_orig(some, placeholder, args, here):
     pass
 
-# @auto_tlrc -apar anat+tlrc -input roi+orig -dxyz 3 -rmode NN
-def orig_to_tlrc(orig_file, ):
-    pass
+
+def orig_to_tlrc(orig_dset, tlrc_template, prefix, vox_size=3, resample_mode="NN", first_time_warp=False):
+    if first_time_warp:
+        raise NotImplementedError("First time warping not yet implemented.")
+    else:
+        warp_call = "adwarp -apar {tlrc_template} -dpar {orig_dset} -dxyz {vox_size} -prefix {prefix} " \
+                    "-resam {resample_mode}".format(tlrc_template=tlrc_template, orig_dset=orig_dset,
+                                                    vox_size=vox_size, prefix=prefix, resample_mode=resample_mode)
+        subprocess.call(warp_call, shell=True, stdout=PIPE)
+        expected_file = prefix + "+tlrc.HEAD"
+        if os.path.exists(expected_file) and os.path.exists(pathni.brik_from_head(expected_file)):
+            return expected_file
+        return None
+
+
+def get_peak_voxel(dset):
+    # get the max value with 3dBrickStat
+    brickstat_call = "3dBrickStat -max {}".format(dset)
+    peak_activation_value = subprocess.Popen(brickstat_call, stdout=PIPE, shell=True).communicate()[0]
+
+    # get the coords of that value with 3dmaxima -coords_only
+    all_coords = None
+    adj_peak = peak_activation_value
+    while not all_coords:
+        maxima_call = "3dmaxima -input {} -coords_only -thresh {}".format(dset, adj_peak)
+        all_coords = subprocess.Popen(maxima_call, stdout=PIPE, shell=True).communicate()[0].split()
+        adj_peak = adj_peak[:-1]
+
+    if len(all_coords)%3:
+        raise haskins_exceptions.AfniError("3dmaxima returned coordinates list not divisible by 3.")
+
+    all_coords = [float(n) for n in all_coords]
+
+    coord_groups = [all_coords[0::3], all_coords[1::3], all_coords[2::3]]
+    print "Taking the mean of {} coordinates for best approximation of peak voxel location".format(len(coord_groups[0]))
+
+    coords = [float(sum(group))/float(len(group)) for group in coord_groups]
+
+    assert len(coords) == 3
+
+    if adj_peak != peak_activation_value:
+        print "Rounding error in 3dBrickStat; adjusted peak to {}".format(adj_peak)
+    peak_x, peak_y, peak_z = coords[0], coords[1], coords[2]
+    return (peak_x, peak_y, peak_z), adj_peak
