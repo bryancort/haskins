@@ -35,8 +35,8 @@ class HebbSequencePair:
         self.heard = heard
         self.produced = produced
 
-        self.heard[:] = [x for x in self.heard if x]
-        self.produced[:] = [x for x in self.produced if x]
+        # self.heard[:] = [x for x in self.heard if x]
+        # self.produced[:] = [x for x in self.produced if x]
 
         self.pType = pType
         self.run = run
@@ -174,6 +174,11 @@ def proc_hebb(subjID=None, outDir=None, hebb_file_path=None):
             splitLine = currLine.split('\t')
             prodSeq = splitLine[3:]
             prodSeq[-1] = prodSeq[-1].rstrip('\n')  #strip the end of line markers from the produced sound tokens
+
+            # trim blank entries at the beginning of the line; BC bugfix 4/22/15
+            while not heardSeq[0]:
+                heardSeq = heardSeq[1:]
+                prodSeq = prodSeq[1:]
 
             hPairs.append(HebbSequencePair(heard=heardSeq, produced=prodSeq, pType=pairType, run=runNum))
 

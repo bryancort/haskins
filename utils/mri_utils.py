@@ -49,8 +49,6 @@ def dcm2nii_all(source, **kwargs):
         spc.append('-{}'.format(kw))
         spc.append(arg)
     spc.append(source)
-    # print spc
-    # return
     subprocess.call(spc)
 
 
@@ -178,10 +176,16 @@ def tlrc_to_orig(some, placeholder, args, here):
     pass
 
 
-def orig_to_tlrc(orig_dset, tlrc_template, prefix, vox_size=3, resample_mode="NN", first_time_warp=False):
+def orig_to_tlrc(orig_dset, tlrc_template, prefix, vox_size=3, resample_mode="NN", first_time_warp=False,
+                 dset_type="3D"):
     if first_time_warp:
         raise NotImplementedError("First time warping not yet implemented.")
-    else:
+
+    dset_type = str(dset_type).lower()
+    if dset_type != "3d" and dset_type != "1d":
+        raise haskins_exceptions.AfniError("dset_type must be 1D or 3D. {} not supported.".format(dset_type))
+
+    if dset_type == "3d":
         warp_call = "adwarp -apar {tlrc_template} -dpar {orig_dset} -dxyz {vox_size} -prefix {prefix} " \
                     "-resam {resample_mode}".format(tlrc_template=tlrc_template, orig_dset=orig_dset,
                                                     vox_size=vox_size, prefix=prefix, resample_mode=resample_mode)
@@ -191,19 +195,38 @@ def orig_to_tlrc(orig_dset, tlrc_template, prefix, vox_size=3, resample_mode="NN
             return expected_file
         return None
 
+    if dset_type == "1d":
+        warp_call = "Vecwarp -apar {tlrc_template} " \
+                    "-input {orig_dset} -output {prefix}".format(tlrc_template=tlrc_template,
+                                                                 orig_dset=orig_dset,
+                                                                 prefix=prefix)
+        out, err = subprocess.Popen(warp_call, shell=True, stdout=PIPE, stderr=PIPE).communicate()
+        if "ERROR" in err:
+            raise haskins_exceptions.AfniError("Vecwarp call {} failed:\n{}".format(warp_call, err))
+        print out
+        if os.path.exists(os.path.abspath(prefix)):
+            return os.path.abspath(prefix)
+        return None
 
-def get_peak_voxel(dset):
+
+def get_peak_voxel(dset, dec=None, out_path=None):
     # get the max value with 3dBrickStat
     brickstat_call = "3dBrickStat -max {}".format(dset)
-    peak_activation_value = subprocess.Popen(brickstat_call, stdout=PIPE, shell=True).communicate()[0]
+    peak_activation_value = subprocess.Popen(brickstat_call, stdout=PIPE, shell=True).communicate()[0].strip()
 
     # get the coords of that value with 3dmaxima -coords_only
     all_coords = None
     adj_peak = peak_activation_value
-    while not all_coords:
+    while True:
         maxima_call = "3dmaxima -input {} -coords_only -thresh {}".format(dset, adj_peak)
         all_coords = subprocess.Popen(maxima_call, stdout=PIPE, shell=True).communicate()[0].split()
+        if all_coords:
+            break
         adj_peak = adj_peak[:-1]
+        if not adj_peak:
+            raise haskins_exceptions.AfniError("3dmaxima could not locate the peak value '{}' reported by 3dBrickStat "
+                                               "in {}. This could be due to incorrect header info; try '3drefit "
+                                               "-redo_bstat dset' to correct.".format(peak_activation_value, dset))
 
     if len(all_coords)%3:
         raise haskins_exceptions.AfniError("3dmaxima returned coordinates list not divisible by 3.")
@@ -211,7 +234,7 @@ def get_peak_voxel(dset):
     all_coords = [float(n) for n in all_coords]
 
     coord_groups = [all_coords[0::3], all_coords[1::3], all_coords[2::3]]
-    print "Taking the mean of {} coordinates for best approximation of peak voxel location".format(len(coord_groups[0]))
+    print "Taking the mean of {} voxels for best approximation of peak voxel location".format(len(coord_groups[0]))
 
     coords = [float(sum(group))/float(len(group)) for group in coord_groups]
 
@@ -220,4 +243,9 @@ def get_peak_voxel(dset):
     if adj_peak != peak_activation_value:
         print "Rounding error in 3dBrickStat; adjusted peak to {}".format(adj_peak)
     peak_x, peak_y, peak_z = coords[0], coords[1], coords[2]
-    return (peak_x, peak_y, peak_z), adj_peak
+    if dec:
+        peak_x, peak_y, peak_z = round(peak_x, dec), round(peak_y, dec), round(peak_z, dec)
+    if out_path:
+        with open(out_path, "w") as outfile:
+            outfile.write("{} {} {}".format(peak_x, peak_y, peak_z))
+    return (peak_x, peak_y, peak_z), out_path

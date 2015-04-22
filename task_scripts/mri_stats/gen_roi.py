@@ -12,8 +12,8 @@
 # If you use this program, please reference the introductory/description
 # paper for the FATCAT toolbox:
 # Taylor PA, Saad ZS (2013).  FATCAT: (An Efficient) Functional
-#         And Tractographic Connectivity Analysis Toolbox. Brain
-#         Connectivity 3(5):523-535.
+# And Tractographic Connectivity Analysis Toolbox. Brain
+# Connectivity 3(5):523-535.
 
 __author__ = 'cort'
 
@@ -94,7 +94,7 @@ def genArgParser():
                         help='Number of voxels to include in the ROI. '
                              'Default: {}'.format(roi_size_default))
 
-    clip_default = 0.2
+    clip_default = 0.01
     parser.add_argument('--clip', default=clip_default,
                         help='Clipping threshold for the mask. Passed directly to the -clip option of 3dfractionize.'
                              'Default: {}'.format(clip_default))
@@ -133,7 +133,7 @@ def genArgParser():
 
     save_peak_prefix_default = None
     parser.add_argument('--save_peak_prefix', default=save_peak_prefix_default,
-                        help="Filename to which to save the peak voxel coordinates. Do not include an extension. "
+                        help="Filename to which to save the peak voxel coordinates. Do not include a file extension."
                              "Default: {}".format(save_peak_prefix_default))
 
     keep_working_files_default = False
@@ -162,18 +162,19 @@ _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
              '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa/VWFA_restricted+tlrc.HEAD ' \
              '--func_pattern stats.*REML+*.HEAD* ' \
              '--anat_tlrc_pattern *ns+tlrc.HEAD ' \
-             '--contrast_subbrick 26 ' \
+             '--contrast_subbrick 14 ' \
              '--copy_anat_pattern Sag*ns+orig* ' \
              '--roi_size 50 ' \
              '--clip 0.2 ' \
-             '--output_dir rois/func_roi_vwfa ' \
+             '--output_dir rois/VWFA2 ' \
              '--warped_ss_prefix vwfa_ss+orig ' \
-             '--output_roi_prefix vwfa_50 ' \
+             '--output_roi_prefix VWFA2_50 ' \
              '--make_ss_snapshots ' \
              '--create_masked_func ' \
              '--save_peak_prefix peak_vox ' \
              '--keep_working_files ' \
-             'tb7065'
+             'tb6874'
+
 
 def gen_snapshots(out_dir, anat_file, roi_file, out_prefix):
     curr_dir = os.getcwd()
@@ -255,14 +256,15 @@ def warp_search_space(func, search_space, clip, mask_out, anat_tlrc=None):
         raise AfniError("3dfractionize did not successfully generate the file {}".format(mask_out))
 
 
-def gen_func_roi(func, search_space, threshold, roi_size, output_path, remove_search_space=False):
+def gen_func_roi(func, search_space, threshold, roi_size, output_path, remove_search_space=False, volthr=None):
+    volthr = volthr if volthr else roi_size
     # 3dROIMaker to generate our functionally defined ROI
     # Might need to cd into output_path[0] and use output_path[1] as the arg (after splitting output_path)
-    roimaker_call = "3dROIMaker -inset {func} -thresh {threshold} -prefix {output_path} -volthr {roi_size} " \
+    roimaker_call = "3dROIMaker -inset {func} -thresh {threshold} -prefix {output_path} -volthr {volthr} " \
                     "-mask {search_space} -only_conn_top {roi_size}".format(func=func, threshold=threshold,
                                                                             output_path=output_path,
                                                                             search_space=search_space,
-                                                                            roi_size=roi_size)
+                                                                            roi_size=roi_size, volthr=volthr)
     # todo: more intelligent matching for prefixes
     roi_files = glob.glob("{}*".format(output_path))
     if roi_files:
@@ -343,6 +345,7 @@ def __main__():
             if not os.path.exists(subj_work_dir):
                 os.mkdir(subj_work_dir)
 
+            mask_name = "{}.{}".format(subj_scan, mask_name)
             warped_ss_prefix = os.path.join(subj_out_dir, mask_name)
 
             bad_paths = file_utils.check_paths(True, proc_run.active_stats_file, subj_out_dir)
@@ -370,8 +373,9 @@ def __main__():
             masked_func = None
             if args.create_masked_func:
                 try:
+                    masked_func_prefix = "{}.func_masked".format(subj_scan)
                     masked_func = mri_utils.apply_mask(mask=ss_warp, dataset=act_map,
-                                                       prefix=os.path.join(subj_out_dir, "func_masked"))
+                                                       prefix=os.path.join(subj_out_dir, masked_func_prefix))
                     print "Masked functional created at {}".format(masked_func)
                 except:
                     print "Failed to create masked functional " \
@@ -379,7 +383,8 @@ def __main__():
                     print traceback.format_exc()
                     print "Continuing processing for {}".format(subj_scan)
             try:
-                output_path = os.path.join(subj_out_dir, args.output_roi_prefix)
+                roi_out_pref = "{}.{}".format(subj_scan, args.output_roi_prefix)
+                output_path = os.path.join(subj_out_dir, roi_out_pref)
                 anat_files = None
                 if args.copy_anat_pattern:
                     try:
@@ -387,9 +392,10 @@ def __main__():
                         anat_files = file_utils.copy_files2(proc_run.root_dir, subj_out_dir, True,
                                                             args.copy_anat_pattern)[0]
                         if args.make_ss_snapshots:
+                            out_pref = "{}.{}".format(subj_scan, args.warped_ss_prefix)
                             anat_file = pathni.get_headfile(anat_files)
                             gen_snapshots(out_dir=subj_out_dir, anat_file=anat_file, roi_file=ss_warp,
-                                          out_prefix=args.warped_ss_prefix)
+                                          out_prefix=out_pref)
 
                     except:
                         print "Error copying anat files matching pattern {}:".format(args.copy_anat_pattern)
@@ -398,7 +404,13 @@ def __main__():
                 if args.save_peak_prefix:
                     try:
                         # make the 1-voxel ROI with 3dROIMaker
-                        peak_working_output_pref = os.path.join(subj_work_dir, os.path.basename(args.save_peak_prefix))
+                        peak_pref_base = os.path.basename(args.save_peak_prefix)
+                        peak_working_output_pref = os.path.join(subj_work_dir, "{}.{}".format(subj_scan,
+                                                                                              peak_pref_base))
+                        peak_coords_orig_pref = os.path.join(subj_work_dir,
+                                                             "{}+orig.{}.1D".format(subj_scan, peak_pref_base))
+                        peak_coords_tlrc_pref = os.path.join(subj_out_dir,
+                                                             "{}+tlrc.{}.1D".format(subj_scan, peak_pref_base))
                         peak_roi_files = gen_func_roi(func=act_map, search_space=ss_warp, threshold=args.threshold,
                                                       roi_size="1", output_path=peak_working_output_pref,
                                                       remove_search_space=False)
@@ -407,15 +419,21 @@ def __main__():
                         peak_files = fnmatch.filter(peak_roi_files, "{}_GM+????.????".format(peak_working_output_pref))
                         peak_file = pathni.get_headfile(peak_files)
 
-                        # warp back to +tlrc
-                        peak_file_tlrc = mri_utils.orig_to_tlrc(peak_file, anat, peak_working_output_pref)
-
                         # get the max value and get the coords of that value
-                        peak_coords, peak_val = mri_utils.get_peak_voxel(peak_file_tlrc)
+                        # peak_file_prefix = os.path.join(subj_work_dir, "{}.orig_peak".format(subj_scan))
+                        peak_orig, peak_orig_file = mri_utils.get_peak_voxel(peak_file, out_path=peak_coords_orig_pref)
 
-                        # save to file specified in args.save_peak_prefix
-                        with open(os.path.join(subj_out_dir, "{}.txt".format(args.save_peak_prefix)), 'w') as outfile:
-                            outfile.write("\t".join([str(coord) for coord in peak_coords]))
+                        # warp coords to +tlrc
+                        peak_tlrc_file = mri_utils.orig_to_tlrc(peak_orig_file, anat, peak_coords_tlrc_pref,
+                                                                dset_type="1D")
+                        if peak_tlrc_file:
+                            print "Saved peak for {} to {}".format(subj_scan, peak_tlrc_file)
+                        else:
+                            raise AfniError("Failed to save peak coords for {}".format(subj_scan))
+
+                            # # save to file specified in args.save_peak_prefix
+                            # with open(os.path.join(subj_out_dir, "{}.1D".format(args.save_peak_prefix)), 'w') as outfile:
+                            #     outfile.write("\t".join([str(coord) for coord in peak_coords_orig]))
                     except:
                         print "Failed to extract peak voxel for {}".format(subj_scan)
                         print traceback.format_exc()
@@ -431,7 +449,7 @@ def __main__():
                             anat_file = pathni.get_headfile(anat_files)
                             mri_utils.gen_snapshots(underlay=anat_file, overlay=masked_func,
                                                     out_prefix=os.path.join(subj_out_dir, "masked_func"),
-                                                    mont_dims=(6,5,1), center_on="overlay")
+                                                    mont_dims=(6, 5, 1), center_on="overlay")
                         except:
                             print "Error generating snapshots for masked functional {} for {}".format(masked_func,
                                                                                                       subj_scan)
@@ -439,11 +457,11 @@ def __main__():
                     try:
                         # fixme: this will fail in some corner cases, like identical prefix with both +orig and +tlrc
                         roi_files = fnmatch.filter(func_roi_files,
-                                                   os.path.join("*", "{}_GM+????.????".format(args.output_roi_prefix)))
+                                                   os.path.join("*", "{}_GM+????.????".format(roi_out_pref)))
                         roi_file = pathni.get_headfile(roi_files)
                         anat_file = pathni.get_headfile(anat_files)
                         gen_snapshots(out_dir=subj_out_dir, anat_file=anat_file, roi_file=roi_file,
-                                      out_prefix=args.output_roi_prefix)
+                                      out_prefix=roi_out_pref)
                     except:
                         print "Error generating snapshots for {}:".format(subj_scan)
                         print traceback.format_exc()
