@@ -7,7 +7,8 @@
 #
 # Created:     10/21/2014
 # -------------------------------------------------------------------------------
-__author__ = 'cort'
+
+sys.path.append(os.path.normpath('../..'))
 
 import argparse
 import os
