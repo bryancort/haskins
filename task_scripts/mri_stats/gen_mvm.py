@@ -8,11 +8,11 @@
 # Created:     10/21/2014
 # -------------------------------------------------------------------------------
 
-sys.path.append(os.path.normpath('../..'))
-
+import sys
 import argparse
 import os
-import sys
+
+sys.path.append(os.path.normpath('../..'))
 from utils import base_utils, file_utils
 from core import mri_data
 
@@ -204,7 +204,7 @@ def __main__():
 
     scan_map = {}
     for s, v in subj_map.iteritems():
-        scan = mri_data.Scan(scan_id=s, data_dir=os.path.join(args.mri_dir, s))
+        scan = mri_data.Scan(scan_id=s, root_dir=os.path.join(args.mri_dir, s))
         scan.add_proc_run(proc_tag=args.proc_run)
         scan_map[scan] = v
 
