@@ -17,7 +17,7 @@ from utils.mri_utils import BetweenVarMismatchError
 from utils import mri_utils, file_utils, pathni, haskins_exceptions
 
 
-#todo
+# todo
 class AfniData(object):
     def __init__(self, fpath):
         self.ftype = pathni.get_type(fpath)
@@ -80,10 +80,10 @@ class ProcRun(AfniDataDir):
         self.run_script_output = None
         self.active_stats_file = None  # .HEAD or .nii file
         self.active_anat_file = None
-        self._find_run_files(self.scan, self.proc_tag)      # fixme: self.root_dir is set here, so:
+        self._find_run_files(self.scan, self.proc_tag)  # fixme: self.root_dir is set here, so:
         self.set_active_anat_file(active_anat_pattern)
         self.set_active_stats_file(active_stats_file_pattern)
-        super(ProcRun, self).__init__(root_dir=self.root_dir)   # fixme: don't need the super init here?
+        super(ProcRun, self).__init__(root_dir=self.root_dir)  # fixme: don't need the super init here?
 
     def _find_run_files(self, scan, proc_tag):
         self.root_dir = file_utils.match_single_dir(path=scan.root_dir, pattern='*{}*'.format(proc_tag),
@@ -102,7 +102,7 @@ class ProcRun(AfniDataDir):
     def set_active_stats_file(self, stats_file_pattern):
         try:
             self.active_stats_file = file_utils.match_single_file(path=self.root_dir, pattern=stats_file_pattern,
-                                                      except_on_fail=True)
+                                                                  except_on_fail=True)
         except:
             print "Could not set stats file for {} using pattern {}:".format(self, stats_file_pattern)
             print traceback.format_exc()
