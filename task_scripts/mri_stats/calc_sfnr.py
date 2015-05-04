@@ -44,7 +44,7 @@ def _debug(*cmd_args):
     sys.argv = [sys.argv[0]] + list(cmd_args)
 
 
-_debug_cmd = '--mri_dir Y:\\mri_subjects --proc_tags results scale --patterns hu_* ny???'
+_debug_cmd = '--mri_dir /data1/bil/mri_subjects --proc_tags results scale --patterns hu_* ny???'
 
 def __main__():
     scriptName = os.path.splitext(os.path.basename(__file__))[0]
