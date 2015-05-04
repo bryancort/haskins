@@ -238,7 +238,7 @@ def warp_search_space(func, search_space, clip, mask_out, anat_tlrc=None):
                                                                     anat_tlrc=anat_tlrc,
                                                                     clip=clip, mask_out=mask_out)
     if not anat_tlrc:
-        fract_call = fract_call.replace('-warp ', '')
+        fract_call = fract_call.replace(' -warp ', '')
 
     # todo: more intelligent matching for prefixes
     ss_warp_files = glob.glob("{}*".format(mask_out))
