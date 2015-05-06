@@ -301,7 +301,6 @@ def proc_hebb(subjID=None, outDir=None, hebb_file_path=None):
 
 
 def __main__():
-    # sys.argv.append("/Volumes/KINGSTON/HEBB TO BE SCORED")
     if len(sys.argv) == 2:
         hebb_dir = os.path.normpath(sys.argv[1])
         proc_dir(hebb_dir)
