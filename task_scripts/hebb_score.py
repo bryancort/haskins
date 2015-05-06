@@ -213,7 +213,7 @@ def proc_hebb(subjID=None, outDir=None, hebb_file_path=None):
         seqLength = len(seqMap['all'][1][0].heard)
 
         #Write the output
-    with open(os.path.join(outDir, 'out.' + str(subjID) + '.txt'), 'w') as outfile:
+    with open(os.path.join(outDir, 'out_' + str(subjID) + '.txt'), 'w') as outfile:
         outfile.write('SubjNum\tRun\tTrialType\tHebbNumber\tEditDistance\tEditDistanceScore\tSlotDistanceScore')
         for hNum in sorted(seqMap['all'].keys()):
             for trialPair in seqMap['all'][hNum]:

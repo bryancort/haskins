@@ -170,7 +170,7 @@ def main():
             "*HaskinsHebb[-_]*[-_]*.[et][dxa][atr]*": 'hebb',
             "*HebbLouisa*.[et][dxa][atr]*": 'hebb2',
             "[0-9][0-9][0-9][0-9]_hebb_version[0-9].txt": 'hebb2',
-            "out.[0-9][0-9][0-9][0-9].txt": 'hebb2',
+            "out_[0-9][0-9][0-9][0-9].txt": 'hebb2',
             "*ALL_fMRI[-_]*[-_]*.*": 'SALfmri',
             "*ArtLex_A182ET[-_]*[-_]*.*": 'SALtrain',
             "[0-9][0-9][0-9][0-9][-_][0-9].[eE][dD][fF]": 'SALtrain',
@@ -184,14 +184,13 @@ def main():
     }
 
     id_filters = (('tb[0-9][0-9][0-9][0-9]', None),                 # anything with a tb number
-                  ('[0-9][0-9][0-9][0-9]', None),                   # anything with *_idnum_* or idnum_*
-                  ('out.[0-9][0-9][0-9][0-9]', (4, 5, 6, 7)),       # hebb processed files
+                  ('[0-9][0-9][0-9][0-9]', None),                   # anything with *_idnum_*, idnum_*, or idnum.*
                   ('CC[0-9][0-9][0-9][0-9]dat', (2, 3, 4, 5)),      # SCC
                   ('st[0-9][0-9][0-9][0-9]', (2, 3, 4, 5)))         # stopsignal
 
     session_filters = (('s[0-9]', (1,)),
                        ('[0-9]', None),
-                       ('out.[0-9][0-9][0-9][0-9]', (0, 1, 2)),
+                       ('out', (0, 1, 2)),
                        ('version[0-9]', (0, 7)))
 
     #read in all the files and map full path name : filename
