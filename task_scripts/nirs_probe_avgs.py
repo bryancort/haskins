@@ -15,6 +15,7 @@ import sys
 import subprocess
 from subprocess import PIPE as PIPE
 
+
 def _left_value_dict(fname, header=False):
     with open(fname, 'rU') as infile:
         rows = infile.read().split('\n')
@@ -47,7 +48,8 @@ def __main__():
 
     nirs_to_tb = _left_value_dict(subj_list_fname, header=True)
 
-    TT_N27_mask_fpath = 'TT_N27_MASK.nii'
+    # this is unused?
+    # TT_N27_mask_fpath = 'TT_N27_MASK.nii'
 
     # print nirs_to_tb
 
@@ -57,6 +59,7 @@ def __main__():
         if not os.path.exists(outfile_path):
             mri_stats_file_path = _get_stats_file_path(mri_scan)
             coords_list_file_path = _get_coords_file_path(nirs_scan)
+
             # print mri_stats_file_path, os.path.exists(mri_stats_file_path)
             # print coords_list_file_path, os.path.exists(coords_list_file_path)
 
