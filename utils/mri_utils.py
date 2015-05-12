@@ -109,8 +109,6 @@ def apply_mask(mask, dataset, prefix, out_id_string="Output dataset "):
     output_dset = output_dset.split()[0]
     if output_dset[-5:] == ".BRIK":
         output_dset = pathni.head_from_brik(output_dset)
-    # if pathni.has_head(output_dset):
-    #     output_dset = pathni.head_from_brik(output_dset)
     return output_dset
 
 
