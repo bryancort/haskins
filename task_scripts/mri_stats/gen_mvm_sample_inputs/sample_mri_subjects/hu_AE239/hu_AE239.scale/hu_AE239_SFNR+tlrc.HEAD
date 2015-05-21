@@ -1,0 +1,121 @@
+
+type = string-attribute
+name = HISTORY_NOTE
+count = 587
+'[cort@cab.haskins.lab: Mon Oct  6 21:38:25 2014] 3dTcat -prefix all_runs.hu_AE239 pb01.hu_AE239.r01.scale+tlrc.HEAD pb01.hu_AE239.r02.scale+tlrc.HEAD pb01.hu_AE239.r03.scale+tlrc.HEAD pb01.hu_AE239.r04.scale+tlrc.HEAD pb01.hu_AE239.r05.scale+tlrc.HEAD pb01.hu_AE239.r06.scale+tlrc.HEAD pb01.hu_AE239.r07.scale+tlrc.HEAD pb01.hu_AE239.r08.scale+tlrc.HEAD pb01.hu_AE239.r09.scale+tlrc.HEAD pb01.hu_AE239.r10.scale+tlrc.HEAD\n[cort@cab.haskins.lab: Wed Oct 22 04:13:14 2014] 3dTstat -cvarinv -prefix hu_AE239_SFNR /data1/bil/mri_subjects/hu_AE239/hu_AE239.scale/all_runs.hu_AE239+tlrc.HEAD~
+
+type = string-attribute
+name = TYPESTRING
+count = 15
+'3DIM_HEAD_FUNC~
+
+type = string-attribute
+name = IDCODE_STRING
+count = 27
+'XYZ_0pLwTuDAQQLAwUcXjZTCKw~
+
+type = string-attribute
+name = IDCODE_DATE
+count = 25
+'Wed Oct 22 04:07:43 2014~
+
+type = integer-attribute
+name = SCENE_DATA
+count = 8
+ 2 11 1 -999 -999
+ -999 -999 -999
+
+type = string-attribute
+name = LABEL_1
+count = 5
+'zyxt~
+
+type = string-attribute
+name = LABEL_2
+count = 5
+'zyxt~
+
+type = string-attribute
+name = DATASET_NAME
+count = 5
+'zyxt~
+
+type = integer-attribute
+name = ORIENT_SPECIFIC
+count = 3
+ 0 3 4
+
+type  = float-attribute
+name  = ORIGIN
+count = 3
+          -79.5          -79.5          -63.5
+
+type  = float-attribute
+name  = DELTA
+count = 3
+              3              3              3
+
+type  = float-attribute
+name  = IJK_TO_DICOM
+count = 12
+              3              0              0          -79.5              0
+              3              0          -79.5              0              0
+              3          -63.5
+
+type  = float-attribute
+name  = IJK_TO_DICOM_REAL
+count = 12
+              3              0              0          -79.5              0
+              3              0          -79.5              0              0
+              3          -63.5
+
+type  = float-attribute
+name  = BRICK_STATS
+count = 2
+              0       528.5546
+
+type = integer-attribute
+name = DATASET_RANK
+count = 8
+ 3 1 0 0 0
+ 0 0 0
+
+type = integer-attribute
+name = DATASET_DIMENSIONS
+count = 5
+ 54 64 50 0 0
+
+type = integer-attribute
+name = BRICK_TYPES
+count = 1
+ 3
+
+type  = float-attribute
+name  = BRICK_FLOAT_FACS
+count = 1
+              0
+
+type = string-attribute
+name = BRICK_LABS
+count = 8
+'CVarInv~
+
+type = string-attribute
+name = BRICK_KEYWORDS
+count = 1
+'~
+
+type = string-attribute
+name = TEMPLATE_SPACE
+count = 7
+'TT_N27~
+
+type = integer-attribute
+name = INT_CMAP
+count = 1
+ 0
+
+type = string-attribute
+name = BYTEORDER_STRING
+count = 10
+'LSB_FIRST~
