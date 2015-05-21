@@ -119,6 +119,18 @@ def tokenize2(fname):
     return leading_path, file_name, file_ext, tokens
 
 
+def trim_seq(seq):
+    _seq = seq[:]
+    try:
+        while not _seq[-1]:
+            _seq.pop()
+        while not _seq[0]:
+            _seq.pop(0)
+        return _seq
+    except IndexError:  # we ran out of entries (the whole list was blank)
+        return ['']
+
+
 def proc_dir(dir_path):
     files = glob.glob(os.path.join(dir_path, "*.txt"))
     for f in files:
@@ -158,32 +170,36 @@ def proc_hebb(subjID=None, outDir=None, hebb_file_path=None):
             currLine = infile.readline()
             splitLine = currLine.split('\t')
 
-        hPairs = []  #list to hold the variable number of filler trials before each hebb trial and the hebb trial itself
+        hPairs = []  # list to hold the variable number of filler trials before each hebb trial and the hebb trial itself
         ##	seqLength = len(splitLine[3:])
         #Iterate over the file
         hCount = 0
         while currLine:
             pairType = splitLine[0]
             runNum = splitLine[1]
-            if runNum != prevRun:  #reset hPairs so we don't pick up the last filler trials of a previous run
+            if runNum != prevRun:  # reset hPairs so we don't pick up the last filler trials of a previous run
                 hPairs = []
                 prevRun = runNum
             heardSeq = splitLine[3:]
-            heardSeq[-1] = heardSeq[-1].rstrip('\n')  #strip the end of line markers from the heard sound tokens
+            heardSeq[-1] = heardSeq[-1].rstrip('\n')  # strip the end of line markers from the heard sound tokens
             currLine = infile.readline()
             splitLine = currLine.split('\t')
             prodSeq = splitLine[3:]
-            prodSeq[-1] = prodSeq[-1].rstrip('\n')  #strip the end of line markers from the produced sound tokens
+            prodSeq[-1] = prodSeq[-1].rstrip('\n')  # strip the end of line markers from the produced sound tokens
 
-            # trim blank entries at the beginning of the line; BC bugfix 4/22/15
-            while not heardSeq[0]:
-                heardSeq = heardSeq[1:]
-                prodSeq = prodSeq[1:]
+            # trim blank entries at start and  end of seq; BC bugfix 5/18/15 to process sequences > len 7 correctly
+            heardSeq = trim_seq(heardSeq)
+            prodSeq = trim_seq(prodSeq)
+
+            # # trim blank entries at the beginning of the line; BC bugfix 4/22/15
+            # while not heardSeq[0]:
+            #     heardSeq = heardSeq[1:]
+            #     prodSeq = prodSeq[1:]
 
             hPairs.append(HebbSequencePair(heard=heardSeq, produced=prodSeq, pType=pairType, run=runNum))
 
-
-            #If the current trial is a hebb trial, add it and all it's filler trials to the map for all runs and the map for its associated run
+            # If the current trial is a hebb trial, add it and all it's filler trials to the map for all runs and the
+            # map for its associated run
             if fnmatch.fnmatch(pairType, hebbEx):
                 #set the hebb number for each HebbSequencePair
                 hn = pairType.lstrip('H')
