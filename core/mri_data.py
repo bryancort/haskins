@@ -112,9 +112,9 @@ class ProcRun(AfniDataDir):
         try:
             self.active_anat_file = file_utils.match_single_file(self.root_dir, anat_pattern, except_on_fail=True)
         except:
-            print "Could not set anat file for {} using pattern {}:".format(self, anat_pattern)
+            print "WARNING:\n\nCould not set anat file for {} using pattern {}. TRACEBACK:\N".format(self, anat_pattern)
             print traceback.format_exc()
-            print "Active anat file reverted to {}".format(self.active_anat_file)
+            print "Active anat file reverted to {}\nCONTINUING".format(self.active_anat_file)
 
     def __str__(self):
         return 'Proc Run {} of {} located at {}'.format(self.proc_tag, self.scan, self.root_dir)

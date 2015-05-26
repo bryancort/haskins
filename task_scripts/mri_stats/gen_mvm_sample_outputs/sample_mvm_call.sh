@@ -1,0 +1,48 @@
+#!/bin/bash
+
+3dMVM \
+-prefix output_mvm_2015_5_26_15h_42m.txt \
+-jobs 20 \
+-mask TT_MASK.nii.gz \
+-bsVars 'Site+dummy_covar1+dummy_covar2+SFNR' \
+-wsVars 'Lang*Lex*Mod' \
+-qVars 'dummy_covar1,dummy_covar2' \
+-qVarCenters '20,30' \
+-vVars 'SFNR' \
+-num_glt 35 \
+-gltLabel 1 NY:ENG:PRINT:WORD -gltCode 1 'Site : 1*NY Lang : 1*Eng Mod : 1*Print Lex : 1*Word' \
+-gltLabel 2 NY:HEB:PRINT:WORD -gltCode 2 'Site : 1*NY Lang : 1*Heb Mod : 1*Print Lex : 1*Word' \
+-gltLabel 3 HU:ENG:PRINT:WORD -gltCode 3 'Site : 1*HU Lang : 1*Eng Mod : 1*Print Lex : 1*Word' \
+-gltLabel 4 HU:HEB:PRINT:WORD -gltCode 4 'Site : 1*HU Lang : 1*Heb Mod : 1*Print Lex : 1*Word' \
+-gltLabel 5 NY:ENG:PRINT:WORD-PsWORD -gltCode 5 'Site : 1*NY Lang : 1*Eng Mod : 1*Print Lex : 1*Word -1*PsWord' \
+-gltLabel 6 NY:HEB:PRINT:WORD-PsWORD -gltCode 6 'Site : 1*NY Lang : 1*Heb Mod : 1*Print Lex : 1*Word -1*PsWord' \
+-gltLabel 7 HU:ENG:PRINT:WORD-PsWORD -gltCode 7 'Site : 1*HU Lang : 1*Eng Mod : 1*Print Lex : 1*Word -1*PsWord' \
+-gltLabel 8 HU:HEB:PRINT:WORD-PsWORD -gltCode 8 'Site : 1*HU Lang : 1*Heb Mod : 1*Print Lex : 1*Word -1*PsWord' \
+-gltLabel 9 NY:ENG:SPEECH:WORD -gltCode 9 'Site : 1*NY Lang : 1*Eng Mod : 1*Speech Lex : 1*Word' \
+-gltLabel 10 NY:HEB:SPEECH:WORD -gltCode 10 'Site : 1*NY Lang : 1*Heb Mod : 1*Speech Lex : 1*Word' \
+-gltLabel 11 HU:ENG:SPEECH:WORD -gltCode 11 'Site : 1*HU Lang : 1*Eng Mod : 1*Speech Lex : 1*Word' \
+-gltLabel 12 HU:HEB:SPEECH:WORD -gltCode 12 'Site : 1*HU Lang : 1*Heb Mod : 1*Speech Lex : 1*Word' \
+-gltLabel 13 NY:ENG:SPEECH:WORD-PsWORD -gltCode 13 'Site : 1*NY Lang : 1*Eng Mod : 1*Speech Lex : 1*Word -1*PsWord' \
+-gltLabel 14 NY:HEB:SPEECH:WORD-PsWORD -gltCode 14 'Site : 1*NY Lang : 1*Heb Mod : 1*Speech Lex : 1*Word -1*PsWord' \
+-gltLabel 15 HU:ENG:SPEECH:WORD-PsWORD -gltCode 15 'Site : 1*HU Lang : 1*Eng Mod : 1*Speech Lex : 1*Word -1*PsWord' \
+-gltLabel 16 HU:HEB:SPEECH:WORD-PsWORD -gltCode 16 'Site : 1*HU Lang : 1*Heb Mod : 1*Speech Lex : 1*Word -1*PsWord' \
+-gltLabel 17 NY:HEB-ENG:PRINT:WORD -gltCode 17 'Site : 1*NY Mod : 1*Print Lex : 1*Word Lang : 1*Heb -1*Eng ' \
+-gltLabel 18 HU:ENG-HEB:PRINT:WORD -gltCode 18 'Site : 1*HU Mod : 1*Print Lex : 1*Word Lang : 1*Eng -1*Heb ' \
+-gltLabel 19 NY-HU:ENG:PRINT:WORD -gltCode 19 'Site : 1*NY -1*HU Lang : 1*Eng Mod : 1*Print Lex : 1*Word' \
+-gltLabel 20 NY-HU:HEB:PRINT:WORD -gltCode 20 'Site : 1*NY -1*HU Lang : 1*Heb Mod : 1*Print Lex : 1*Word' \
+-gltLabel 21 NY-HU:HEB-ENG:PRINT:WORD -gltCode 21 'Site : 1*NY -1*HU Mod : 1*Print Lex : 1*Word Lang : 1*Heb -1*Eng ' \
+-gltLabel 22 NY:ENG:PRINT-SPEECH:WORD -gltCode 22 'Site : 1*NY Mod : 1*Print -1*Speech Lex : 1*Word Lang : 1*Eng ' \
+-gltLabel 23 NY:HEB:PRINT-SPEECH:WORD -gltCode 23 'Site : 1*NY Mod : 1*Print -1*Speech Lex : 1*Word Lang : 1*Heb ' \
+-gltLabel 24 HU:ENG:PRINT-SPEECH:WORD -gltCode 24 'Site : 1*HU Mod : 1*Print -1*Speech Lex : 1*Word Lang : 1*Eng ' \
+-gltLabel 25 HU:HEB:PRINT-SPEECH:WORD -gltCode 25 'Site : 1*HU Mod : 1*Print -1*Speech Lex : 1*Word Lang : 1*Heb ' \
+-gltLabel 26 NY:ENG:PRINT-SPEECH:WORD+PsWORD -gltCode 26 'Site : 1*NY Mod : 1*Print -1*Speech Lex : 1*Word ' \
+-gltLabel 27 NY:HEB:PRINT-SPEECH:WORD+PsWORD -gltCode 27 'Site : 1*NY Mod : 1*Print -1*Speech Lex : 1*Word ' \
+-gltLabel 28 HU:ENG:PRINT-SPEECH:WORD+PsWORD -gltCode 28 'Site : 1*HU Mod : 1*Print -1*Speech Lex : 1*Word ' \
+-gltLabel 29 HU:HEB:PRINT-SPEECH:WORD+PsWORD -gltCode 29 'Site : 1*HU Mod : 1*Print -1*Speech Lex : 1*Word ' \
+-gltLabel 30 NY:ENG-HEB:PRINT-SPEECH:WORD -gltCode 30 'Site : 1*NY Mod : 1*Print -1*Speech Lex : 1*Word Lang : 1*Eng -1*Heb ' \
+-gltLabel 31 HU:HEB-ENG:PRINT-SPEECH:WORD -gltCode 31 'Site : 1*HU Mod : 1*Print -1*Speech Lex : 1*Word Lang : 1*Heb -1*Eng ' \
+-gltLabel 32 NY:ENG-HEB:PRINT-SPEECH:WORD+PsWORD -gltCode 32 'Site : 1*NY Mod : 1*Print -1*Speech Lang : 1*Eng -1*Heb ' \
+-gltLabel 33 HU:HEB-ENG:PRINT-SPEECH:WORD+PsWORD -gltCode 33 'Site : 1*HU Mod : 1*Print -1*Speech Lang : 1*Heb -1*Eng ' \
+-gltLabel 34 NY:ENG-HEB:PRINT:WORD-PsWORD -gltCode 34 'Site : 1*NY Lang : 1*Eng -1*Heb Mod : 1*Print Lex : 1*Word -1*PsWord' \
+-gltLabel 35 HU:HEB-ENG:PRINT:WORD-PsWORD -gltCode 35 'Site : 1*NY Lang : 1*Eng -1*Heb Mod : 1*Print Lex : 1*Word -1*PsWord' \
+-dataTable @/data1/scripts_refactor/haskins/task_scripts/mri_stats/gen_mvm_sample_outputs/sample_mvm_table.txt
