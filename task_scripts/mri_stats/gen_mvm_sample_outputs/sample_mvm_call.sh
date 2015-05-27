@@ -1,7 +1,7 @@
 #!/bin/bash
 
 3dMVM \
--prefix output_mvm_2015_5_26_15h_42m.txt \
+-prefix output_mvm_2015_5_27_16h_13m.txt \
 -jobs 20 \
 -mask TT_MASK.nii.gz \
 -bsVars 'Site+dummy_covar1+dummy_covar2+SFNR' \

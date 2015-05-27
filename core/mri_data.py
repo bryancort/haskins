@@ -208,9 +208,9 @@ def gen_mvm_table(scans_dict, within, between, subbrick_mapping, covars=None, vo
                 subj_filepaths = []
                 if vox_covar:
                     vox_covar_file = run.get_files(pattern=vox_covar_file_pattern, require_singlet=True)
-                    vox_covar_file = '"{}"'.format(vox_covar_file)
+                    vox_covar_file = '"{}"'.format(os.path.abspath(vox_covar_file))
                     subj_filepaths.append(vox_covar_file)
-                stats_file = '"{}[{}]"'.format(run.active_stats_file, subbrick_names[subbrick_val])
+                stats_file = '"{}[{}]"'.format(os.path.abspath(run.active_stats_file), subbrick_names[subbrick_val])
                 subj_filepaths.append(stats_file)
                 mvmtable.append([s.scan_id] + between_vals + quant_covars_vals + list(perm) + subj_filepaths)
 
