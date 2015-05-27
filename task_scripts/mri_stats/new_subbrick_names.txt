@@ -1,0 +1,17 @@
+AUDIO_UNREL_no  speech
+VOCOD_no    vocod_speech
+VIS_UNREL_no    print
+FALSE_FONT_no   false_font
+
+
+
+(names from Wave 1) (names from Wave 2)
+print-falsefont unrelated_visual_words-falsefont
+speech-vocod    unrelated_audio_words-vocoded_n
+print-speech    NONE
+falsefont-vocod    NONE
+speech+print_-_falsefont+vocod    NONE
+print+falsefont_-_speech+vocod    NONE
+interaction    NONE
+speech-print    NONE
+
