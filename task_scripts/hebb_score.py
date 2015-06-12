@@ -178,6 +178,18 @@ def proc_hebb(subjID=None, outDir=None, hebb_file_path=None):
             pairType = splitLine[0]
             runNum = splitLine[1]
             if runNum != prevRun:  # reset hPairs so we don't pick up the last filler trials of a previous run
+                #
+                # if hPairs:
+                #     partial_run_hebbnum = hebbNum + 1
+                #     for pair in hPairs:
+                #         pair.setHebbNum(hebbNum)
+                #     seqMap['all'][n] = hPairs
+                #     n += 1
+                #     #create the map for this run if it doesn't already exist
+                #     if runNum not in seqMap.keys():
+                #         seqMap[runNum] = {}
+                #     seqMap[runNum][hebbNum] = hPairs
+
                 hPairs = []
                 prevRun = runNum
             heardSeq = splitLine[3:]
