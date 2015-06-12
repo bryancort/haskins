@@ -1,0 +1,224 @@
+
+type = string-attribute
+name = HISTORY_NOTE
+count = 17533
+'[cort@cab.haskins.yale.internal: Thu May 28 11:29:23 2015] 3dANOVA3 -type 5 -alevels 2 -blevels 2 -clevels 32 -dset 1 1 1 '/data3/a202/group_analysis/W1_all_subjects_pid/1003_t1/1003_t1.pid/stats.1003_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 1 '/data3/a202/group_analysis/W1_all_subjects_pid/1003_t1/1003_t1.pid/stats.1003_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 2 '/data3/a202/group_analysis/W1_all_subjects_pid/1004_t1/1004_t1.pid/stats.1004_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 2 '/data3/a202/group_analysis/W1_all_subjects_pid/1004_t1/1004_t1.pid/stats.1004_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 3 '/data3/a202/group_analysis/W1_all_subjects_pid/1005_t1/1005_t1.pid/stats.1005_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 3 '/data3/a202/group_analysis/W1_all_subjects_pid/1005_t1/1005_t1.pid/stats.1005_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 4 '/data3/a202/group_analysis/W1_all_subjects_pid/1006_t1/1006_t1.pid/stats.1006_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 4 '/data3/a202/group_analysis/W1_all_subjects_pid/1006_t1/1006_t1.pid/stats.1006_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 5 '/data3/a202/group_analysis/W1_all_subjects_pid/1007_t1/1007_t1.pid/stats.1007_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 5 '/data3/a202/group_analysis/W1_all_subjects_pid/1007_t1/1007_t1.pid/stats.1007_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 6 '/data3/a202/group_analysis/W1_all_subjects_pid/1009_t1/1009_t1.pid/stats.1009_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 6 '/data3/a202/group_analysis/W1_all_subjects_pid/1009_t1/1009_t1.pid/stats.1009_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 7 '/data3/a202/group_analysis/W1_all_subjects_pid/1016_t1/1016_t1.pid/stats.1016_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 7 '/data3/a202/group_analysis/W1_all_subjects_pid/1016_t1/1016_t1.pid/stats.1016_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 8 '/data3/a202/group_analysis/W1_all_subjects_pid/1018_t1/1018_t1.pid/stats.1018_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 8 '/data3/a202/group_analysis/W1_all_subjects_pid/1018_t1/1018_t1.pid/stats.1018_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 9 '/data3/a202/group_analysis/W1_all_subjects_pid/1019_t1/1019_t1.pid/stats.1019_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 9 '/data3/a202/group_analysis/W1_all_subjects_pid/1019_t1/1019_t1.pid/stats.1019_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 10 '/data3/a202/group_analysis/W1_all_subjects_pid/1021_t1/1021_t1.pid/stats.1021_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 10 '/data3/a202/group_analysis/W1_all_subjects_pid/1021_t1/1021_t1.pid/stats.1021_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 11 '/data3/a202/group_analysis/W1_all_subjects_pid/1022_t1/1022_t1.pid/stats.1022_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 11 '/data3/a202/group_analysis/W1_all_subjects_pid/1022_t1/1022_t1.pid/stats.1022_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 12 '/data3/a202/group_analysis/W1_all_subjects_pid/1023_t1run2/1023_t1run2.pid/stats.1023_t1run2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 12 '/data3/a202/group_analysis/W1_all_subjects_pid/1023_t1run2/1023_t1run2.pid/stats.1023_t1run2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 13 '/data3/a202/group_analysis/W1_all_subjects_pid/1024_t1run2/1024_t1run2.pid/stats.1024_t1run2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 13 '/data3/a202/group_analysis/W1_all_subjects_pid/1024_t1run2/1024_t1run2.pid/stats.1024_t1run2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 14 '/data3/a202/group_analysis/W1_all_subjects_pid/1031_t1/1031_t1.pid/stats.1031_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 14 '/data3/a202/group_analysis/W1_all_subjects_pid/1031_t1/1031_t1.pid/stats.1031_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 15 '/data3/a202/group_analysis/W2_all_subjects_pid/2006_t1_run2/2006_t1_run2.pid/stats.2006_t1_run2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 15 '/data3/a202/group_analysis/W2_all_subjects_pid/2006_t1_run2/2006_t1_run2.pid/stats.2006_t1_run2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 16 '/data3/a202/group_analysis/W2_all_subjects_pid/2011_t1/2011_t1.pid/stats.2011_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 16 '/data3/a202/group_analysis/W2_all_subjects_pid/2011_t1/2011_t1.pid/stats.2011_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 17 '/data3/a202/group_analysis/W2_all_subjects_pid/2029_t1/2029_t1.pid/stats.2029_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 17 '/data3/a202/group_analysis/W2_all_subjects_pid/2029_t1/2029_t1.pid/stats.2029_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 18 '/data3/a202/group_analysis/W2_all_subjects_pid/2035_t1/2035_t1.pid/stats.2035_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 18 '/data3/a202/group_analysis/W2_all_subjects_pid/2035_t1/2035_t1.pid/stats.2035_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 19 '/data3/a202/group_analysis/W2_all_subjects_pid/2036_t1/2036_t1.pid/stats.2036_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 19 '/data3/a202/group_analysis/W2_all_subjects_pid/2036_t1/2036_t1.pid/stats.2036_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 20 '/data3/a202/group_analysis/W2_all_subjects_pid/2037_t1/2037_t1.pid/stats.2037_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 20 '/data3/a202/group_analysis/W2_all_subjects_pid/2037_t1/2037_t1.pid/stats.2037_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 21 '/data3/a202/group_analysis/W2_all_subjects_pid/2038_t1/2038_t1.pid/stats.2038_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 21 '/data3/a202/group_analysis/W2_all_subjects_pid/2038_t1/2038_t1.pid/stats.2038_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 22 '/data3/a202/group_analysis/W2_all_subjects_pid/2046_t1/2046_t1.pid/stats.2046_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 22 '/data3/a202/group_analysis/W2_all_subjects_pid/2046_t1/2046_t1.pid/stats.2046_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 23 '/data3/a202/group_analysis/W2_all_subjects_pid/2048_t1/2048_t1.pid/stats.2048_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 23 '/data3/a202/group_analysis/W2_all_subjects_pid/2048_t1/2048_t1.pid/stats.2048_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 24 '/data3/a202/group_analysis/W2_all_subjects_pid/2050_t1_run2/2050_t1_run2.pid/stats.2050_t1_run2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 24 '/data3/a202/group_analysis/W2_all_subjects_pid/2050_t1_run2/2050_t1_run2.pid/stats.2050_t1_run2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 25 '/data3/a202/group_analysis/W2_all_subjects_pid/2052_t1/2052_t1.pid/stats.2052_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 25 '/data3/a202/group_analysis/W2_all_subjects_pid/2052_t1/2052_t1.pid/stats.2052_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 26 '/data3/a202/group_analysis/W2_all_subjects_pid/2054_t1/2054_t1.pid/stats.2054_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 26 '/data3/a202/group_analysis/W2_all_subjects_pid/2054_t1/2054_t1.pid/stats.2054_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 27 '/data3/a202/group_analysis/W2_all_subjects_pid/2058_t1/2058_t1.pid/stats.2058_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 27 '/data3/a202/group_analysis/W2_all_subjects_pid/2058_t1/2058_t1.pid/stats.2058_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 28 '/data3/a202/group_analysis/W2_all_subjects_pid/2060_t1/2060_t1.pid/stats.2060_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 28 '/data3/a202/group_analysis/W2_all_subjects_pid/2060_t1/2060_t1.pid/stats.2060_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 29 '/data3/a202/group_analysis/W2_all_subjects_pid/2061_t1/2061_t1.pid/stats.2061_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 29 '/data3/a202/group_analysis/W2_all_subjects_pid/2061_t1/2061_t1.pid/stats.2061_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 30 '/data3/a202/group_analysis/W2_all_subjects_pid/2067_t1/2067_t1.pid/stats.2067_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 30 '/data3/a202/group_analysis/W2_all_subjects_pid/2067_t1/2067_t1.pid/stats.2067_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 31 '/data3/a202/group_analysis/W2_all_subjects_pid/2070_t1/2070_t1.pid/stats.2070_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 31 '/data3/a202/group_analysis/W2_all_subjects_pid/2070_t1/2070_t1.pid/stats.2070_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 1 1 32 '/data3/a202/group_analysis/W2_all_subjects_pid/2072_t1/2072_t1.pid/stats.2072_t1_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 1 2 32 '/data3/a202/group_analysis/W2_all_subjects_pid/2072_t1/2072_t1.pid/stats.2072_t1_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 1 '/data3/a202/group_analysis/W1_all_subjects_pid/1003_t2/1003_t2.pid/stats.1003_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 1 '/data3/a202/group_analysis/W1_all_subjects_pid/1003_t2/1003_t2.pid/stats.1003_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 2 '/data3/a202/group_analysis/W1_all_subjects_pid/1004_t2/1004_t2.pid/stats.1004_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 2 '/data3/a202/group_analysis/W1_all_subjects_pid/1004_t2/1004_t2.pid/stats.1004_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 3 '/data3/a202/group_analysis/W1_all_subjects_pid/1005_t2/1005_t2.pid/stats.1005_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 3 '/data3/a202/group_analysis/W1_all_subjects_pid/1005_t2/1005_t2.pid/stats.1005_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 4 '/data3/a202/group_analysis/W1_all_subjects_pid/1006_t2/1006_t2.pid/stats.1006_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 4 '/data3/a202/group_analysis/W1_all_subjects_pid/1006_t2/1006_t2.pid/stats.1006_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 5 '/data3/a202/group_analysis/W1_all_subjects_pid/1007_t2/1007_t2.pid/stats.1007_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 5 '/data3/a202/group_analysis/W1_all_subjects_pid/1007_t2/1007_t2.pid/stats.1007_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 6 '/data3/a202/group_analysis/W1_all_subjects_pid/1009_t2/1009_t2.pid/stats.1009_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 6 '/data3/a202/group_analysis/W1_all_subjects_pid/1009_t2/1009_t2.pid/stats.1009_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 7 '/data3/a202/group_analysis/W1_all_subjects_pid/1016_t2/1016_t2.pid/stats.1016_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 7 '/data3/a202/group_analysis/W1_all_subjects_pid/1016_t2/1016_t2.pid/stats.1016_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 8 '/data3/a202/group_analysis/W1_all_subjects_pid/1018_t2/1018_t2.pid/stats.1018_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 8 '/data3/a202/group_analysis/W1_all_subjects_pid/1018_t2/1018_t2.pid/stats.1018_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 9 '/data3/a202/group_analysis/W1_all_subjects_pid/1019_t2/1019_t2.pid/stats.1019_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 9 '/data3/a202/group_analysis/W1_all_subjects_pid/1019_t2/1019_t2.pid/stats.1019_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 10 '/data3/a202/group_analysis/W1_all_subjects_pid/1021_t2/1021_t2.pid/stats.1021_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 10 '/data3/a202/group_analysis/W1_all_subjects_pid/1021_t2/1021_t2.pid/stats.1021_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 11 '/data3/a202/group_analysis/W1_all_subjects_pid/1022_t2/1022_t2.pid/stats.1022_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 11 '/data3/a202/group_analysis/W1_all_subjects_pid/1022_t2/1022_t2.pid/stats.1022_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 12 '/data3/a202/group_analysis/W1_all_subjects_pid/1023_t2/1023_t2.pid/stats.1023_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 12 '/data3/a202/group_analysis/W1_all_subjects_pid/1023_t2/1023_t2.pid/stats.1023_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 13 '/data3/a202/group_analysis/W1_all_subjects_pid/1024_t2/1024_t2.pid/stats.1024_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 13 '/data3/a202/group_analysis/W1_all_subjects_pid/1024_t2/1024_t2.pid/stats.1024_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 14 '/data3/a202/group_analysis/W1_all_subjects_pid/1031_t2/1031_t2.pid/stats.1031_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 14 '/data3/a202/group_analysis/W1_all_subjects_pid/1031_t2/1031_t2.pid/stats.1031_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 15 '/data3/a202/group_analysis/W2_all_subjects_pid/2006_t2/2006_t2.pid/stats.2006_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 15 '/data3/a202/group_analysis/W2_all_subjects_pid/2006_t2/2006_t2.pid/stats.2006_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 16 '/data3/a202/group_analysis/W2_all_subjects_pid/2011_t2_run2/2011_t2_run2.pid/stats.2011_t2_run2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 16 '/data3/a202/group_analysis/W2_all_subjects_pid/2011_t2_run2/2011_t2_run2.pid/stats.2011_t2_run2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 17 '/data3/a202/group_analysis/W2_all_subjects_pid/2029_t2/2029_t2.pid/stats.2029_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 17 '/data3/a202/group_analysis/W2_all_subjects_pid/2029_t2/2029_t2.pid/stats.2029_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 18 '/data3/a202/group_analysis/W2_all_subjects_pid/2035_t2/2035_t2.pid/stats.2035_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 18 '/data3/a202/group_analysis/W2_all_subjects_pid/2035_t2/2035_t2.pid/stats.2035_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 19 '/data3/a202/group_analysis/W2_all_subjects_pid/2036_t2/2036_t2.pid/stats.2036_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 19 '/data3/a202/group_analysis/W2_all_subjects_pid/2036_t2/2036_t2.pid/stats.2036_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 20 '/data3/a202/group_analysis/W2_all_subjects_pid/2037_t2/2037_t2.pid/stats.2037_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 20 '/data3/a202/group_analysis/W2_all_subjects_pid/2037_t2/2037_t2.pid/stats.2037_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 21 '/data3/a202/group_analysis/W2_all_subjects_pid/2038_t2/2038_t2.pid/stats.2038_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 21 '/data3/a202/group_analysis/W2_all_subjects_pid/2038_t2/2038_t2.pid/stats.2038_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 22 '/data3/a202/group_analysis/W2_all_subjects_pid/2046_t2/2046_t2.pid/stats.2046_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 22 '/data3/a202/group_analysis/W2_all_subjects_pid/2046_t2/2046_t2.pid/stats.2046_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 23 '/data3/a202/group_analysis/W2_all_subjects_pid/2048_t2/2048_t2.pid/stats.2048_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 23 '/data3/a202/group_analysis/W2_all_subjects_pid/2048_t2/2048_t2.pid/stats.2048_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 24 '/data3/a202/group_analysis/W2_all_subjects_pid/2050_t2/2050_t2.pid/stats.2050_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 24 '/data3/a202/group_analysis/W2_all_subjects_pid/2050_t2/2050_t2.pid/stats.2050_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 25 '/data3/a202/group_analysis/W2_all_subjects_pid/2052_t2/2052_t2.pid/stats.2052_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 25 '/data3/a202/group_analysis/W2_all_subjects_pid/2052_t2/2052_t2.pid/stats.2052_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 26 '/data3/a202/group_analysis/W2_all_subjects_pid/2054_t2/2054_t2.pid/stats.2054_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 26 '/data3/a202/group_analysis/W2_all_subjects_pid/2054_t2/2054_t2.pid/stats.2054_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 27 '/data3/a202/group_analysis/W2_all_subjects_pid/2058_t2/2058_t2.pid/stats.2058_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 27 '/data3/a202/group_analysis/W2_all_subjects_pid/2058_t2/2058_t2.pid/stats.2058_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 28 '/data3/a202/group_analysis/W2_all_subjects_pid/2060_t2/2060_t2.pid/stats.2060_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 28 '/data3/a202/group_analysis/W2_all_subjects_pid/2060_t2/2060_t2.pid/stats.2060_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 29 '/data3/a202/group_analysis/W2_all_subjects_pid/2061_t2/2061_t2.pid/stats.2061_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 29 '/data3/a202/group_analysis/W2_all_subjects_pid/2061_t2/2061_t2.pid/stats.2061_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 30 '/data3/a202/group_analysis/W2_all_subjects_pid/2067_t2/2067_t2.pid/stats.2067_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 30 '/data3/a202/group_analysis/W2_all_subjects_pid/2067_t2/2067_t2.pid/stats.2067_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 31 '/data3/a202/group_analysis/W2_all_subjects_pid/2070_t2/2070_t2.pid/stats.2070_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 31 '/data3/a202/group_analysis/W2_all_subjects_pid/2070_t2/2070_t2.pid/stats.2070_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -dset 2 1 32 '/data3/a202/group_analysis/W2_all_subjects_pid/2072_t2/2072_t2.pid/stats.2072_t2_REML+tlrc.HEAD[vis_word_mis#0_Coef]' -dset 2 2 32 '/data3/a202/group_analysis/W2_all_subjects_pid/2072_t2/2072_t2.pid/stats.2072_t2_REML+tlrc.HEAD[aud_word_mis#0_Coef]' -amean 1 amean1 -bmean 1 bmean1 -bucket ./pidANOVA3.results ; Output prefix: amean1\n[cort@cab.haskins.yale.internal: Thu May 28 11:29:25 2015] 3dbucket -prefix ./pidANOVA3.results ./amean1+tlrc.BRIK ./bmean1+tlrc.BRIK\n[cort@cab.haskins.yale.internal: Thu May 28 11:29:25 2015] 3drefit -addFDR -sublabel 0 amean1:Mean -sublabel 1 amean1:t-stat -sublabel 2 bmean1:Mean -sublabel 3 bmean1:t-stat ./pidANOVA3.results+tlrc.BRIK~
+
+type = string-attribute
+name = TYPESTRING
+count = 15
+'3DIM_HEAD_FUNC~
+
+type = string-attribute
+name = IDCODE_STRING
+count = 27
+'XYZ_QTMkQsqKOlTIz7ToUdjwmg~
+
+type = string-attribute
+name = IDCODE_DATE
+count = 25
+'Thu May 28 11:29:25 2015~
+
+type = integer-attribute
+name = SCENE_DATA
+count = 8
+ 2 11 1 -999 -999
+ -999 -999 -999
+
+type = string-attribute
+name = LABEL_1
+count = 5
+'zyxt~
+
+type = string-attribute
+name = LABEL_2
+count = 5
+'zyxt~
+
+type = string-attribute
+name = DATASET_NAME
+count = 5
+'zyxt~
+
+type = integer-attribute
+name = ORIENT_SPECIFIC
+count = 3
+ 0 3 4
+
+type  = float-attribute
+name  = ORIGIN
+count = 3
+          -79.5          -79.5          -63.5
+
+type  = float-attribute
+name  = DELTA
+count = 3
+              3              3              3
+
+type  = float-attribute
+name  = IJK_TO_DICOM
+count = 12
+              3              0              0          -79.5              0
+              3              0          -79.5              0              0
+              3          -63.5
+
+type  = float-attribute
+name  = IJK_TO_DICOM_REAL
+count = 12
+              3              0              0          -79.5              0
+              3              0          -79.5              0              0
+              3          -63.5
+
+type  = float-attribute
+name  = BRICK_STATS
+count = 8
+      -1.372198       2.582436         -6.013         15.488      -1.230711
+       1.907692         -5.212          12.84
+
+type  = float-attribute
+name  = STAT_AUX
+count = 1
+             31
+
+type = integer-attribute
+name = DATASET_RANK
+count = 8
+ 3 4 0 0 0
+ 0 0 0
+
+type = integer-attribute
+name = DATASET_DIMENSIONS
+count = 5
+ 54 64 50 0 0
+
+type = integer-attribute
+name = BRICK_TYPES
+count = 4
+ 1 1 1 1
+
+type  = float-attribute
+name  = BRICK_FLOAT_FACS
+count = 4
+    7.88121e-05          0.001   5.821991e-05          0.001
+
+type = string-attribute
+name = BRICK_LABS
+count = 52
+'amean1:Mean~amean1:t-stat~bmean1:Mean~bmean1:t-stat~
+
+type  = float-attribute
+name  = BRICK_STATAUX
+count = 8
+              1              3              1             31              3
+              3              1             62
+
+type = string-attribute
+name = BRICK_STATSYM
+count = 30
+'none;Ttest(31);none;Ttest(62)~
+
+type  = float-attribute
+name  = FDRCURVE_000001
+count = 103
+          0.001        0.14546      0.2585881      0.2933969       0.331993
+      0.3770049      0.4275385      0.4819381      0.5435517      0.6004012
+      0.6314659      0.6979371      0.7661459      0.8517634      0.9436878
+       1.040134       1.146219       1.258017        1.37561       1.496181
+       1.618059       1.742711       1.865507       1.988831       2.109369
+       2.228162        2.34762       2.465039       2.580133        2.69341
+       2.802697       2.911247        3.01473       3.117685       3.219741
+       3.317688       3.413392       3.507074       3.598469       3.688198
+       3.775889        3.85907       3.941847       4.023034        4.10194
+       4.178945       4.253546       4.326449       4.396791       4.463385
+       4.531853       4.596582       4.661717       4.722688       4.783753
+       4.843234       4.899522       4.953051       5.005494       5.059639
+       5.111831        5.15853       5.206647       5.256603       5.304922
+       5.350611       5.398915        5.44702       5.491601       5.534784
+       5.569569       5.609497       5.641916       5.681013       5.715026
+       5.750077       5.783634       5.816504       5.852845       5.886116
+       5.909692        5.93448        5.96481       5.994971       6.028504
+        6.05518       6.073507        6.08595       6.127051       6.171213
+       6.214965       6.242001       6.252808       6.274542       6.308254
+       6.345187       6.368419       6.396319       6.412132       6.435301
+       6.446194       6.446193       6.446193
+
+type  = float-attribute
+name  = FDRCURVE_000003
+count = 103
+          0.001        0.12011      0.3145534      0.3441714      0.3786059
+       0.417749      0.4606817       0.508608      0.5598605      0.6159068
+      0.6764549      0.7120638      0.7792453      0.8501458      0.9202764
+       1.003168       1.089369       1.179776        1.27649       1.376065
+       1.477383       1.582243       1.686935       1.795524       1.903918
+       2.013564       2.123938       2.233436       2.340761       2.449273
+        2.55739        2.66568       2.773401       2.879183       2.983798
+       3.089615       3.193458       3.297197        3.39827       3.497562
+       3.596733       3.694712       3.791505       3.886647       3.981385
+       4.074727       4.167144       4.257667       4.347619       4.435958
+       4.521418       4.607881       4.693008       4.778098       4.862648
+       4.942888       5.022896       5.102334       5.181129       5.258092
+       5.333797       5.409944       5.484681       5.556842       5.630223
+       5.700032       5.768658       5.838073       5.904737       5.971001
+        6.03518       6.098075       6.158426       6.218251       6.277349
+       6.336495       6.394593        6.45001       6.501333       6.553515
+       6.606566       6.655967       6.705879       6.749363       6.794497
+       6.840978       6.882758       6.926604       6.976895       7.019922
+       7.062593       7.101296       7.103601       7.103761       7.103921
+       7.104081        7.10409        7.10409        7.10409        7.10409
+        7.10409        7.10409        7.10409
+
+type  = float-attribute
+name  = MDFCURVE_000001
+count = 63
+      -12.64809      0.2026674      0.9990305      0.9987797      0.9985124
+      0.9981568      0.9976866      0.9970739      0.9966249      0.9959165
+      0.9949828      0.9940414       0.992831      0.9913931      0.9896694
+      0.9879917      0.9863536      0.9847989      0.9824423      0.9798161
+      0.9771031      0.9732785      0.9698956      0.9653358      0.9606271
+      0.9551173      0.9497707      0.9440824      0.9374133      0.9306809
+       0.924003      0.9145182      0.9060826      0.8972375      0.8872819
+      0.8781185      0.8664791      0.8552885      0.8417259      0.8288715
+      0.8151782      0.8009354      0.7839255      0.7671074      0.7493682
+      0.7305797      0.7074046      0.6848264      0.6589987      0.6329633
+      0.6036971      0.5720149       0.536017      0.4947584      0.4521142
+      0.4088905      0.3607538      0.3105848      0.2616836      0.2092387
+      0.1674149      0.1283794              0
+
+type  = float-attribute
+name  = MDFCURVE_000003
+count = 75
+            -15       0.201483      0.9990263      0.9957915      0.9950316
+      0.9941336      0.9935006      0.9923998      0.9909683      0.9896291
+      0.9879253      0.9858578      0.9838141      0.9814744       0.979149
+       0.976364      0.9732956      0.9701317      0.9671843      0.9639858
+      0.9602093      0.9563406      0.9521134      0.9471925      0.9427682
+      0.9384069      0.9335805      0.9288118      0.9236684      0.9176235
+      0.9130217      0.9069663      0.9006889      0.8954915      0.8893819
+      0.8824106      0.8754659      0.8677742      0.8601737      0.8516556
+      0.8421849      0.8354201      0.8271959      0.8171246      0.8073364
+      0.7952607      0.7840688      0.7727378      0.7605668      0.7474806
+      0.7340615      0.7199391      0.7047438      0.6881749      0.6712773
+      0.6528849      0.6319394      0.6125666      0.5903485      0.5677494
+      0.5393618      0.5089235      0.4783544      0.4416959      0.4007671
+      0.3556195      0.3098346      0.2596911      0.2077421      0.1518578
+      0.1010161       0.060718     0.03031799     0.01761374              0
+
+type = string-attribute
+name = TEMPLATE_SPACE
+count = 7
+'TT_N27~
+
+type = integer-attribute
+name = INT_CMAP
+count = 1
+ 0
+
+type = string-attribute
+name = BYTEORDER_STRING
+count = 10
+'LSB_FIRST~
+
+type = string-attribute
+name = BRICK_KEYWORDS
+count = 4
+'~~~~
