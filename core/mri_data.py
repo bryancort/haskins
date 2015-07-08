@@ -142,6 +142,85 @@ class Scan(KeyedMixin, ComparableMixin, AfniDataDir):
         return self.scan_id
 
 
+class ProcRun2(AfniDataDir):
+    def __init__(self, scan, proc_pat, active_stats_file_pattern='stats.*REML+*.HEAD*',
+                 active_anat_pattern="*ns+tlrc.HEAD"):
+        """
+        :param scan: scan name.
+        :param proc_pat: pattern uniquely identifying the proc run directory.
+        :param active_stats_file_tag: substring uniquely identifying the stats file (.nii) or files (.HEAD/.BRIK pair).
+            defaults to the REML stats file.
+        :param active_anat_pattern: pattern to match to a single anat file. defaults to the skull stripped standard
+            space anat.
+        """
+        self.scan = scan
+        self.proc_pat = proc_pat
+        self.root_dir = None
+        self.run_script = None
+        self.run_script_output = None
+        self.active_stats_file = None  # .HEAD or .nii file
+        self.active_anat_file = None
+        self._find_run_files(self.scan, self.proc_pat)      # fixme: self.root_dir is set here, so:
+        self.set_active_anat_file(active_anat_pattern)
+        self.set_active_stats_file(active_stats_file_pattern)
+        super(ProcRun2, self).__init__(root_dir=self.root_dir)   # fixme: don't need the super init here?
+
+    def _find_run_files(self, scan, proc_pat):
+        self.root_dir = file_utils.match_single_dir(path=scan.root_dir, pattern=proc_pat, except_on_fail=True)
+        leaf_name = os.path.split(self.root_dir)[1]
+        script_name = 'afni_{}.tcsh'.format(leaf_name).replace('.results', '')
+        script_output_name = 'output.{}'.format(script_name)
+        self.run_script = file_utils.match_single_file(path=scan.root_dir, pattern=script_name)
+        self.run_script_output = file_utils.match_single_file(path=scan.root_dir, pattern=script_output_name)
+        # todo: implement actual logging here
+        if not self.run_script:
+            print 'WARNING: could not find a unique run script for {} run of {}'.format(self.proc_pat, self.scan)
+        if not self.run_script_output:
+            print 'WARNING: could not find a unique run script output for {} run of {}'.format(self.proc_pat, self.scan)
+
+    def set_active_stats_file(self, stats_file_pattern):
+        try:
+            self.active_stats_file = file_utils.match_single_file(path=self.root_dir, pattern=stats_file_pattern,
+                                                      except_on_fail=True)
+        except:
+            print "Could not set stats file for {} using pattern {}:".format(self, stats_file_pattern)
+            print traceback.format_exc()
+            print "Active stats file reverted to {}".format(self.active_stats_file)
+
+    def set_active_anat_file(self, anat_pattern):
+        try:
+            self.active_anat_file = file_utils.match_single_file(self.root_dir, anat_pattern, except_on_fail=True)
+        except:
+            print "Could not set anat file for {} using pattern {}:".format(self, anat_pattern)
+            print traceback.format_exc()
+            print "Active anat file reverted to {}".format(self.active_anat_file)
+
+    def __str__(self):
+        return 'Proc Run {} of {} located at {}'.format(self.proc_pat, self.scan, self.root_dir)
+
+    def __repr__(self):  # fixme: need a real __repr__ here
+        return 'Proc Run {} of {} located at {}'.format(self.proc_pat, self.scan, self.root_dir)
+
+
+class Scan2(KeyedMixin, ComparableMixin, AfniDataDir):
+    def __init__(self, scan_id, root_dir, proc_runs=()):
+        AfniDataDir.__init__(self, root_dir=os.path.normpath(root_dir))
+        self.scan_id = scan_id
+        # self.root_dir = os.path.normpath(root_dir)
+        self.proc_runs = {}
+        for run in proc_runs:
+            if run:
+                self.add_proc_run(run)
+
+    def add_proc_run(self, proc_tag, run_name=None):
+        if not run_name:
+            run_name = proc_tag
+        self.proc_runs[run_name] = ProcRun2(self, proc_tag)
+
+    def __key__(self):
+        return self.scan_id
+
+
 def gen_mvm_table(scans_dict, within, between, subbrick_mapping, covars=None, vox_covar=None,
                   vox_covar_file_pattern=None, use_proc_run='results'):
     """

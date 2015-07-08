@@ -159,21 +159,21 @@ def _debug(*cmd_args):
 
 
 _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
-             '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa/VWFA_restricted+tlrc.HEAD ' \
+             '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa/VWFA+tlrc.HEAD ' \
              '--func_pattern stats.*REML+*.HEAD* ' \
              '--anat_tlrc_pattern *ns+tlrc.HEAD ' \
              '--contrast_subbrick 14 ' \
              '--copy_anat_pattern Sag*ns+orig* ' \
              '--roi_size 50 ' \
              '--clip 0.2 ' \
-             '--output_dir rois/VWFA2 ' \
+             '--output_dir rois/VWFA_full_tlrc_test ' \
              '--warped_ss_prefix vwfa_ss+orig ' \
              '--output_roi_prefix VWFA2_50 ' \
              '--make_ss_snapshots ' \
              '--create_masked_func ' \
              '--save_peak_prefix peak_vox ' \
              '--keep_working_files ' \
-             'tb6874'
+             'tb6813'
 
 
 def gen_snapshots(out_dir, anat_file, roi_file, out_prefix):
@@ -238,7 +238,7 @@ def warp_search_space(func, search_space, clip, mask_out, anat_tlrc=None):
                                                                     anat_tlrc=anat_tlrc,
                                                                     clip=clip, mask_out=mask_out)
     if not anat_tlrc:
-        fract_call = fract_call.replace(' -warp ', '')
+        fract_call = fract_call.replace('-warp  ', '')
 
     # todo: more intelligent matching for prefixes
     ss_warp_files = glob.glob("{}*".format(mask_out))
@@ -257,7 +257,8 @@ def warp_search_space(func, search_space, clip, mask_out, anat_tlrc=None):
 
 
 def gen_func_roi(func, search_space, threshold, roi_size, output_path, remove_search_space=False, volthr=None):
-    volthr = volthr if volthr else roi_size
+    # volthr = volthr if volthr else roi_size
+    volthr = roi_size if volthr==None else volthr
     # 3dROIMaker to generate our functionally defined ROI
     # Might need to cd into output_path[0] and use output_path[1] as the arg (after splitting output_path)
     roimaker_call = "3dROIMaker -inset {func} -thresh {threshold} -prefix {output_path} -volthr {volthr} " \
@@ -265,6 +266,9 @@ def gen_func_roi(func, search_space, threshold, roi_size, output_path, remove_se
                                                                             output_path=output_path,
                                                                             search_space=search_space,
                                                                             roi_size=roi_size, volthr=volthr)
+    if not volthr:
+        roimaker_call = roimaker_call.replace('-volthr  ', '')
+
     # todo: more intelligent matching for prefixes
     roi_files = glob.glob("{}*".format(output_path))
     if roi_files:
@@ -401,6 +405,51 @@ def __main__():
                         print "Error copying anat files matching pattern {}:".format(args.copy_anat_pattern)
                         print traceback.format_exc()
 
+                # if args.save_peak_prefix:
+                #     try:
+                #         # make the 1-voxel ROI with 3dROIMaker
+                #         peak_pref_base = os.path.basename(args.save_peak_prefix)
+                #         peak_working_output_pref = os.path.join(subj_work_dir, "{}.{}".format(subj_scan,
+                #                                                                               peak_pref_base))
+                #         peak_coords_orig_pref = os.path.join(subj_work_dir,
+                #                                              "{}+orig.{}.1D".format(subj_scan, peak_pref_base))
+                #         peak_coords_tlrc_pref = os.path.join(subj_out_dir,
+                #                                              "{}+tlrc.{}.1D".format(subj_scan, peak_pref_base))
+                #         peak_roi_files = gen_func_roi(func=act_map, search_space=ss_warp, threshold=args.threshold,
+                #                                       roi_size="1", output_path=peak_working_output_pref,
+                #                                       remove_search_space=False, volthr='')
+                #
+                #         # should not need to 3dcalc to coerce datum to short; 3dROIMaker does this by default
+                #         peak_files = fnmatch.filter(peak_roi_files, "{}_GM+????.????".format(peak_working_output_pref))
+                #         peak_file = pathni.get_headfile(peak_files)
+                #
+                #         # get the max value and get the coords of that value
+                #         # peak_file_prefix = os.path.join(subj_work_dir, "{}.orig_peak".format(subj_scan))
+                #         peak_orig, peak_orig_file = mri_utils.get_peak_voxel(peak_file, out_path=peak_coords_orig_pref)
+                #
+                #         # warp coords to +tlrc
+                #         peak_tlrc_file = mri_utils.orig_to_tlrc(peak_orig_file, anat, peak_coords_tlrc_pref,
+                #                                                 dset_type="1D")
+                #         if peak_tlrc_file:
+                #             print "Saved peak for {} to {}".format(subj_scan, peak_tlrc_file)
+                #         else:
+                #             raise AfniError("Failed to save peak coords for {}".format(subj_scan))
+                #
+                #             # # save to file specified in args.save_peak_prefix
+                #             # with open(os.path.join(subj_out_dir, "{}.1D".format(args.save_peak_prefix)), 'w') as outfile:
+                #             #     outfile.write("\t".join([str(coord) for coord in peak_coords_orig]))
+                #     except:
+                #         print "Failed to extract peak voxel for {}".format(subj_scan)
+                #         print traceback.format_exc()
+
+                func_roi_files = gen_func_roi(func=act_map, search_space=ss_warp, threshold=args.threshold,
+                                              roi_size=args.roi_size, output_path=output_path,
+                                              remove_search_space=discard_mask)
+                print "Generated functional ROI files for {}:\n{}\n".format(subj_scan, "\n".join(func_roi_files))
+                roi_files = fnmatch.filter(func_roi_files,
+                                           os.path.join("*", "{}_GM+????.????".format(roi_out_pref)))
+                roi_file = pathni.get_headfile(roi_files)
+
                 if args.save_peak_prefix:
                     try:
                         # make the 1-voxel ROI with 3dROIMaker
@@ -411,7 +460,7 @@ def __main__():
                                                              "{}+orig.{}.1D".format(subj_scan, peak_pref_base))
                         peak_coords_tlrc_pref = os.path.join(subj_out_dir,
                                                              "{}+tlrc.{}.1D".format(subj_scan, peak_pref_base))
-                        peak_roi_files = gen_func_roi(func=act_map, search_space=ss_warp, threshold=args.threshold,
+                        peak_roi_files = gen_func_roi(func=act_map, search_space=roi_file, threshold=args.threshold,
                                                       roi_size="1", output_path=peak_working_output_pref,
                                                       remove_search_space=False)
 
@@ -438,11 +487,6 @@ def __main__():
                         print "Failed to extract peak voxel for {}".format(subj_scan)
                         print traceback.format_exc()
 
-                func_roi_files = gen_func_roi(func=act_map, search_space=ss_warp, threshold=args.threshold,
-                                              roi_size=args.roi_size, output_path=output_path,
-                                              remove_search_space=discard_mask)
-                print "Generated functional ROI files for {}:\n{}\n".format(subj_scan, "\n".join(func_roi_files))
-
                 if anat_files:
                     if args.create_masked_func:
                         try:
@@ -456,9 +500,9 @@ def __main__():
                             print traceback.format_exc()
                     try:
                         # fixme: this will fail in some corner cases, like identical prefix with both +orig and +tlrc
-                        roi_files = fnmatch.filter(func_roi_files,
-                                                   os.path.join("*", "{}_GM+????.????".format(roi_out_pref)))
-                        roi_file = pathni.get_headfile(roi_files)
+                        # roi_files = fnmatch.filter(func_roi_files,
+                        #                            os.path.join("*", "{}_GM+????.????".format(roi_out_pref)))
+                        # roi_file = pathni.get_headfile(roi_files)
                         anat_file = pathni.get_headfile(anat_files)
                         gen_snapshots(out_dir=subj_out_dir, anat_file=anat_file, roi_file=roi_file,
                                       out_prefix=roi_out_pref)

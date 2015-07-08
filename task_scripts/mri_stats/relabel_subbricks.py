@@ -28,29 +28,29 @@ def genArgParser():
     parser.add_argument('--debug', action='store_true', default=debug_default,
                         help='Debug mode on. Default: {}'.format(debug_default))
 
-    mri_dir_default = '/data1/bil/mri_subjects'
+    mri_dir_default = '/data3/a202/group_analysis/W1_all_subjects_fastloc'
     parser.add_argument('--mri_dir', default=mri_dir_default,
                         help='Directory containing mri data directories.\n'
                              'Default: {}'.format(mri_dir_default))
 
-    rename_table_file_default = '/data1/bil/mri_subjects/subbrick_corrections.txt'
+    rename_table_file_default = None
     parser.add_argument('--rename_table_file', default=rename_table_file_default,
                         help='Filepath to table with subbrick number, new subbrick name columns.\n'
                              'Default: {}'.format(rename_table_file_default))
 
-    proc_runs_default = ['scale', 'results']
+    proc_runs_default = ['*.fastloc']
     parser.add_argument('--proc_runs', default=proc_runs_default, nargs='*',
                         help='Processing runs to change subbrick names for.\n'
                              'Default: {}'.format(proc_runs_default))
 
-    subjects_patterns_default = ['ny*', 'hu_*']
+    subjects_patterns_default = ['ny*']
     parser.add_argument('--subjects_patterns', nargs='*', default=subjects_patterns_default,
-                        help='List of subject name patterns to change subbrick names for.\n'
+                        help='Subject name patterns to change subbrick names for.\n'
                              'Default: {}'.format(subjects_patterns_default))
 
     filename_patterns_default = ['*stats*REML+*.HEAD']
     parser.add_argument('--filename_patterns', nargs='*', default=filename_patterns_default,
-                        help='List of filename patterns to change subbrick names in.\n'
+                        help='Filename patterns to change subbrick names in.\n'
                              'Default: {}'.format(filename_patterns_default))
 
     #script action params
@@ -63,8 +63,8 @@ def genArgParser():
 def _debug(*cmd_args):
     sys.argv = [sys.argv[0]] + list(cmd_args)
 
-_debug_cmd = '--mri_dir /data1/bil/mri_subjects ' \
-             '--rename_table_file /data1/bil/mri_subjects/subbrick_corrections.txt'
+_debug_cmd = '--rename_table_file /data3/a202/group_analysis/subbrick_corrections_BC.txt ' \
+             '--subjects_patterns 1???_t?'
 
 
 def __main__():
@@ -77,13 +77,17 @@ def __main__():
     args.mri_dir = os.path.normpath(args.mri_dir)
     args.rename_table_file = os.path.normpath(args.rename_table_file)
 
-    new_sb_names = file_utils.readTable2(args.rename_table_file)
+    # args.proc_runs = args.proc_runs.split(',')
+    # args.subjects_patterns = args.subjects_patterns.split(',')
+    # args.filename_patterns = args.filename_patterns.split(',')
+
+    new_sb_names = file_utils.readTable2(args.rename_table_file, delim=' ')
     pairs = new_sb_names[1:]
 
-    scan_dir_names = file_utils.get_dirs_from_patterns(args.mri_dir, *args.subjects_patterns)
+    scan_dir_names = file_utils.get_dirs_from_patterns(args.mri_dir, False, *args.subjects_patterns)
     scans = []
     for d in scan_dir_names:
-        scan = mri_data.Scan(scan_id=d, data_dir=os.path.join(args.mri_dir, d))
+        scan = mri_data.Scan2(scan_id=d, root_dir=os.path.join(args.mri_dir, d))
         for run in args.proc_runs:
             try:
                 scan.add_proc_run(run)
@@ -93,7 +97,7 @@ def __main__():
 
     for scan in scans:
         for pr in scan.proc_runs.values():
-            files = file_utils.get_files_from_patterns(pr.run_dir, True, *args.filename_patterns)
+            files = file_utils.get_files_from_patterns(pr.root_dir, True, *args.filename_patterns)
             for f in files:
                 for p in pairs:
                     mri_utils.rename_subbrick(f, p[0], p[1])  # todo: test this
