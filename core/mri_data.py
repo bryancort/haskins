@@ -27,7 +27,7 @@ class AfniData(object):
             fpath = pathni.head_from_brik(fpath)
             self.ftype = ".HEAD"
         self.fpath = os.path.abspath(fpath)
-        self.space = pathni.get_space(self)
+        self.space = pathni.get_space(self.fpath)
 
     # fixme: unfinished
     def copy(self, dest_path):
@@ -201,14 +201,14 @@ class ProcRun2(AfniDataDir):
     def __repr__(self):  # fixme: need a real __repr__ here
         return 'Proc Run {} of {} located at {}'.format(self.proc_pat, self.scan, self.root_dir)
 
-
+# todo: in progress
 class Scan2(KeyedMixin, ComparableMixin, AfniDataDir):
-    def __init__(self, scan_id, root_dir, proc_runs=()):
+    def __init__(self, scan_id, root_dir, proc_run_patterns=()):
         AfniDataDir.__init__(self, root_dir=os.path.normpath(root_dir))
         self.scan_id = scan_id
         # self.root_dir = os.path.normpath(root_dir)
         self.proc_runs = {}
-        for run in proc_runs:
+        for run in proc_run_patterns:
             if run:
                 self.add_proc_run(run)
 

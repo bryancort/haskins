@@ -14,8 +14,8 @@ import os
 class PathniError(Exception):
     pass
 
-afni_data_types = ".HEAD", ".BRIK", ".nii", ".nii.gz"
-afni_spaces = "+orig", "+tlrc"
+afni_data_types = (".HEAD", ".BRIK", ".nii", ".nii.gz")
+afni_spaces = ("+orig", "+tlrc")
 
 
 def get_type(path, types=afni_data_types):
@@ -94,6 +94,11 @@ def remove_pair(headfile):
 
 def get_tail(path):
     return "+" + os.path.basename(path).rsplit("+")[1]
+
+
+# todo
+def afni_3dcopy(headfile):
+    pass
 
 
 # def path_from_prefix(prefix, top_dir=None):

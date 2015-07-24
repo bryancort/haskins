@@ -54,10 +54,10 @@ def genArgParser():
     parser.add_argument('--search_space', default=search_space_default,
                         help='Mask defining the search space. Default: {}'.format(search_space_default))
 
-    proc_run_default = ".fastloc"
-    parser.add_argument('--proc_run', default=proc_run_default,
+    proc_run_pattern_default = ".fastloc"
+    parser.add_argument('--proc_run_pattern', default=proc_run_pattern_default,
                         help='Tag uniquely identifying the proc run to search for the activation map. '
-                             'Default: {}'.format(proc_run_default))
+                             'Default: {}'.format(proc_run_pattern_default))
 
     func_pattern_default = None
     parser.add_argument('--func_pattern', default=func_pattern_default, required=True,
@@ -157,23 +157,41 @@ def genArgParser():
 def _debug(*cmd_args):
     sys.argv = [sys.argv[0]] + list(cmd_args)
 
+# +orig stats file debugging
+# _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
+#              '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa/VWFA+tlrc.HEAD ' \
+#              '--func_pattern stats.*REML+*.HEAD* ' \
+#              '--anat_tlrc_pattern *ns+tlrc.HEAD ' \
+#              '--contrast_subbrick 14 ' \
+#              '--copy_anat_pattern Sag*ns+orig* ' \
+#              '--roi_size 50 ' \
+#              '--clip 0.2 ' \
+#              '--output_dir rois/VWFA_full_tlrc_test ' \
+#              '--warped_ss_prefix vwfa_ss+orig ' \
+#              '--output_roi_prefix VWFA2_50 ' \
+#              '--make_ss_snapshots ' \
+#              '--create_masked_func ' \
+#              '--save_peak_prefix peak_vox ' \
+#              '--keep_working_files ' \
+#              'tb6813'
 
+# +tlrc stats file debugging
 _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
              '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa/VWFA+tlrc.HEAD ' \
+             '--proc_run_pattern .' \
              '--func_pattern stats.*REML+*.HEAD* ' \
-             '--anat_tlrc_pattern *ns+tlrc.HEAD ' \
              '--contrast_subbrick 14 ' \
-             '--copy_anat_pattern Sag*ns+orig* ' \
+             '--copy_anat_pattern anat_final*+tlrc* ' \
              '--roi_size 50 ' \
              '--clip 0.2 ' \
              '--output_dir rois/VWFA_full_tlrc_test ' \
-             '--warped_ss_prefix vwfa_ss+orig ' \
-             '--output_roi_prefix VWFA2_50 ' \
+             '--warped_ss_prefix vwfa_downsample ' \
+             '--output_roi_prefix VWFA_unrestricted_50 ' \
              '--make_ss_snapshots ' \
              '--create_masked_func ' \
              '--save_peak_prefix peak_vox ' \
              '--keep_working_files ' \
-             'tb6813'
+             'tb0027'
 
 
 def gen_snapshots(out_dir, anat_file, roi_file, out_prefix):
@@ -238,7 +256,7 @@ def warp_search_space(func, search_space, clip, mask_out, anat_tlrc=None):
                                                                     anat_tlrc=anat_tlrc,
                                                                     clip=clip, mask_out=mask_out)
     if not anat_tlrc:
-        fract_call = fract_call.replace('-warp  ', '')
+        fract_call = fract_call.replace(' -warp ', '')
 
     # todo: more intelligent matching for prefixes
     ss_warp_files = glob.glob("{}*".format(mask_out))
@@ -293,8 +311,8 @@ def __main__():
     if len(sys.argv) == 1:
         _debug(*_debug_cmd.split(' '))
     parser = genArgParser()
-    args = parser.parse_args()
 
+    args = parser.parse_args()
     check_paths = [args.mri_data_dir]
     if args.search_space:
         check_paths.append(args.search_space)
@@ -310,12 +328,13 @@ def __main__():
     subj_dirs = file_utils.get_dirs_from_patterns(args.mri_data_dir, True, *args.patterns)
     for subj_dir in sorted(subj_dirs):
         try:
-            subj_scan = mri_data.Scan(scan_id=os.path.split(subj_dir)[1], root_dir=subj_dir, proc_runs=(args.proc_run,))
+            subj_scan = mri_data.Scan2(scan_id=os.path.split(subj_dir)[1], root_dir=subj_dir,
+                                      proc_runs=(args.proc_run_pattern,))
         except:
             print "Failed to instantiate a scan object for {}; skipping {}".format(subj_dir, subj_dir)
             continue
         try:
-            proc_run = subj_scan.proc_runs[args.proc_run]
+            proc_run = subj_scan.proc_runs[args.proc_run_pattern]
 
             # some filepath and data set specification
             temp_mask_name = 'int_mask.nii.gz'
@@ -335,7 +354,8 @@ def __main__():
                 anat = proc_run.active_anat_file
 
             # check that we have the necessary files
-            if not proc_run.active_stats_file or (not proc_run.active_anat_file and args.anat_tlrc_pattern):
+            # if not proc_run.active_stats_file or (not proc_run.active_anat_file and args.anat_tlrc_pattern):
+            if not proc_run.active_stats_file or not anat:
                 print "{} is missing a required file; check the stats and anat in {}".format(subj_scan, proc_run)
                 continue
 
@@ -393,6 +413,7 @@ def __main__():
                 if args.copy_anat_pattern:
                     try:
                         # fixme: overwriting for convenience. This should never be an issue, but still bad practice.
+                        # fixme: use 3dcopy
                         anat_files = file_utils.copy_files2(proc_run.root_dir, subj_out_dir, True,
                                                             args.copy_anat_pattern)[0]
                         if args.make_ss_snapshots:
