@@ -28,7 +28,7 @@ def genArgParser():
                         help='Directory containing mri subjects.'
                              'Default: /data1/bil/mri_subjects')
 
-    parser.add_argument('--proc_tags', nargs='*', default=['results'],
+    parser.add_argument('--proc_pats', nargs='*', default=['*.results'],
                         help='One or more substrings uniquely identifying proc runs. '
                              'NOT unix-style wildcard expressions.'
                              'Looks for unique subdir matching *TAG*. Default: results')
@@ -44,8 +44,8 @@ def _debug(*cmd_args):
     sys.argv = [sys.argv[0]] + list(cmd_args)
 
 
-# _debug_cmd = '--mri_dir /data1/bil/mri_subjects --proc_tags results scale --patterns hu_* ny???'
-_debug_cmd = '--mri_dir /data1/bil/mri_subjects --proc_tags results scale --patterns hu_AG_228*'
+_debug_cmd = '--mri_dir /data1/bil/mri_subjects --proc_pats *.results *.scale --patterns hu_* ny???'
+# _debug_cmd = '--mri_dir /data1/bil/mri_subjects --proc_pats results scale --patterns hu_AG_228*'
 
 def __main__():
     scriptName = os.path.splitext(os.path.basename(__file__))[0]
@@ -60,15 +60,15 @@ def __main__():
     scans = []
     for d in subj_dirs:
         try:
-            scans.append(mri_data.Scan(os.path.split(d)[1], os.path.join(args.mri_dir, d)))
+            scans.append(mri_data.Scan2(os.path.split(d)[1], os.path.join(args.mri_dir, d)))
         except:
             print traceback.format_exc()
     for scan in scans:
-        for tag in args.proc_tags:
+        for pat in args.proc_pats:
             try:
-                scan.add_proc_run(proc_tag=tag, run_name=tag)
-                headfile = file_utils.match_single_file(path=scan.proc_runs[tag].run_dir, pattern='all_runs*.HEAD')
-                scan.proc_runs[tag].execute_cmd('3dTstat -cvarinv -prefix {}_SFNR {}'.format(scan.scan_id, headfile))
+                scan.add_proc_run(proc_pat=pat, run_name=pat)
+                headfile = file_utils.match_single_file(path=scan.proc_runs[pat].root_dir, pattern='all_runs*.HEAD')
+                scan.proc_runs[pat].execute_cmd('3dTstat -cvarinv -prefix {}_SFNR {}'.format(scan.scan_id, headfile))
             except:
                 print traceback.format_exc()
 if __name__ == '__main__':

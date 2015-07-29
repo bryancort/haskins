@@ -144,7 +144,7 @@ def genArgParser():
     # debugging and logging
     # report_default = False
     # parser.add_argument('-r', '--report', action='store_true', default=report_default,
-    #                     help='Pass this flag to generate a run report.'
+    # help='Pass this flag to generate a run report.'
     #                          'Default: {}'.format(report_default))
 
     # debug_default = False
@@ -159,7 +159,7 @@ def _debug(*cmd_args):
 
 # +orig stats file debugging
 # _debug_cmd = '--mri_data_dir /data1/A182/mri_subjects ' \
-#              '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa/VWFA+tlrc.HEAD ' \
+# '--search_space /data1/A182/mri_subjects/A182_ROI_Scripts/A182_BC_ROI_from_clust/vwfa/VWFA+tlrc.HEAD ' \
 #              '--func_pattern stats.*REML+*.HEAD* ' \
 #              '--anat_tlrc_pattern *ns+tlrc.HEAD ' \
 #              '--contrast_subbrick 14 ' \
@@ -276,7 +276,7 @@ def warp_search_space(func, search_space, clip, mask_out, anat_tlrc=None):
 
 def gen_func_roi(func, search_space, threshold, roi_size, output_path, remove_search_space=False, volthr=None):
     # volthr = volthr if volthr else roi_size
-    volthr = roi_size if volthr==None else volthr
+    volthr = roi_size if volthr == None else volthr
     # 3dROIMaker to generate our functionally defined ROI
     # Might need to cd into output_path[0] and use output_path[1] as the arg (after splitting output_path)
     roimaker_call = "3dROIMaker -inset {func} -thresh {threshold} -prefix {output_path} -volthr {volthr} " \
@@ -329,7 +329,7 @@ def __main__():
     for subj_dir in sorted(subj_dirs):
         try:
             subj_scan = mri_data.Scan2(scan_id=os.path.split(subj_dir)[1], root_dir=subj_dir,
-                                      proc_runs=(args.proc_run_pattern,))
+                                       proc_run_patterns=(args.proc_run_pattern,))
         except:
             print "Failed to instantiate a scan object for {}; skipping {}".format(subj_dir, subj_dir)
             continue

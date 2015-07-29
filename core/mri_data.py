@@ -212,10 +212,10 @@ class Scan2(KeyedMixin, ComparableMixin, AfniDataDir):
             if run:
                 self.add_proc_run(run)
 
-    def add_proc_run(self, proc_tag, run_name=None):
+    def add_proc_run(self, proc_pat, run_name=None):
         if not run_name:
-            run_name = proc_tag
-        self.proc_runs[run_name] = ProcRun2(self, proc_tag)
+            run_name = proc_pat
+        self.proc_runs[run_name] = ProcRun2(self, proc_pat)
 
     def __key__(self):
         return self.scan_id
